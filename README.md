@@ -2,7 +2,7 @@
 Snowplow event tracker for C++ __not__ using Boost. Add analytics to your C++ applications, servers and games
 
 ```bash
-g++ -std=c++11 src/*.cpp -o build/main && ./build/main
+g++ -std=c++11 src/*.cpp src/test/*.cpp -o build/test && ./build/test
 ```
 
 General layout:
