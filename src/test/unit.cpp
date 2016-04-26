@@ -16,8 +16,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include <string>
 
-#include "../src/payload.hpp"
-#include "../src/subject.hpp"
+#include "../payload.hpp"
+#include "../subject.hpp"
 
 TEST_CASE("subject") {
   Subject sub;
