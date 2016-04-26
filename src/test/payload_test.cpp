@@ -11,5 +11,10 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#define CATCH_CONFIG_MAIN
 #include "catch.hpp"
+#include "../payload.hpp"
+
+TEST_CASE("payload") {
+  Payload pl;
+  REQUIRE(pl.get().size() == 0);
+}
