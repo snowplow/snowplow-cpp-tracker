@@ -54,7 +54,7 @@ TEST_CASE("payload") {
     pl.add_json(j, true, "cx", "co");
     pl.add_json(j, false, "cx", "co");
     REQUIRE(pl.get().size() == 2);
-    REQUIRE(pl.get()["cx"] == "{\"happy\":true,\"pi\":3.141}");
+    REQUIRE(pl.get()["cx"] == "eyJoYXBweSI6dHJ1ZSwicGkiOjMuMTQxfQ==");
     REQUIRE(pl.get()["co"] == "{\"happy\":true,\"pi\":3.141}");
   }
 }

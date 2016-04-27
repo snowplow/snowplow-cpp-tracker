@@ -30,10 +30,10 @@ void Payload::add_payload(Payload p) {
   add_map(p.get());
 }
 
-// TODO: Add base64 encoding capability
 void Payload::add_json(json j, bool base64Encode, string encoded, string not_encoded) {
   if (base64Encode) {
-    add(encoded, j.dump());
+    string json_str = j.dump();
+    add(encoded, base64_encode((const unsigned char *) json_str.c_str(), json_str.length()));
   } else {
     add(not_encoded, j.dump());
   }
