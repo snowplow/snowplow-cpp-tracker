@@ -28,7 +28,7 @@ int HttpClient::http_get(string url) {
 		return GetLastError();
 	}
 
-	HINTERNET hConnect = InternetConnectW(hInternet, L"63f27ff3.ngrok.io", 80, NULL, NULL, INTERNET_SERVICE_HTTP, 0, NULL);
+	HINTERNET hConnect = InternetConnectW(hInternet, L"requestb.in", 80, NULL, NULL, INTERNET_SERVICE_HTTP, 0, NULL);
 
 	if (hConnect == NULL) {
 		InternetCloseHandle(hInternet);
@@ -36,7 +36,7 @@ int HttpClient::http_get(string url) {
 	}
 
 	const wchar_t* parrAcceptTypes[] = { L"text/*", NULL };
-	HINTERNET hRequest = HttpOpenRequestW(hConnect, L"GET", L"/i?e=pv", NULL, NULL, parrAcceptTypes, 0 | INTERNET_FLAG_RELOAD, 0);
+	HINTERNET hRequest = HttpOpenRequestW(hConnect, L"GET", L"http://requestb.in/1jeum2z1", NULL, NULL, parrAcceptTypes, 0 | INTERNET_FLAG_RELOAD, 0);
 
 	if (hRequest == NULL) {
 		InternetCloseHandle(hInternet);

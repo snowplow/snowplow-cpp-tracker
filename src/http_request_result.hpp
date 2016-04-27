@@ -11,11 +11,14 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "catch.hpp"
-#include "../http_client.hpp"
+#pragma once
 
-TEST_CASE("http_client") {
-	// need to come back to this
-	//REQUIRE(HttpClient::http_get("") == 200);
-	//REQUIRE(HttpClient::http_post("") == 200);
-}
+class HttpRequestResult {
+	int http_response_code;
+	int internal_error_code;
+	bool is_successful;
+public:
+	HttpRequestResult(int, int);
+	int get_http_response_code();
+	bool is_success();
+};

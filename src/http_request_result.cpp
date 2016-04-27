@@ -11,11 +11,33 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "catch.hpp"
-#include "../http_client.hpp"
+#include "http_request_result.hpp"
 
-TEST_CASE("http_client") {
-	// need to come back to this
-	//REQUIRE(HttpClient::http_get("") == 200);
-	//REQUIRE(HttpClient::http_post("") == 200);
+HttpRequestResult::HttpRequestResult(int error_code, int http_return_code) {
+	if (error_code != 0) {
+		this->http_response_code = -1;
+		this->internal_error_code = error_code;
+		this->is_successful = false;
+	}
+	else {
+		this->http_response_code = http_return_code;
+
+		if (http_response_code == 200) {
+			this->is_successful = true;
+		} else {
+			this->is_successful = false;		
+		}
+
+		this->internal_error_code = 0;
+	}
+}
+
+int HttpRequestResult::get_http_response_code()
+{
+	return this->http_response_code;
+}
+
+bool HttpRequestResult::is_success()
+{
+	return this->is_successful;
 }
