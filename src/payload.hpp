@@ -11,15 +11,15 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
+#ifndef PAYLOAD_H
+#define PAYLOAD_H
+
 #include <map>
 #include <string>
 #include "vendored/json.hpp"
 
 using json = nlohmann::json;
 using namespace std;
-
-#ifndef PAYLOAD_H
-#define PAYLOAD_H
 
 class Payload {
 private:

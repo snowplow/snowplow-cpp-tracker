@@ -11,14 +11,14 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
+#ifndef SUBJECT_H
+#define SUBJECT_H
+
 #include <map>
 #include <string>
 #include "payload.hpp"
 
 using namespace std;
-
-#ifndef SUBJECT_H
-#define SUBJECT_H
 
 class Subject {
 private:

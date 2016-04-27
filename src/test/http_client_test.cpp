@@ -15,7 +15,6 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../http_client.hpp"
 
 TEST_CASE("http_client") {
-
 	REQUIRE(HttpClient::http_get("") == 200);
 	REQUIRE(HttpClient::http_post("") == 200);
 }

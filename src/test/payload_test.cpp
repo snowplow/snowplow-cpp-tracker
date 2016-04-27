@@ -13,8 +13,48 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "catch.hpp"
 #include "../payload.hpp"
+#include "../vendored/json.hpp"
+#include <map>
+#include <string>
+
+using json = nlohmann::json;
 
 TEST_CASE("payload") {
   Payload pl;
   REQUIRE(pl.get().size() == 0);
+
+  SECTION("add should only push a kv pair if both key and value are not empty") {
+    pl.add("", "world");
+    REQUIRE(pl.get().size() == 0);
+    pl.add("hello", "");
+    REQUIRE(pl.get().size() == 0);
+    pl.add("hello", "world");
+    REQUIRE(pl.get().size() == 1);
+    REQUIRE(pl.get()["hello"] == "world");
+  }
+
+  SECTION("add_map should add all valid non-empty kv pairs") {
+    map<string, string> test_map = { { "hello", "world" }, { "e", "pv" } };
+    pl.add_map(test_map);
+    REQUIRE(pl.get().size() == 2);
+    REQUIRE(pl.get()["hello"] == "world");
+    REQUIRE(pl.get()["e"] == "pv");
+  }
+
+  SECTION("add_payload should add all the entries in one payload to this one") {
+    Payload pl2;
+    pl2.add("hello", "world");
+    pl.add_payload(pl2);
+    REQUIRE(pl.get().size() == 1);
+    REQUIRE(pl.get()["hello"] == "world");
+  }
+
+  SECTION("add_json should correctly store a JSON as a string") {
+    json j = "{ \"happy\": true, \"pi\": 3.141 }"_json;
+    pl.add_json(j, true, "cx", "co");
+    pl.add_json(j, false, "cx", "co");
+    REQUIRE(pl.get().size() == 2);
+    REQUIRE(pl.get()["cx"] == "{\"happy\":true,\"pi\":3.141}");
+    REQUIRE(pl.get()["co"] == "{\"happy\":true,\"pi\":3.141}");
+  }
 }

@@ -15,6 +15,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 using namespace std;
 
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+
 int HttpClient::http_post(string url) {
 	return 200; // all ok
 }
@@ -76,3 +78,15 @@ int HttpClient::http_get(string url) {
 
 	return statusCode;
 }
+
+#else
+
+int HttpClient::http_post(string url) {
+	return 200;
+}
+
+int HttpClient::http_get(string url) {
+	return 200;
+}
+
+#endif
