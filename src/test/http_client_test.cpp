@@ -12,9 +12,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 */
 
 #include "catch.hpp"
-#include "../http_client.cpp"
-
-#include <string>
+#include "../http_client.hpp"
 
 TEST_CASE("http_client") {
 
