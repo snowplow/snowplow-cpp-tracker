@@ -14,27 +14,35 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "subject.hpp"
 
 void Subject::set_user_id(string user_id) {
-  m_payload.add("uid", user_id);
+  this->m_payload.add("uid", user_id);
 }
 
 void Subject::set_screen_resolution(int width, int height) {
   string res = std::to_string(width) + "x" + std::to_string(height);
-  m_payload.add("res", res);
+  this->m_payload.add("res", res);
 }
 
 void Subject::set_viewport(int width, int height) {
   string vport = std::to_string(width) + "x" + std::to_string(height);
-  m_payload.add("vp", vport);
+  this->m_payload.add("vp", vport);
 }
 
 void Subject::set_color_depth(int depth) {
-  m_payload.add("cd", std::to_string(depth));
+  this->m_payload.add("cd", std::to_string(depth));
 }
 
 void Subject::set_timezone(string timezone) {
-  m_payload.add("tz", timezone);
+  this->m_payload.add("tz", timezone);
 }
 
 void Subject::set_language(string language) {
-  m_payload.add("lang", language);
+  this->m_payload.add("lang", language);
+}
+
+Payload Subject::get() {
+  return this->m_payload;
+}
+
+map<string, string> Subject::get_map() {
+  return this->get().get();
 }

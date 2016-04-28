@@ -50,9 +50,10 @@ TEST_CASE("payload") {
   }
 
   SECTION("add_json should correctly store a JSON as a string") {
-    json j = "{ \"happy\": true, \"pi\": 3.141 }"_json;
-    pl.add_json(j, true, "cx", "co");
-    pl.add_json(j, false, "cx", "co");
+    json j1 = "{ \"happy\": true, \"pi\": 3.141 }"_json;
+    json j2 = "{ \"happy\": true, \"pi\": 3.141 }"_json;
+    pl.add_json(j1, true, "cx", "co");
+    pl.add_json(j2, false, "cx", "co");
     REQUIRE(pl.get().size() == 2);
     REQUIRE(pl.get()["cx"] == "eyJoYXBweSI6dHJ1ZSwicGkiOjMuMTQxfQ==");
     REQUIRE(pl.get()["co"] == "{\"happy\":true,\"pi\":3.141}");

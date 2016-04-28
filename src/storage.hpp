@@ -11,19 +11,36 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#ifndef HTTP_REQUEST_RESULT_H
-#define HTTP_REQUEST_RESULT_H
+#ifndef STORAGE_H
+#define STORAGE_H
 
-class HttpRequestResult {
+#include <stdio.h>
+#include <sqlite3.h>
+#include <string>
+#include <iostream>
+#include <list>
+#include "utils.hpp"
+#include "payload.hpp"
+#include "event_row.hpp"
+
+using namespace std;
+using json = nlohmann::json;
+
+class Storage {
 private:
-	int http_response_code;
-	int internal_error_code;
-	bool is_successful;
+  string m_db_name;
+  sqlite3 *m_db;
+  sqlite3_stmt *m_add_stmt;
 
 public:
-	HttpRequestResult(int, int);
-	int get_http_response_code();
-	bool is_success();
+  Storage(string db_name);
+  ~Storage();
+  void insert_payload(Payload payload);
+  void select_all_event_rows(list<EventRow>* event_list);
+  void select_event_row_range(list<EventRow>* event_list, int range);
+  void delete_all_event_rows();
+  void delete_event_row_ids(list<int>* id_list);
+  string get_db_name();
 };
 
 #endif

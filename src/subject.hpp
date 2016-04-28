@@ -31,8 +31,8 @@ public:
   void set_color_depth(int depth);
   void set_timezone(string timezone);
   void set_language(string language);
-  Payload get() { return m_payload; }
-  map<string, string> get_map() { return m_payload.get(); }
+  Payload get();
+  map<string, string> get_map();
 };
 
 #endif

@@ -11,19 +11,23 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#ifndef HTTP_REQUEST_RESULT_H
-#define HTTP_REQUEST_RESULT_H
+#ifndef EVENT_ROW_H
+#define EVENT_ROW_H
 
-class HttpRequestResult {
+#include <string>
+#include "Payload.hpp"
+
+using namespace std;
+
+class EventRow {
 private:
-	int http_response_code;
-	int internal_error_code;
-	bool is_successful;
+  int m_id;
+  Payload m_event;
 
 public:
-	HttpRequestResult(int, int);
-	int get_http_response_code();
-	bool is_success();
+  EventRow(int id, Payload event);
+  int get_id();
+  Payload get_event();
 };
 
 #endif

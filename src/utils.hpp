@@ -11,19 +11,23 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#ifndef HTTP_REQUEST_RESULT_H
-#define HTTP_REQUEST_RESULT_H
+#ifndef UTILS_H
+#define UTILS_H
 
-class HttpRequestResult {
-private:
-	int http_response_code;
-	int internal_error_code;
-	bool is_successful;
+#include <list>
+#include <string>
+#include <sstream>
+#include <iostream>
+#include "payload.hpp"
+#include "vendored/json.hpp"
 
+using namespace std;
+
+class Utils {
 public:
-	HttpRequestResult(int, int);
-	int get_http_response_code();
-	bool is_success();
+  static string int_list_to_string(list<int>* int_list, string delimiter);
+  static string serialize_payload(Payload payload);
+  static Payload deserialize_json_str(string json_str);
 };
 
 #endif

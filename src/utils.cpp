@@ -11,30 +11,36 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "http_request_result.hpp"
+#include "utils.hpp"
 
-HttpRequestResult::HttpRequestResult(int error_code, int http_return_code) {
-	if (error_code != 0) {
-		this->http_response_code = -1;
-		this->internal_error_code = error_code;
-		this->is_successful = false;
-	} else {
-		this->http_response_code = http_return_code;
+string Utils::int_list_to_string(list<int>* int_list, string delimiter) {
+  stringstream s;
+  int i;
+  list<int>::iterator it;
 
-		if (http_response_code == 200) {
-			this->is_successful = true;
-		} else {
-			this->is_successful = false;
-		}
+  int length = int_list->size();
+  for (i = 0, it = int_list->begin(); it != int_list->end(); ++it, ++i) {
+    s << *it;
+    if (i < length - 1) {
+      s << delimiter;
+    }
+  }
 
-		this->internal_error_code = 0;
-	}
+  return s.str();
 }
 
-int HttpRequestResult::get_http_response_code() {
-	return this->http_response_code;
+string Utils::serialize_payload(Payload payload) {
+  json j_map(payload.get());
+  return j_map.dump();
 }
 
-bool HttpRequestResult::is_success() {
-	return this->is_successful;
+Payload Utils::deserialize_json_str(const string json_str) {
+  Payload p;
+  json j = json::parse(json_str);
+  
+  for (json::iterator it = j.begin(); it != j.end(); ++it) {
+    p.add(it.key(), it.value());
+  }
+
+  return p;
 }

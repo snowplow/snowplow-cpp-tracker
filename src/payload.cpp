@@ -13,28 +13,36 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "payload.hpp"
 
+Payload::~Payload() {
+  this->m_pairs.clear();
+}
+
 void Payload::add(string key, string value) {
   if (!key.empty() && !value.empty()) {
-    m_pairs[key] = value;
+    this->m_pairs[key] = value;
   }
 }
 
 void Payload::add_map(map<string, string> pairs) {
   map<string, string>::iterator it;
   for (it = pairs.begin(); it != pairs.end(); it++) {
-    add(it->first, it->second);
+    this->add(it->first, it->second);
   }
 }
 
 void Payload::add_payload(Payload p) {
-  add_map(p.get());
+  this->add_map(p.get());
 }
 
 void Payload::add_json(json j, bool base64Encode, string encoded, string not_encoded) {
   if (base64Encode) {
     string json_str = j.dump();
-    add(encoded, base64_encode((const unsigned char *) json_str.c_str(), json_str.length()));
+    this->add(encoded, base64_encode((const unsigned char *) json_str.c_str(), json_str.length()));
   } else {
-    add(not_encoded, j.dump());
+    this->add(not_encoded, j.dump());
   }
+}
+
+map<string, string> Payload::get() {
+  return this->m_pairs;
 }

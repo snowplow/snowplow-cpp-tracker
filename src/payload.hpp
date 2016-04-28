@@ -19,19 +19,20 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "vendored/json.hpp"
 #include "vendored/base64.hpp"
 
-using json = nlohmann::json;
 using namespace std;
+using json = nlohmann::json;
 
 class Payload {
 private:
   map<string, string> m_pairs;
 
 public:
+  ~Payload();
   void add(string key, string value);
   void add_map(map<string, string> pairs);
   void add_payload(Payload p);
   void add_json(json j, bool base64Encode, string encoded, string not_encoded);
-  map<string, string> get() { return m_pairs; }
+  map<string, string> get();
 };
 
 #endif

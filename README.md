@@ -1,8 +1,16 @@
 # snowplow-cpp-tracker
-Snowplow event tracker for C++ __not__ using Boost. Add analytics to your C++ applications, servers and games
+Snowplow event tracker for C++. Add analytics to your C++ applications, servers and games
 
 ```bash
-g++ -std=c++11 src/*.cpp src/test/*.cpp -o build/test && ./build/test
+## OSX
+g++ \
+  -std=c++11 \
+  -l sqlite3 \
+  src/vendored/*.cpp \
+  src/*.cpp \
+  src/test/*.cpp \
+  -o build/test && \
+  ./build/test
 ```
 
 General layout:
