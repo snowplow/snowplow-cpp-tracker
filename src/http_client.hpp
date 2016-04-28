@@ -16,11 +16,14 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include <map>
 #include <string>
+#include "http_request_result.hpp"
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 
 #include <windows.h>
 #include <WinInet.h>
+#include <tchar.h>
+#include <regex>
 
 #pragma comment (lib, "wininet.lib")
 
@@ -29,9 +32,22 @@ See the Apache License Version 2.0 for the specific language governing permissio
 using namespace std;
 
 class HttpClient {
+	static HttpRequestResult http_get(const string & host, const string & path, unsigned int port, bool use_https);
 public:
+	struct CrackedUrl {
+		string hostname;
+		string path;
+		bool is_https;
+		bool is_valid;
+		int error_code;
+		unsigned int port;
+	};
+
+	static const string TRACKER_AGENT;
+
+	static CrackedUrl crackUrl(const string&);	
 	static int http_post(string);
-	static int http_get(string);
+	static HttpRequestResult http_get(const string&);
 };
 
 #endif
