@@ -30,9 +30,8 @@ using namespace std;
 #pragma comment (lib, "wininet.lib")
 
 class HttpClient {
-private:
-  static HttpRequestResult http_get(const string & host, const string & path, unsigned int port, bool use_https);
-
+  enum RequestMethod { POST, GET };
+  static HttpRequestResult http_request(const RequestMethod, const string & host, const string & path, const string & post_data, bool use_default_port, unsigned int port, bool use_https);
 public:
   struct CrackedUrl {
     string hostname;
@@ -41,12 +40,13 @@ public:
     bool is_valid;
     int error_code;
     unsigned int port;
+    bool use_default_port;
   };
 
   static const string TRACKER_AGENT;
 
-  static CrackedUrl crackUrl(const string&);
-  static int http_post(string);
+  static CrackedUrl crack_url(const string&);
+  static HttpRequestResult http_post(const string&, const string&);
   static HttpRequestResult http_get(const string&);
 };
 

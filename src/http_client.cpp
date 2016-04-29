@@ -17,12 +17,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 const string HttpClient::TRACKER_AGENT = string("Snowplow C++ Tracker (Win32)");
 
-int HttpClient::http_post(string url) {
-  return 200;
-}
-
-HttpClient::CrackedUrl HttpClient::crackUrl(const string& url) {
-  HttpClient::CrackedUrl crackedUrl;
+HttpClient::CrackedUrl HttpClient::crack_url(const string& url) {
+  HttpClient::CrackedUrl cracked_url;
 
   string cleaned_url = url;
   if (regex_match(cleaned_url, regex("^https?://.+")) == false) {
@@ -36,114 +32,178 @@ HttpClient::CrackedUrl HttpClient::crackUrl(const string& url) {
   if (regex_search(cleaned_url, match, r_host)) {
     string protocol = match.str(1);
     string hostname_port = match.str(2);
-    crackedUrl.path = match.str(3);
+    cracked_url.path = match.str(3);
 
     smatch host_match;
     if (regex_search(hostname_port, host_match, r_hostname_port)) {
-      crackedUrl.hostname = host_match.str(1);
+      cracked_url.hostname = host_match.str(1);
       string port = host_match.str(2);
-      crackedUrl.port = atoi(port.c_str());
+      cracked_url.port = atoi(port.c_str());
+      cracked_url.use_default_port = false;
     }
     else {
-      crackedUrl.hostname = hostname_port; // it's just a hostname
-      crackedUrl.port = -1; // todo use option if available
+      cracked_url.hostname = hostname_port; // it's just a hostname
+      cracked_url.port = 0;
+      cracked_url.use_default_port = true;
     }
 
-    crackedUrl.is_https = protocol == "https";
-    crackedUrl.error_code = 0;
-    crackedUrl.is_valid = true;
+    cracked_url.is_https = protocol == "https";
+    cracked_url.error_code = 0;
+    cracked_url.is_valid = true;
   }
   else {
-    crackedUrl.error_code = -1;
-    crackedUrl.is_valid = false;
+    cracked_url.error_code = -1;
+    cracked_url.is_valid = false;
   }
 
-  return crackedUrl;
+  return cracked_url;
 }
 
-HttpRequestResult HttpClient::http_get(const string& url) {
-  HttpClient::CrackedUrl crackedUrl = HttpClient::crackUrl(url);
-  if (crackedUrl.is_valid) {
-    return HttpClient::http_get(crackedUrl.hostname, crackedUrl.path, crackedUrl.port, crackedUrl.is_https);
-  } else {
-    throw invalid_argument("Invalid URL '" + url + "'");
-  }
-}
+HttpRequestResult HttpClient::http_request(const RequestMethod method, const string & host, const string & path, const string & post_data, bool use_default_port, unsigned int port, bool use_https) {
+  HINTERNET h_internet = InternetOpen(TEXT(HttpClient::TRACKER_AGENT.c_str()),
+    INTERNET_OPEN_TYPE_DIRECT,
+    NULL,
+    NULL,
+    0);
 
-HttpRequestResult HttpClient::http_get(const string& host, const string& path, unsigned int port, bool use_https) {
-
-  HINTERNET hInternet = InternetOpen(TEXT(HttpClient::TRACKER_AGENT.c_str()), 
-                     INTERNET_OPEN_TYPE_DIRECT, 
-                     NULL,
-                     NULL,
-                     0);
-
-  if (hInternet == NULL) {
+  if (h_internet == NULL) {
     return HttpRequestResult(GetLastError(), 0);
   }
 
-  HINTERNET hConnect = InternetConnect(hInternet, 
-                    TEXT(host.c_str()),
-                    80,
-                    NULL,
-                    NULL,
-                    INTERNET_SERVICE_HTTP,
-                    0,
-                    NULL);
+  int use_port = port;
+  if (use_default_port) {
+    if (use_https) {
+      use_port = INTERNET_DEFAULT_HTTPS_PORT;
+    }
+    else {
+      use_port = INTERNET_DEFAULT_HTTP_PORT;
+    }
+  }
 
-  if (hConnect == NULL) {
-    InternetCloseHandle(hInternet);
+  HINTERNET h_connect = InternetConnect(h_internet,
+    TEXT(host.c_str()),
+    use_port,
+    NULL,
+    NULL,
+    INTERNET_SERVICE_HTTP,
+    0,
+    NULL);
+
+  if (h_connect == NULL) {
+    InternetCloseHandle(h_internet);
     return HttpRequestResult(GetLastError(), 0);
   }
 
-  HINTERNET hRequest = HttpOpenRequest(hConnect,
-                    TEXT("GET"),
-                    TEXT(path.c_str()),
-                    NULL,
-                    NULL,
-                    NULL,
-                    0 | INTERNET_FLAG_RELOAD,
-                    0);
+  DWORD flags = 0 | INTERNET_FLAG_RELOAD;
+  if (use_https) {
+    flags = flags | INTERNET_FLAG_SECURE;
+  }
 
-  if (hRequest == NULL) {
-    InternetCloseHandle(hInternet);
-    InternetCloseHandle(hConnect);
+  string request_method_string;
+  LPVOID post_buf;
+  int post_buf_len;
+  if (method == GET) {
+    request_method_string = "GET";
+    post_buf = NULL;
+    post_buf_len = 0;
+  }
+  else {
+    request_method_string = "POST";
+    post_buf = (LPVOID)TEXT(post_data.c_str());
+    post_buf_len = strlen(TEXT(post_data.c_str()));
+  }
+
+  HINTERNET h_request = HttpOpenRequest(h_connect,
+    TEXT(request_method_string.c_str()),
+    TEXT(path.c_str()),
+    NULL,
+    NULL,
+    NULL,
+    flags,
+    0);
+
+  if (h_request == NULL) {
+    InternetCloseHandle(h_internet);
+    InternetCloseHandle(h_connect);
     return HttpRequestResult(GetLastError(), 0);
   }
 
-  BOOL bRequestSent = HttpSendRequestW(hRequest, NULL, 0, NULL, 0);
+  BOOL is_sent = HttpSendRequest(h_request, NULL, 0, post_buf, post_buf_len);
 
-  if (!bRequestSent) {
+  if (!is_sent) {
     return HttpRequestResult(GetLastError(), 0);
   }
 
-  std::string strResponse;
-  const int nBuffSize = 1024;
-  char buff[nBuffSize];
+  string response;
+  const int buf_len = 1024;
+  char buff[buf_len];
 
-  BOOL bKeepReading = true;
-  DWORD dwBytesRead = -1;
+  BOOL is_more = true;
+  DWORD bytes_read = -1;
 
-  while (bKeepReading && dwBytesRead != 0) {
-    bKeepReading = InternetReadFile(hRequest, buff, nBuffSize, &dwBytesRead);
-    strResponse.append(buff, dwBytesRead);
+  while (is_more && bytes_read != 0) {
+    is_more = InternetReadFile(h_request, buff, buf_len, &bytes_read);
+    response.append(buff, bytes_read);
   }
 
   DWORD http_status_code = 0;
   DWORD length = sizeof(DWORD);
   HttpQueryInfo(
-    hRequest,
+    h_request,
     HTTP_QUERY_STATUS_CODE | HTTP_QUERY_FLAG_NUMBER,
     &http_status_code,
     &length,
     NULL
   );
 
-  InternetCloseHandle(hRequest);
-  InternetCloseHandle(hConnect);
-  InternetCloseHandle(hInternet);
+  InternetCloseHandle(h_request);
+  InternetCloseHandle(h_connect);
+  InternetCloseHandle(h_internet);
 
   return HttpRequestResult(0, http_status_code);
+}
+
+HttpRequestResult HttpClient::http_post(const string&url, const string& post_data) {
+  HttpClient::CrackedUrl cracked_url = HttpClient::crack_url(url);
+  if (cracked_url.is_valid) {
+    return HttpClient::http_request(
+      POST,
+      cracked_url.hostname,
+      cracked_url.path,
+      post_data,
+      cracked_url.use_default_port,
+      cracked_url.port,
+      cracked_url.is_https);
+  }
+  else {
+    throw invalid_argument("Invalid URL '" + url + "'");
+  }
+}
+
+HttpRequestResult HttpClient::http_get(const string& url) {
+  HttpClient::CrackedUrl cracked_url = HttpClient::crack_url(url);
+  if (cracked_url.is_valid) {
+    return HttpClient::http_request(GET,
+      cracked_url.hostname,
+      cracked_url.path,
+      "",
+      cracked_url.use_default_port,
+      cracked_url.port,
+      cracked_url.is_https);
+  }
+  else {
+    throw invalid_argument("Invalid URL '" + url + "'");
+  }
+}
+
+#else
+
+int HttpClient::http_post(string url) {
+  return 200;
+}
+
+int HttpClient::http_get(string url) {
+  return 200;
 }
 
 #endif
