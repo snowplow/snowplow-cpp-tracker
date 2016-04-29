@@ -42,11 +42,24 @@ TEST_CASE("storage") {
     }
     event_list->clear();
 
-    storage.select_event_row_range(event_list, 5);
-    REQUIRE(5 == event_list->size());
-    event_list->clear();
     storage.select_event_row_range(event_list, 100);
     REQUIRE(50 == event_list->size());
+    event_list->clear();
+    storage.select_event_row_range(event_list, 5);
+    REQUIRE(5 == event_list->size());
+    
+    // DELETE rows by id
+    list<int>* id_list = new list<int>;
+    for (list<EventRow>::iterator it = event_list->begin(); it != event_list->end(); ++it) {
+      id_list->push_back(it->get_id());
+    }
+    storage.delete_event_row_ids(id_list);
+    event_list->clear();
+    id_list->clear();
+    delete(id_list);
+
+    storage.select_event_row_range(event_list, 100);
+    REQUIRE(45 == event_list->size());
     event_list->clear();
 
     // DELETE all rows

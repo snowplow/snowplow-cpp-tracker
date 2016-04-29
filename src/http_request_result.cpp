@@ -14,27 +14,27 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "http_request_result.hpp"
 
 HttpRequestResult::HttpRequestResult(int error_code, int http_return_code) {
-	if (error_code != 0) {
-		this->http_response_code = -1;
-		this->internal_error_code = error_code;
-		this->is_successful = false;
-	} else {
-		this->http_response_code = http_return_code;
+  if (error_code != 0) {
+    this->http_response_code = -1;
+    this->internal_error_code = error_code;
+    this->is_successful = false;
+  } else {
+    this->http_response_code = http_return_code;
 
-		if (http_response_code == 200) {
-			this->is_successful = true;
-		} else {
-			this->is_successful = false;
-		}
+    if (http_response_code == 200) {
+      this->is_successful = true;
+    } else {
+      this->is_successful = false;
+    }
 
-		this->internal_error_code = 0;
-	}
+    this->internal_error_code = 0;
+  }
 }
 
 int HttpRequestResult::get_http_response_code() {
-	return this->http_response_code;
+  return this->http_response_code;
 }
 
 bool HttpRequestResult::is_success() {
-	return this->is_successful;
+  return this->is_successful;
 }

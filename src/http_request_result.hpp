@@ -16,14 +16,14 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 class HttpRequestResult {
 private:
-	int http_response_code;
-	int internal_error_code;
-	bool is_successful;
+  int http_response_code;
+  int internal_error_code;
+  bool is_successful;
 
 public:
-	HttpRequestResult(int, int);
-	int get_http_response_code();
-	bool is_success();
+  HttpRequestResult(int, int);
+  int get_http_response_code();
+  bool is_success();
 };
 
 #endif

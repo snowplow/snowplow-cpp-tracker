@@ -18,6 +18,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <string>
 #include "http_request_result.hpp"
 
+using namespace std;
+
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 
 #include <windows.h>
@@ -27,27 +29,27 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #pragma comment (lib, "wininet.lib")
 
-#endif
-
-using namespace std;
-
 class HttpClient {
-	static HttpRequestResult http_get(const string & host, const string & path, unsigned int port, bool use_https);
+private:
+  static HttpRequestResult http_get(const string & host, const string & path, unsigned int port, bool use_https);
+
 public:
-	struct CrackedUrl {
-		string hostname;
-		string path;
-		bool is_https;
-		bool is_valid;
-		int error_code;
-		unsigned int port;
-	};
+  struct CrackedUrl {
+    string hostname;
+    string path;
+    bool is_https;
+    bool is_valid;
+    int error_code;
+    unsigned int port;
+  };
 
-	static const string TRACKER_AGENT;
+  static const string TRACKER_AGENT;
 
-	static CrackedUrl crackUrl(const string&);	
-	static int http_post(string);
-	static HttpRequestResult http_get(const string&);
+  static CrackedUrl crackUrl(const string&);
+  static int http_post(string);
+  static HttpRequestResult http_get(const string&);
 };
+
+#endif
 
 #endif

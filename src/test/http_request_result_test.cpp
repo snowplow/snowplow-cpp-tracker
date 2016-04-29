@@ -15,19 +15,19 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../http_request_result.hpp"
 
 TEST_CASE("http_request_result") {
-	SECTION("is_success should be set only if the error code is zero and the response code is 200") {
-		HttpRequestResult httpRequestResult(0, 200);
-		REQUIRE(httpRequestResult.is_success() == true);
-		httpRequestResult = HttpRequestResult(0, 500);
-		REQUIRE(httpRequestResult.is_success() == false);
-		httpRequestResult = HttpRequestResult(-1, 200);
-		REQUIRE(httpRequestResult.is_success() == false);
-	}
+  SECTION("is_success should be set only if the error code is zero and the response code is 200") {
+    HttpRequestResult httpRequestResult(0, 200);
+    REQUIRE(httpRequestResult.is_success() == true);
+    httpRequestResult = HttpRequestResult(0, 500);
+    REQUIRE(httpRequestResult.is_success() == false);
+    httpRequestResult = HttpRequestResult(-1, 200);
+    REQUIRE(httpRequestResult.is_success() == false);
+  }
 
-	SECTION("the http return code should only be set if the error code is zero") {
-		HttpRequestResult httpRequestResult(123, 200);
-		REQUIRE(httpRequestResult.get_http_response_code() == -1);
-		httpRequestResult = HttpRequestResult(0, 999);
-		REQUIRE(httpRequestResult.get_http_response_code() == 999);
-	}
+  SECTION("the http return code should only be set if the error code is zero") {
+    HttpRequestResult httpRequestResult(123, 200);
+    REQUIRE(httpRequestResult.get_http_response_code() == -1);
+    httpRequestResult = HttpRequestResult(0, 999);
+    REQUIRE(httpRequestResult.get_http_response_code() == 999);
+  }
 }
