@@ -17,48 +17,6 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 const string HttpClient::TRACKER_AGENT = string("Snowplow C++ Tracker (Win32)");
 
-HttpClient::CrackedUrl HttpClient::crack_url(const string& url) {
-  HttpClient::CrackedUrl cracked_url;
-
-  string cleaned_url = url;
-  if (regex_match(cleaned_url, regex("^https?://.+")) == false) {
-    cleaned_url = string("http://") + url;
-  }
-
-  regex r_host("(https?)://([^\\s]+\\.[^\\s/]+)(/.*)?");
-  regex r_hostname_port("([^:]+):(\\d+)");
-  smatch match;
-
-  if (regex_search(cleaned_url, match, r_host)) {
-    string protocol = match.str(1);
-    string hostname_port = match.str(2);
-    cracked_url.path = match.str(3);
-
-    smatch host_match;
-    if (regex_search(hostname_port, host_match, r_hostname_port)) {
-      cracked_url.hostname = host_match.str(1);
-      string port = host_match.str(2);
-      cracked_url.port = stoi(port);
-      cracked_url.use_default_port = false;
-    }
-    else {
-      cracked_url.hostname = hostname_port; // it's just a hostname
-      cracked_url.port = 0;
-      cracked_url.use_default_port = true;
-    }
-
-    cracked_url.is_https = protocol == "https";
-    cracked_url.error_code = 0;
-    cracked_url.is_valid = true;
-  }
-  else {
-    cracked_url.error_code = -1;
-    cracked_url.is_valid = false;
-  }
-
-  return cracked_url;
-}
-
 HttpRequestResult HttpClient::http_request(const RequestMethod method, const string & host, const string & path, const string & post_data, bool use_default_port, unsigned int port, bool use_https) {
   HINTERNET h_internet = InternetOpen(TEXT(HttpClient::TRACKER_AGENT.c_str()),
                                       INTERNET_OPEN_TYPE_DIRECT,
@@ -163,7 +121,73 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, const str
   return HttpRequestResult(0, http_status_code);
 }
 
-HttpRequestResult HttpClient::http_post(const string&url, const string& post_data) {
+#elif defined(__APPLE__)
+
+HttpRequestResult HttpClient::http_request(const RequestMethod method, const string & host, const string & path, const string & post_data, bool use_default_port, unsigned int port, bool use_https) {
+  stringstream s;
+  if (use_https) {
+    s << "https://" << host;
+  } else {
+    s << "http://" << host;
+  }
+  if (!use_default_port) {
+    s << ":" << std::to_string(port);
+  }
+  s << path;
+  string url = s.str();
+
+  // Create request
+  CFStringRef cf_url_str = CFStringCreateWithBytes(kCFAllocatorDefault, (const unsigned char *) url.c_str(), url.length(), kCFStringEncodingUTF8, false);
+  CFURLRef cf_url = CFURLCreateWithString(kCFAllocatorDefault, cf_url_str, NULL);
+  CFHTTPMessageRef cf_http_req;
+
+  if (method == GET) {
+    cf_http_req = CFHTTPMessageCreateRequest(kCFAllocatorDefault, CFSTR("GET"), cf_url, kCFHTTPVersion1_1);
+  } else {
+    cf_http_req = CFHTTPMessageCreateRequest(kCFAllocatorDefault, CFSTR("POST"), cf_url, kCFHTTPVersion1_1);
+    CFHTTPMessageSetBody(cf_http_req, CFDataCreate(kCFAllocatorDefault, (const UInt8*) post_data.data(), post_data.size()));
+    CFHTTPMessageSetHeaderFieldValue(cf_http_req, CFSTR("Content-Type"), CFSTR("application/json; charset=utf-8"));
+  }
+  CFHTTPMessageSetHeaderFieldValue(cf_http_req, CFSTR("User-Agent"), CFSTR("Snowplow C++ Tracker (MacOSX)"));
+
+  CFReadStreamRef cf_read_stream = CFReadStreamCreateForHTTPRequest(kCFAllocatorDefault, cf_http_req);
+  CFMutableDataRef cf_data_resp = CFDataCreateMutable(kCFAllocatorDefault, 0);
+
+  // Send request
+  CFReadStreamOpen(cf_read_stream);
+  CFIndex num_bytes_read;
+  do {
+    const int buff_size = 1024;
+    UInt8 buff[buff_size];
+    num_bytes_read = CFReadStreamRead(cf_read_stream, buff, buff_size);
+ 
+    if (num_bytes_read > 0) {
+      CFDataAppendBytes(cf_data_resp, buff, num_bytes_read);
+    } else if (num_bytes_read < 0) {
+      CFStreamError error = CFReadStreamGetError(cf_read_stream);
+      cerr << error.error << endl;
+    }
+  } while (num_bytes_read > 0);
+
+  // Process result
+  CFHTTPMessageRef cf_http_resp = (CFHTTPMessageRef) CFReadStreamCopyProperty(cf_read_stream, kCFStreamPropertyHTTPResponseHeader);
+  int cf_status_code = CFHTTPMessageGetResponseStatusCode(cf_http_resp);
+  
+  // Release resources
+  CFReadStreamClose(cf_read_stream);
+  CFRelease(cf_url_str);
+  CFRelease(cf_url);
+  CFRelease(cf_http_req);
+  CFRelease(cf_read_stream);
+  CFRelease(cf_data_resp);
+  CFRelease(cf_http_resp);
+
+  return HttpRequestResult(0, cf_status_code);
+}
+
+#endif
+
+HttpRequestResult HttpClient::http_post(const string& url, const string& post_data) {
   HttpClient::CrackedUrl cracked_url = HttpClient::crack_url(url);
   if (cracked_url.is_valid) {
     return HttpClient::http_request(
@@ -183,7 +207,8 @@ HttpRequestResult HttpClient::http_post(const string&url, const string& post_dat
 HttpRequestResult HttpClient::http_get(const string& url) {
   HttpClient::CrackedUrl cracked_url = HttpClient::crack_url(url);
   if (cracked_url.is_valid) {
-    return HttpClient::http_request(GET,
+    return HttpClient::http_request(
+      GET,
       cracked_url.hostname,
       cracked_url.path,
       "",
@@ -196,14 +221,44 @@ HttpRequestResult HttpClient::http_get(const string& url) {
   }
 }
 
-#else
+HttpClient::CrackedUrl HttpClient::crack_url(const string& url) {
+  HttpClient::CrackedUrl cracked_url;
 
-int HttpClient::http_post(string url) {
-  return 200;
+  string cleaned_url = url;
+  if (regex_match(cleaned_url, regex("^https?://.+")) == false) {
+    cleaned_url = string("http://") + url;
+  }
+
+  regex r_host("(https?)://([^\\s]+\\.[^\\s/]+)(/.*)?");
+  regex r_hostname_port("([^:]+):(\\d+)");
+  smatch match;
+
+  if (regex_search(cleaned_url, match, r_host)) {
+    string protocol = match.str(1);
+    string hostname_port = match.str(2);
+    cracked_url.path = match.str(3);
+
+    smatch host_match;
+    if (regex_search(hostname_port, host_match, r_hostname_port)) {
+      cracked_url.hostname = host_match.str(1);
+      string port = host_match.str(2);
+      cracked_url.port = stoi(port);
+      cracked_url.use_default_port = false;
+    }
+    else {
+      cracked_url.hostname = hostname_port; // it's just a hostname
+      cracked_url.port = 0;
+      cracked_url.use_default_port = true;
+    }
+
+    cracked_url.is_https = protocol == "https";
+    cracked_url.error_code = 0;
+    cracked_url.is_valid = true;
+  }
+  else {
+    cracked_url.error_code = -1;
+    cracked_url.is_valid = false;
+  }
+
+  return cracked_url;
 }
-
-int HttpClient::http_get(string url) {
-  return 200;
-}
-
-#endif

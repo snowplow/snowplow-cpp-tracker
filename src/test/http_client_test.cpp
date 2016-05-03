@@ -17,10 +17,6 @@ See the Apache License Version 2.0 for the specific language governing permissio
 //#define HTTP_TEST_URL "http://requestb.in/1gqq0of1" // url to use for get/post integration tests, comment out to skip
 
 TEST_CASE("http_client") {
-  // need to come back to this
-  //REQUIRE(HttpClient::http_get("") == 200);
-  //REQUIRE(HttpClient::http_post("") == 200);
-
   SECTION("URL cracking works for the current build target") {
     HttpClient::CrackedUrl c = HttpClient::crack_url("http://google.com/search");
     REQUIRE(c.is_valid == true);
@@ -89,6 +85,7 @@ TEST_CASE("http_client") {
   }
 
 #ifdef HTTP_TEST_URL
+
   SECTION("get requests work") {
     HttpRequestResult r = HttpClient::http_get("http://requestb.in/1gqq0of1");
     REQUIRE(r.get_http_response_code() == 200);
@@ -106,5 +103,18 @@ TEST_CASE("http_client") {
     REQUIRE(r.get_http_response_code() == 200);
     REQUIRE(r.is_success() == true);
   }
+
 #endif
+
+  SECTION("GET request to valid endpoint must return 200 code") {
+    HttpRequestResult r = HttpClient::http_get("http://a3b57da8.ngrok.io/i?e=pv");
+    REQUIRE(r.get_http_response_code() == 200);
+    REQUIRE(r.is_success() == true);
+  }
+
+  SECTION("POST request to valid endpoint must return 200 code") {
+    HttpRequestResult r = HttpClient::http_post("http://a3b57da8.ngrok.io/com.snowplowanalytics.snowplow/tp2", "{\"schema\":\"iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-3\",\"data\":[{\"dtm\":\"1234567890123\"}]}");
+    REQUIRE(r.get_http_response_code() == 200);
+    REQUIRE(r.is_success() == true);
+  }
 }

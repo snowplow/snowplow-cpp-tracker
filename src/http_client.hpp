@@ -16,6 +16,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include <map>
 #include <string>
+#include <regex>
 #include "http_request_result.hpp"
 
 using namespace std;
@@ -25,13 +26,27 @@ using namespace std;
 #include <windows.h>
 #include <WinInet.h>
 #include <tchar.h>
-#include <regex>
 
 #pragma comment (lib, "wininet.lib")
 
+#elif defined(__APPLE__)
+
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <CoreFoundation/CoreFoundation.h>
+#include <CFNetwork/CFNetwork.h>
+#include <CFNetwork/CFHTTPStream.h>
+
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
+#endif
+
 class HttpClient {
+private:
   enum RequestMethod { POST, GET };
   static HttpRequestResult http_request(const RequestMethod, const string & host, const string & path, const string & post_data, bool use_default_port, unsigned int port, bool use_https);
+
 public:
   struct CrackedUrl {
     string hostname;
@@ -49,7 +64,5 @@ public:
   static HttpRequestResult http_post(const string&, const string&);
   static HttpRequestResult http_get(const string&);
 };
-
-#endif
 
 #endif

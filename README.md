@@ -6,6 +6,8 @@ Snowplow event tracker for C++. Add analytics to your C++ applications, servers 
 g++ \
   -std=c++11 \
   -l sqlite3 \
+  -framework CoreFoundation \
+  -framework CFNetwork \
   src/vendored/*.cpp \
   src/*.cpp \
   src/test/*.cpp \
