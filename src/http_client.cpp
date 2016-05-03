@@ -38,7 +38,7 @@ HttpClient::CrackedUrl HttpClient::crack_url(const string& url) {
     if (regex_search(hostname_port, host_match, r_hostname_port)) {
       cracked_url.hostname = host_match.str(1);
       string port = host_match.str(2);
-      cracked_url.port = atoi(port.c_str());
+      cracked_url.port = stoi(port);
       cracked_url.use_default_port = false;
     }
     else {
@@ -61,10 +61,10 @@ HttpClient::CrackedUrl HttpClient::crack_url(const string& url) {
 
 HttpRequestResult HttpClient::http_request(const RequestMethod method, const string & host, const string & path, const string & post_data, bool use_default_port, unsigned int port, bool use_https) {
   HINTERNET h_internet = InternetOpen(TEXT(HttpClient::TRACKER_AGENT.c_str()),
-    INTERNET_OPEN_TYPE_DIRECT,
-    NULL,
-    NULL,
-    0);
+                                      INTERNET_OPEN_TYPE_DIRECT,
+                                      NULL,
+                                      NULL,
+                                      0);
 
   if (h_internet == NULL) {
     return HttpRequestResult(GetLastError(), 0);
@@ -81,13 +81,13 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, const str
   }
 
   HINTERNET h_connect = InternetConnect(h_internet,
-    TEXT(host.c_str()),
-    use_port,
-    NULL,
-    NULL,
-    INTERNET_SERVICE_HTTP,
-    0,
-    NULL);
+                                        TEXT(host.c_str()),
+                                        use_port,
+                                        NULL,
+                                        NULL,
+                                        INTERNET_SERVICE_HTTP,
+                                        0,
+                                        NULL);
 
   if (h_connect == NULL) {
     InternetCloseHandle(h_internet);
@@ -114,13 +114,13 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, const str
   }
 
   HINTERNET h_request = HttpOpenRequest(h_connect,
-    TEXT(request_method_string.c_str()),
-    TEXT(path.c_str()),
-    NULL,
-    NULL,
-    NULL,
-    flags,
-    0);
+                                        TEXT(request_method_string.c_str()),
+                                        TEXT(path.c_str()),
+                                        NULL,
+                                        NULL,
+                                        NULL,
+                                        flags,
+                                        0);
 
   if (h_request == NULL) {
     InternetCloseHandle(h_internet);
