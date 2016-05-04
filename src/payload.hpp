@@ -28,10 +28,10 @@ private:
 
 public:
   ~Payload();
-  void add(string key, string value);
+  void add(const string & key, const string & value);
   void add_map(map<string, string> pairs);
   void add_payload(Payload p);
-  void add_json(json j, bool base64Encode, string encoded, string not_encoded);
+  void add_json(json j, bool base64Encode, const string & encoded, const string & not_encoded);
   map<string, string> get();
 };
 

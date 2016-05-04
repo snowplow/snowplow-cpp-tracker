@@ -25,9 +25,9 @@ using namespace std;
 
 class Utils {
 public:
-  static string int_list_to_string(list<int>* int_list, string delimiter);
+  static string int_list_to_string(list<int>* int_list, const string & delimiter);
   static string serialize_payload(Payload payload);
-  static Payload deserialize_json_str(string json_str);
+  static Payload deserialize_json_str(const string & json_str);
 };
 
 #endif

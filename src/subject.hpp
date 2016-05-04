@@ -25,12 +25,12 @@ private:
   Payload m_payload;
 
 public:
-  void set_user_id(string user_id);
+  void set_user_id(const string & user_id);
   void set_screen_resolution(int width, int height);
   void set_viewport(int width, int height);
   void set_color_depth(int depth);
-  void set_timezone(string timezone);
-  void set_language(string language);
+  void set_timezone(const string & timezone);
+  void set_language(const string & language);
   Payload get();
   map<string, string> get_map();
 };

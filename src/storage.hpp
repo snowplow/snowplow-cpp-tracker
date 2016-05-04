@@ -21,7 +21,6 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <list>
 #include "utils.hpp"
 #include "payload.hpp"
-#include "event_row.hpp"
 
 using namespace std;
 using json = nlohmann::json;
@@ -33,6 +32,11 @@ private:
   sqlite3_stmt *m_add_stmt;
 
 public:
+  struct EventRow {
+    int m_id;
+    Payload m_event;
+  };
+
   Storage(string db_name);
   ~Storage();
   void insert_payload(Payload payload);

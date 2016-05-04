@@ -13,7 +13,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "utils.hpp"
 
-string Utils::int_list_to_string(list<int>* int_list, string delimiter) {
+string Utils::int_list_to_string(list<int>* int_list, const string & delimiter) {
   stringstream s;
   int i;
   list<int>::iterator it;
@@ -34,7 +34,7 @@ string Utils::serialize_payload(Payload payload) {
   return j_map.dump();
 }
 
-Payload Utils::deserialize_json_str(const string json_str) {
+Payload Utils::deserialize_json_str(const string & json_str) {
   Payload p;
   json j = json::parse(json_str);
   

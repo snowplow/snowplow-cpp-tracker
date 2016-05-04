@@ -13,7 +13,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "subject.hpp"
 
-void Subject::set_user_id(string user_id) {
+void Subject::set_user_id(const string & user_id) {
   this->m_payload.add("uid", user_id);
 }
 
@@ -31,11 +31,11 @@ void Subject::set_color_depth(int depth) {
   this->m_payload.add("cd", std::to_string(depth));
 }
 
-void Subject::set_timezone(string timezone) {
+void Subject::set_timezone(const string & timezone) {
   this->m_payload.add("tz", timezone);
 }
 
-void Subject::set_language(string language) {
+void Subject::set_language(const string & language) {
   this->m_payload.add("lang", language);
 }
 
