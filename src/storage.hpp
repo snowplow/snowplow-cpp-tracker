@@ -15,7 +15,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #define STORAGE_H
 
 #include <stdio.h>
-#include <sqlite3.h>
+#include "vendored/sqlite3.h"
 #include <string>
 #include <iostream>
 #include <list>
