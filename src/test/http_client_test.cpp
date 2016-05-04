@@ -104,8 +104,6 @@ TEST_CASE("http_client") {
     REQUIRE(r.is_success() == true);
   }
 
-#endif
-
   SECTION("GET request to valid endpoint must return 200 code") {
     HttpRequestResult r = HttpClient::http_get("http://a3b57da8.ngrok.io/i?e=pv");
     REQUIRE(r.get_http_response_code() == 200);
@@ -117,4 +115,7 @@ TEST_CASE("http_client") {
     REQUIRE(r.get_http_response_code() == 200);
     REQUIRE(r.is_success() == true);
   }
+
+#endif
+  
 }
