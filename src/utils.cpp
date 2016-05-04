@@ -29,6 +29,47 @@ string Utils::int_list_to_string(list<int>* int_list, const string & delimiter) 
   return s.str();
 }
 
+string Utils::map_to_query_string(map<string, string> m) {
+  stringstream s;
+  int i;
+  map<string, string>::iterator it;
+
+  int length = m.size();
+  for (i = 0, it = m.begin(); it != m.end(); ++it, ++i) {
+    s << Utils::url_encode(it->first) << "=" << Utils::url_encode(it->second);
+    if (i < length - 1) {
+      s << "&";
+    }
+  }
+
+  return s.str();
+}
+
+string Utils::url_encode(string value) {
+    ostringstream escaped;
+    string::iterator i;
+
+    escaped.fill('0');
+    escaped << hex;
+
+    for (i = value.begin(); i != value.end(); ++i) {
+        char c = (*i);
+
+        // Keep alphanumeric and other accepted characters intact
+        if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
+            escaped << c;
+            continue;
+        }
+
+        // Any other characters are percent-encoded
+        escaped << uppercase;
+        escaped << '%' << setw(2) << int((unsigned char) c);
+        escaped << nouppercase;
+    }
+
+    return escaped.str();
+}
+
 string Utils::serialize_payload(Payload payload) {
   json j_map(payload.get());
   return j_map.dump();

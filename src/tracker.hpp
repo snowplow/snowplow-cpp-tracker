@@ -11,17 +11,22 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#pragma once
+#ifndef TRACKER_H
+#define TRACKER_H
 
 #include <string>
 #include "emitter.hpp"
 using namespace std;
 
 class Tracker {
+private:
   Emitter m_emitter;
+
 public:
   Tracker(const string & url, const Emitter & e);
   ~Tracker();
   void flush();
   void close();
 };
+
+#endif

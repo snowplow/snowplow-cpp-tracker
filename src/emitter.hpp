@@ -11,9 +11,15 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#pragma once
+#ifndef EMITTER_H
+#define EMITTER_H
 
 #include <string>
+#include <sstream>
+#include "storage.hpp"
+#include "payload.hpp"
+#include "http_client.hpp"
+#include "http_request_result.hpp"
 
 using namespace std;
 
@@ -23,13 +29,32 @@ public:
     SYNC,
     ASYNC
   };
+
   enum Method {
     POST,
     GET
   };
-  Emitter(Strategy, Method);
-  void send(const string & url, const string & postdata);
+
+  enum Protocol {
+    HTTP,
+    HTTPS
+  };
+
+  Emitter(const string & uri, Strategy strategy, Method method, Protocol protocol, int send_limit, const string & db_name);
+  void add(Payload payload);
+
 private:
+  string m_uri;
+  string m_url;
   Strategy m_strategy;
   Method m_method;
+  Protocol m_protocol;
+  int m_send_limit;
+  Storage m_db;
+
+  string get_collector_url();
+  void start();
+  void do_send(list<Storage::EventRow>* event_rows, list<HttpRequestResult>* results);
 };
+
+#endif

@@ -37,7 +37,7 @@ public:
     Payload event;
   };
 
-  Storage(string db_name);
+  Storage(const string & db_name);
   ~Storage();
   void insert_payload(Payload payload);
   void select_all_event_rows(list<EventRow>* event_list);

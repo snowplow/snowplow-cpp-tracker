@@ -11,28 +11,9 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#ifndef UTILS_H
-#define UTILS_H
+#include "catch.hpp"
+#include "../emitter.hpp"
 
-#include <list>
-#include <string>
-#include <sstream>
-#include <iostream>
-#include <map>
-#include <cctype>
-#include <iomanip>
-#include "payload.hpp"
-#include "vendored/json.hpp"
-
-using namespace std;
-
-class Utils {
-public:
-  static string int_list_to_string(list<int>* int_list, const string & delimiter);
-  static string map_to_query_string(map<string, string> m);
-  static string url_encode(string value);
-  static string serialize_payload(Payload payload);
-  static Payload deserialize_json_str(const string & json_str);
-};
-
-#endif
+TEST_CASE("emitter") {
+  Emitter emitter("com.acme", Emitter::Strategy::ASYNC, Emitter::Method::POST, Emitter::Protocol::HTTP, 500, "test.db");
+}

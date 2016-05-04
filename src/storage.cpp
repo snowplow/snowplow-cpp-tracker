@@ -17,7 +17,7 @@ const string db_table_name = "events";
 const string db_column_id = "id";
 const string db_column_event = "event";
 
-Storage::Storage(string db_name) {
+Storage::Storage(const string & db_name) {
   sqlite3 *db;
   char *err_msg = 0;
   int rc;

@@ -198,8 +198,7 @@ HttpRequestResult HttpClient::http_post(const string& url, const string& post_da
       cracked_url.use_default_port,
       cracked_url.port,
       cracked_url.is_https);
-  }
-  else {
+  } else {
     throw invalid_argument("Invalid URL '" + url + "'");
   }
 }
@@ -215,8 +214,7 @@ HttpRequestResult HttpClient::http_get(const string& url) {
       cracked_url.use_default_port,
       cracked_url.port,
       cracked_url.is_https);
-  }
-  else {
+  } else {
     throw invalid_argument("Invalid URL '" + url + "'");
   }
 }

@@ -29,6 +29,10 @@ TEST_CASE("utils") {
     delete(int_list);
   }
 
+  SECTION("url_encode should correctly encode a string for sending as part of a url") {
+    REQUIRE("e%20pv" == Utils::url_encode("e pv"));
+  }
+
   SECTION("serialize_payload will successfully convert a Payload into a JSON string") {
     Payload p;
     p.add("e", "pv");
