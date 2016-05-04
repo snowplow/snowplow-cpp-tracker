@@ -33,8 +33,8 @@ private:
 
 public:
   struct EventRow {
-    int m_id;
-    Payload m_event;
+    int id;
+    Payload event;
   };
 
   Storage(string db_name);

@@ -102,7 +102,7 @@ void Storage::insert_payload(Payload payload) {
 
 static int select_callback(void *data, int argc, char **argv, char **az_col_name) {
    int i, id;
-   list<EventRow>* data_list = (list<EventRow>*)data;
+   list<Storage::EventRow>* data_list = (list<Storage::EventRow>*)data;
    Payload event;
 
    for (i = 0; i < argc; i++) {
@@ -113,12 +113,14 @@ static int select_callback(void *data, int argc, char **argv, char **az_col_name
       }
    }
 
-   EventRow event_row(id, event);
+   Storage::EventRow event_row;
+   event_row.id = id;
+   event_row.event = event;
    data_list->push_back(event_row);
    return 0;
 }
 
-void Storage::select_all_event_rows(list<EventRow>* event_list) {
+void Storage::select_all_event_rows(list<Storage::EventRow>* event_list) {
   int rc;
   char *err_msg = 0;
 
@@ -132,7 +134,7 @@ void Storage::select_all_event_rows(list<EventRow>* event_list) {
   }
 }
 
-void Storage::select_event_row_range(list<EventRow>* event_list, int range) {
+void Storage::select_event_row_range(list<Storage::EventRow>* event_list, int range) {
   int rc;
   char *err_msg = 0;
 

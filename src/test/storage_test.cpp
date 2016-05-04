@@ -31,14 +31,14 @@ TEST_CASE("storage") {
     }
 
     // SELECT one row
-    list<EventRow>* event_list = new list<EventRow>;
+    list<Storage::EventRow>* event_list = new list<Storage::EventRow>;
     storage.select_all_event_rows(event_list);
     REQUIRE(50 == event_list->size());
 
-    for (list<EventRow>::iterator it = event_list->begin(); it != event_list->end(); ++it) {
-      REQUIRE("pv" == it->get_event().get()["e"]);
-      REQUIRE("srv" == it->get_event().get()["p"]);
-      REQUIRE("cpp-0.1.0" == it->get_event().get()["tv"]);
+    for (list<Storage::EventRow>::iterator it = event_list->begin(); it != event_list->end(); ++it) {
+      REQUIRE("pv" == it->event.get()["e"]);
+      REQUIRE("srv" == it->event.get()["p"]);
+      REQUIRE("cpp-0.1.0" == it->event.get()["tv"]);
     }
     event_list->clear();
 
@@ -50,8 +50,8 @@ TEST_CASE("storage") {
     
     // DELETE rows by id
     list<int>* id_list = new list<int>;
-    for (list<EventRow>::iterator it = event_list->begin(); it != event_list->end(); ++it) {
-      id_list->push_back(it->get_id());
+    for (list<Storage::EventRow>::iterator it = event_list->begin(); it != event_list->end(); ++it) {
+      id_list->push_back(it->id);
     }
     storage.delete_event_row_ids(id_list);
     event_list->clear();
