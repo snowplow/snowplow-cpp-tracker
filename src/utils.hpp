@@ -21,6 +21,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <map>
 #include <cctype>
 #include <iomanip>
+#include <chrono>
 #include "payload.hpp"
 #include "vendored/json.hpp"
 
@@ -33,6 +34,7 @@ public:
   static string url_encode(string value);
   static string serialize_payload(Payload payload);
   static Payload deserialize_json_str(const string & json_str);
+  static unsigned long get_unix_epoch_ms();
 };
 
 #endif

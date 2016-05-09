@@ -46,28 +46,24 @@ string Utils::map_to_query_string(map<string, string> m) {
 }
 
 string Utils::url_encode(string value) {
-    ostringstream escaped;
-    string::iterator i;
+  ostringstream escaped;
+  string::iterator i;
 
-    escaped.fill('0');
-    escaped << hex;
+  escaped.fill('0');
+  escaped << hex;
 
-    for (i = value.begin(); i != value.end(); ++i) {
-        char c = (*i);
-
-        // Keep alphanumeric and other accepted characters intact
-        if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
-            escaped << c;
-            continue;
-        }
-
-        // Any other characters are percent-encoded
-        escaped << uppercase;
-        escaped << '%' << setw(2) << int((unsigned char) c);
-        escaped << nouppercase;
+  for (i = value.begin(); i != value.end(); ++i) {
+    char c = (*i);
+    if (isalnum(c) || c == '-' || c == '_' || c == '.') {
+      escaped << c;
+      continue;
     }
+    escaped << uppercase;
+    escaped << '%' << uppercase << setw(2) << int((unsigned char) c);
+    escaped << nouppercase;
+  }
 
-    return escaped.str();
+  return escaped.str();
 }
 
 string Utils::serialize_payload(Payload payload) {
@@ -84,4 +80,8 @@ Payload Utils::deserialize_json_str(const string & json_str) {
   }
 
   return p;
+}
+
+unsigned long Utils::get_unix_epoch_ms() {
+  return chrono::duration_cast<chrono::milliseconds> (chrono::system_clock::now().time_since_epoch()).count();
 }
