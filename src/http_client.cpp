@@ -17,39 +17,44 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 const string HttpClient::TRACKER_AGENT = string("Snowplow C++ Tracker (Win32)");
 
-HttpRequestResult HttpClient::http_request(const RequestMethod method, const string & host, const string & path, const string & post_data, bool use_default_port, unsigned int port, bool use_https) {
-  HINTERNET h_internet = InternetOpen(TEXT(HttpClient::TRACKER_AGENT.c_str()),
-                                      INTERNET_OPEN_TYPE_DIRECT,
-                                      NULL,
-                                      NULL,
-                                      0);
+HttpRequestResult HttpClient::http_request(const RequestMethod method, const string & host, const string & path, 
+  const string & post_data, bool use_default_port, unsigned int port, bool use_https, list<int> row_ids, bool oversize) {
+  
+  HINTERNET h_internet = InternetOpen(
+    TEXT(HttpClient::TRACKER_AGENT.c_str()),
+    INTERNET_OPEN_TYPE_DIRECT,
+    NULL,
+    NULL,
+    0
+  );
 
   if (h_internet == NULL) {
-    return HttpRequestResult(GetLastError(), 0);
+    return HttpRequestResult(GetLastError(), 0, row_ids, oversize);
   }
 
   int use_port = port;
   if (use_default_port) {
     if (use_https) {
       use_port = INTERNET_DEFAULT_HTTPS_PORT;
-    }
-    else {
+    } else {
       use_port = INTERNET_DEFAULT_HTTP_PORT;
     }
   }
 
-  HINTERNET h_connect = InternetConnect(h_internet,
-                                        TEXT(host.c_str()),
-                                        use_port,
-                                        NULL,
-                                        NULL,
-                                        INTERNET_SERVICE_HTTP,
-                                        0,
-                                        NULL);
+  HINTERNET h_connect = InternetConnect(
+    h_internet,
+    TEXT(host.c_str()),
+    use_port,
+    NULL,
+    NULL,
+    INTERNET_SERVICE_HTTP,
+    0,
+    NULL
+  );
 
   if (h_connect == NULL) {
     InternetCloseHandle(h_internet);
-    return HttpRequestResult(GetLastError(), 0);
+    return HttpRequestResult(GetLastError(), 0, row_ids, oversize);
   }
 
   DWORD flags = 0 | INTERNET_FLAG_RELOAD;
@@ -71,25 +76,27 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, const str
     post_buf_len = strlen(TEXT(post_data.c_str()));
   }
 
-  HINTERNET h_request = HttpOpenRequest(h_connect,
-                                        TEXT(request_method_string.c_str()),
-                                        TEXT(path.c_str()),
-                                        NULL,
-                                        NULL,
-                                        NULL,
-                                        flags,
-                                        0);
+  HINTERNET h_request = HttpOpenRequest(
+    h_connect,
+    TEXT(request_method_string.c_str()),
+    TEXT(path.c_str()),
+    NULL,
+    NULL,
+    NULL,
+    flags,
+    0
+  );
 
   if (h_request == NULL) {
     InternetCloseHandle(h_internet);
     InternetCloseHandle(h_connect);
-    return HttpRequestResult(GetLastError(), 0);
+    return HttpRequestResult(GetLastError(), 0, row_ids, oversize);
   }
 
   BOOL is_sent = HttpSendRequest(h_request, NULL, 0, post_buf, post_buf_len);
 
   if (!is_sent) {
-    return HttpRequestResult(GetLastError(), 0);
+    return HttpRequestResult(GetLastError(), 0, row_ids, oversize);
   }
 
   string response;
@@ -118,12 +125,14 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, const str
   InternetCloseHandle(h_connect);
   InternetCloseHandle(h_internet);
 
-  return HttpRequestResult(0, http_status_code);
+  return HttpRequestResult(0, http_status_code, row_ids, oversize);
 }
 
 #elif defined(__APPLE__)
 
-HttpRequestResult HttpClient::http_request(const RequestMethod method, const string & host, const string & path, const string & post_data, bool use_default_port, unsigned int port, bool use_https) {
+HttpRequestResult HttpClient::http_request(const RequestMethod method, const string & host, const string & path, 
+  const string & post_data, bool use_default_port, unsigned int port, bool use_https, list<int> row_ids, bool oversize) {
+
   stringstream s;
   if (use_https) {
     s << "https://" << host;
@@ -182,12 +191,12 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, const str
   CFRelease(cf_data_resp);
   CFRelease(cf_http_resp);
 
-  return HttpRequestResult(0, cf_status_code);
+  return HttpRequestResult(0, cf_status_code, row_ids, oversize);
 }
 
 #endif
 
-HttpRequestResult HttpClient::http_post(const string& url, const string& post_data) {
+HttpRequestResult HttpClient::http_post(const string & url, const string & post_data, list<int> row_ids, bool oversize) {
   HttpClient::CrackedUrl cracked_url = HttpClient::crack_url(url);
   if (cracked_url.is_valid) {
     return HttpClient::http_request(
@@ -197,13 +206,15 @@ HttpRequestResult HttpClient::http_post(const string& url, const string& post_da
       post_data,
       cracked_url.use_default_port,
       cracked_url.port,
-      cracked_url.is_https);
+      cracked_url.is_https,
+      row_ids,
+      oversize);
   } else {
     throw invalid_argument("Invalid URL '" + url + "'");
   }
 }
 
-HttpRequestResult HttpClient::http_get(const string& url) {
+HttpRequestResult HttpClient::http_get(const string & url, list<int> row_ids, bool oversize) {
   HttpClient::CrackedUrl cracked_url = HttpClient::crack_url(url);
   if (cracked_url.is_valid) {
     return HttpClient::http_request(
@@ -213,13 +224,15 @@ HttpRequestResult HttpClient::http_get(const string& url) {
       "",
       cracked_url.use_default_port,
       cracked_url.port,
-      cracked_url.is_https);
+      cracked_url.is_https,
+      row_ids,
+      oversize);
   } else {
     throw invalid_argument("Invalid URL '" + url + "'");
   }
 }
 
-HttpClient::CrackedUrl HttpClient::crack_url(const string& url) {
+HttpClient::CrackedUrl HttpClient::crack_url(const string & url) {
   HttpClient::CrackedUrl cracked_url;
 
   string cleaned_url = url;

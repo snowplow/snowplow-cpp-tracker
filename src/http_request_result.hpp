@@ -14,15 +14,21 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #ifndef HTTP_REQUEST_RESULT_H
 #define HTTP_REQUEST_RESULT_H
 
+#include <list>
+
+using namespace std;
+
 class HttpRequestResult {
 private:
-  int http_response_code;
-  int internal_error_code;
-  bool is_successful;
+  int m_http_response_code;
+  int m_internal_error_code;
+  list<int> m_row_ids;
+  bool m_is_successful;
 
 public:
-  HttpRequestResult(int, int);
+  HttpRequestResult(int internal_error_code, int http_response_code, list<int> row_ids, bool oversize);
   int get_http_response_code();
+  list<int> get_row_ids();
   bool is_success();
 };
 

@@ -61,11 +61,11 @@ TEST_CASE("http_client") {
     REQUIRE(c.is_https == false);
   }
 
-  SECTION("Invalid url triggers exception for get") {
+  SECTION("Invalid url triggers exception for GET request") {
     // TBC - until I can think of something better to return (a message, or defined error codes)
     bool arg_exception_occurred = false;
     try {
-      HttpClient::http_get("not a valid url");
+      HttpClient::http_get("not a valid url", list<int>(), false);
     }
     catch (invalid_argument x) {
       arg_exception_occurred = true;
@@ -73,10 +73,10 @@ TEST_CASE("http_client") {
     REQUIRE(arg_exception_occurred == true);
   }
 
-  SECTION("Invalid url triggers exception for post") {
+  SECTION("Invalid url triggers exception for POST request") {
     bool arg_exception_occurred = false;
     try {
-      HttpClient::http_post("not a valid url", "");
+      HttpClient::http_post("not a valid url", "", list<int>(), false);
     }
     catch (invalid_argument x) {
       arg_exception_occurred = true;
@@ -87,31 +87,31 @@ TEST_CASE("http_client") {
 #ifdef HTTP_TEST_URL
 
   SECTION("get requests work") {
-    HttpRequestResult r = HttpClient::http_get("http://requestb.in/1gqq0of1");
+    HttpRequestResult r = HttpClient::http_get("http://requestb.in/1gqq0of1", list<int>(), false);
     REQUIRE(r.get_http_response_code() == 200);
     REQUIRE(r.is_success() == true);
   }
 
   SECTION("https get requests work") {
-    HttpRequestResult r = HttpClient::http_get("https://google.com");
+    HttpRequestResult r = HttpClient::http_get("https://google.com", list<int>(), false);
     REQUIRE(r.get_http_response_code() == 200);
     REQUIRE(r.is_success() == true);
   }
 
   SECTION("post requests work") {
-    HttpRequestResult r = HttpClient::http_post("http://requestb.in/1gqq0of1", "{\"hello\":\"world\"}");
+    HttpRequestResult r = HttpClient::http_post("http://requestb.in/1gqq0of1", "{\"hello\":\"world\"}", list<int>(), false);
     REQUIRE(r.get_http_response_code() == 200);
     REQUIRE(r.is_success() == true);
   }
 
   SECTION("GET request to valid endpoint must return 200 code") {
-    HttpRequestResult r = HttpClient::http_get("http://a3b57da8.ngrok.io/i?e=pv");
+    HttpRequestResult r = HttpClient::http_get("http://a3b57da8.ngrok.io/i?e=pv", list<int>(), false);
     REQUIRE(r.get_http_response_code() == 200);
     REQUIRE(r.is_success() == true);
   }
 
   SECTION("POST request to valid endpoint must return 200 code") {
-    HttpRequestResult r = HttpClient::http_post("http://a3b57da8.ngrok.io/com.snowplowanalytics.snowplow/tp2", "{\"schema\":\"iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-3\",\"data\":[{\"dtm\":\"1234567890123\"}]}");
+    HttpRequestResult r = HttpClient::http_post("http://a3b57da8.ngrok.io/com.snowplowanalytics.snowplow/tp2", "{\"schema\":\"iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-3\",\"data\":[{\"dtm\":\"1234567890123\"}]}", list<int>(), false);
     REQUIRE(r.get_http_response_code() == 200);
     REQUIRE(r.is_success() == true);
   }

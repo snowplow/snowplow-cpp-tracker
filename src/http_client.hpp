@@ -45,7 +45,8 @@ using namespace std;
 class HttpClient {
 private:
   enum RequestMethod { POST, GET };
-  static HttpRequestResult http_request(const RequestMethod, const string & host, const string & path, const string & post_data, bool use_default_port, unsigned int port, bool use_https);
+  static HttpRequestResult http_request(const RequestMethod method, const string & host, const string & path, 
+    const string & post_data, bool use_default_port, unsigned int port, bool use_https, list<int> row_ids, bool oversize);
 
 public:
   struct CrackedUrl {
@@ -60,9 +61,10 @@ public:
 
   static const string TRACKER_AGENT;
 
-  static CrackedUrl crack_url(const string&);
-  static HttpRequestResult http_post(const string&, const string&);
-  static HttpRequestResult http_get(const string&);
+  static CrackedUrl crack_url(const string & url);
+  
+  static HttpRequestResult http_post(const string & url, const string & post_data, list<int> row_ids, bool oversize);
+  static HttpRequestResult http_get(const string & url, list<int> row_ids, bool oversize);
 };
 
 #endif

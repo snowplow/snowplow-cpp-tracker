@@ -13,28 +13,32 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "http_request_result.hpp"
 
-HttpRequestResult::HttpRequestResult(int error_code, int http_return_code) {
-  if (error_code != 0) {
-    this->http_response_code = -1;
-    this->internal_error_code = error_code;
-    this->is_successful = false;
+HttpRequestResult::HttpRequestResult(int internal_error_code, int http_response_code, list<int> row_ids, bool oversize) {
+  if (oversize) {
+    this->m_internal_error_code = 0;
+    this->m_http_response_code = 200;
+    this->m_is_successful = true;
+  } else if (internal_error_code != 0) {
+    this->m_internal_error_code = internal_error_code;
+    this->m_http_response_code = -1;
+    this->m_is_successful = false;
   } else {
-    this->http_response_code = http_return_code;
-
-    if (http_response_code == 200) {
-      this->is_successful = true;
-    } else {
-      this->is_successful = false;
-    }
-
-    this->internal_error_code = 0;
+    this->m_internal_error_code = 0;
+    this->m_http_response_code = http_response_code;
+    this->m_is_successful = this->m_http_response_code == 200;
   }
+
+  this->m_row_ids = row_ids;
 }
 
 int HttpRequestResult::get_http_response_code() {
-  return this->http_response_code;
+  return this->m_http_response_code;
+}
+
+list<int> HttpRequestResult::get_row_ids() {
+  return this->m_row_ids;
 }
 
 bool HttpRequestResult::is_success() {
-  return this->is_successful;
+  return this->m_is_successful;
 }

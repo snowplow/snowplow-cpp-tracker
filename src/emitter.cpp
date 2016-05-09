@@ -70,14 +70,28 @@ void Emitter::run() {
       list<int>* success_ids = new list<int>;
 
       for (list<HttpRequestResult>::iterator it = results->begin(); it != results->end(); ++it) {
-        
+        list<int> res_row_ids = it->get_row_ids();
+        if (it->is_success()) {
+          success_ids->splice(success_ids->end(), res_row_ids);
+        } else {
+          failure_count += res_row_ids.size();
+        } 
       }
+      success_count = success_ids->size();
+      this->m_db.delete_event_row_ids(success_ids);
+
+      // TODO: Add callback function
+      cout << "Success: " << success_count << endl;
+      cout << "Failure: " << failure_count << endl;
 
       // Return memory
       event_rows->clear();
       results->clear();
+      success_ids->clear();
+
       delete(event_rows);
       delete(results);
+      delete(success_ids);
     } else {
       delete(event_rows);
     }
@@ -108,8 +122,7 @@ void Emitter::stop() {
     running_lock.unlock();
     flush();
     this->m_daemon_thread.join();
-  }
-  else {
+  } else {
     running_lock.unlock();
   }
 }
@@ -119,7 +132,7 @@ void Emitter::flush() {
 }
 
 void Emitter::do_send(list<Storage::EventRow>* event_rows, list<HttpRequestResult>* results) {
-  list<std::future<HttpRequestResult>>* request_futures = new list<std::future<HttpRequestResult>>;
+  list<std::future<HttpRequestResult>> request_futures;
 
   // Send each request in its own thread
   if (this->m_method == GET) {
@@ -128,17 +141,19 @@ void Emitter::do_send(list<Storage::EventRow>* event_rows, list<HttpRequestResul
       event_map["stm"] = std::to_string(Utils::get_unix_epoch_ms());
 
       string final_url = this->m_url + "?" + Utils::map_to_query_string(event_map);
+      list<int> row_ids(it->id);
 
-      std::packaged_task<HttpRequestResult(string)> task([](string final_url) { return HttpClient::http_get(final_url); });
-      request_futures->push_back(task.get_future());
-      std::thread(std::move(task), final_url).detach();
+      std::packaged_task<HttpRequestResult(string, list<int>)> task([](string final_url, list<int> row_ids) {
+        return HttpClient::http_get(final_url, row_ids, false);
+      });
+      request_futures.push_back(task.get_future());
+      std::thread(std::move(task), final_url, row_ids).detach();
     }
   }
 
   // Grab all the request results and return
-  for (list<std::future<HttpRequestResult>>::iterator it = request_futures->begin(); it != request_futures->end(); ++it) {
+  for (list<std::future<HttpRequestResult>>::iterator it = request_futures.begin(); it != request_futures.end(); ++it) {
     results->push_back(it->get());
   }
-  request_futures->clear();
-  delete(request_futures);
+  request_futures.clear();
 }

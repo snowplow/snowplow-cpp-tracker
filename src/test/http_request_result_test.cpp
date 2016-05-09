@@ -16,18 +16,24 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 TEST_CASE("http_request_result") {
   SECTION("is_success should be set only if the error code is zero and the response code is 200") {
-    HttpRequestResult httpRequestResult(0, 200);
+    HttpRequestResult httpRequestResult(0, 200, list<int>(), false);
     REQUIRE(httpRequestResult.is_success() == true);
-    httpRequestResult = HttpRequestResult(0, 500);
+    httpRequestResult = HttpRequestResult(0, 500, list<int>(), false);
     REQUIRE(httpRequestResult.is_success() == false);
-    httpRequestResult = HttpRequestResult(-1, 200);
+    httpRequestResult = HttpRequestResult(-1, 200, list<int>(), false);
     REQUIRE(httpRequestResult.is_success() == false);
   }
 
   SECTION("the http return code should only be set if the error code is zero") {
-    HttpRequestResult httpRequestResult(123, 200);
+    HttpRequestResult httpRequestResult(123, 200, list<int>(), false);
     REQUIRE(httpRequestResult.get_http_response_code() == -1);
-    httpRequestResult = HttpRequestResult(0, 999);
+    httpRequestResult = HttpRequestResult(0, 999, list<int>(), false);
     REQUIRE(httpRequestResult.get_http_response_code() == 999);
+  }
+
+  SECTION("the http_response_code and error_code should be 200 and 0 when oversized") {
+    HttpRequestResult httpRequestResult(123, 404, list<int>(), true);
+    REQUIRE(httpRequestResult.get_http_response_code() == 200);
+    REQUIRE(httpRequestResult.is_success() == true);
   }
 }
