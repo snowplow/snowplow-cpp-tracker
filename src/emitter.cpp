@@ -43,27 +43,71 @@ string Emitter::get_collector_url() {
 // --- Processors
 
 void Emitter::add(Payload payload) {
+  unique_lock<mutex> locker(this->m_db_access);
   this->m_db.insert_payload(payload);
+  locker.unlock();
+  this->m_check_db.notify_all();
+}
+
+void Emitter::run() {
+   do {
+    unique_lock<mutex> locker(this->m_db_access);
+    this->m_check_db.wait(locker);
+
+    list<Storage::EventRow>* event_rows = new list<Storage::EventRow>;
+    this->m_db.select_event_row_range(event_rows, this->m_send_limit);
+
+    locker.unlock();
+
+    // Exit if no events are found
+    if (event_rows->size() != 0) {
+      list<HttpRequestResult>* results = new list<HttpRequestResult>;
+      this->do_send(event_rows, results);
+
+      // Return memory
+      event_rows->clear();
+      results->clear();
+      delete(event_rows);
+      delete(results);
+    }
+    else {
+      delete(event_rows);
+    }
+  } while (is_running());
 }
 
 void Emitter::start() {
-  list<Storage::EventRow>* event_rows = new list<Storage::EventRow>;
-  this->m_db.select_event_row_range(event_rows, this->m_send_limit);
-
-  // Exit if no events are found
-  if (event_rows->size() == 0) {
-    delete(event_rows);
+  unique_lock<mutex> set_running(this->m_run_check);
+  if (this->m_running) {
+    set_running.unlock(); // refuse to start more than once
     return;
   }
+  this->m_running = true;
+  this->m_daemon_thread = thread(&Emitter::run, this);
+  set_running.unlock();
+}
 
-  list<HttpRequestResult>* results = new list<HttpRequestResult>;
-  this->do_send(event_rows, results);
+bool Emitter::is_running() {
+  lock_guard<mutex> guard(this->m_run_check);
+  return this->m_running;
+}
 
-  // Return memory
-  event_rows->clear();
-  results->clear();
-  delete(event_rows);
-  delete(results);
+void Emitter::stop() {
+  unique_lock<mutex> running_lock(this->m_run_check);
+
+  if (this->m_running == true) {
+    this->m_running = false;
+    running_lock.unlock();
+    flush();
+    this->m_daemon_thread.join();
+  }
+  else {
+    running_lock.unlock();
+  }
+}
+
+void Emitter::flush() {
+  this->m_check_db.notify_all();
 }
 
 void Emitter::do_send(list<Storage::EventRow>* event_rows, list<HttpRequestResult>* results) {
