@@ -50,7 +50,7 @@ void Emitter::add(Payload payload) {
 }
 
 void Emitter::run() {
-   do {
+  do {
     unique_lock<mutex> locker(this->m_db_access);
     this->m_check_db.wait(locker);
 
@@ -59,18 +59,26 @@ void Emitter::run() {
 
     locker.unlock();
 
-    // Exit if no events are found
+    // Wait if no events are found
     if (event_rows->size() != 0) {
       list<HttpRequestResult>* results = new list<HttpRequestResult>;
       this->do_send(event_rows, results);
+
+      // Process results
+      int success_count = 0;
+      int failure_count = 0;
+      list<int>* success_ids = new list<int>;
+
+      for (list<HttpRequestResult>::iterator it = results->begin(); it != results->end(); ++it) {
+        
+      }
 
       // Return memory
       event_rows->clear();
       results->clear();
       delete(event_rows);
       delete(results);
-    }
-    else {
+    } else {
       delete(event_rows);
     }
   } while (is_running());
@@ -119,10 +127,10 @@ void Emitter::do_send(list<Storage::EventRow>* event_rows, list<HttpRequestResul
       map<string, string> event_map = it->event.get();
       event_map["stm"] = std::to_string(Utils::get_unix_epoch_ms());
 
-      string final_url = m_url + "?" + Utils::map_to_query_string(event_map);
+      string final_url = this->m_url + "?" + Utils::map_to_query_string(event_map);
 
       std::packaged_task<HttpRequestResult(string)> task([](string final_url) { return HttpClient::http_get(final_url); });
-      std::future<HttpRequestResult> request_future = task.get_future();
+      request_futures->push_back(task.get_future());
       std::thread(std::move(task), final_url).detach();
     }
   }
