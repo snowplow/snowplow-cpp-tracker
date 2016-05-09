@@ -171,7 +171,7 @@ void Storage::delete_event_row_ids(list<int>* id_list) {
 
   string delete_range_query =
     "DELETE FROM " + db_table_name + " " +
-    "WHERE " + db_column_id + " in(" + Utils::int_list_to_string(id_list, ",") + ");";
+    "WHERE " + db_column_id + " in (" + Utils::int_list_to_string(id_list, ",") + ");";
 
   rc = sqlite3_exec(this->m_db, (const char *) delete_range_query.c_str(), NULL, NULL, &err_msg);
   if (rc != SQLITE_OK) {

@@ -31,44 +31,65 @@ Emitter::Emitter(const string & uri, Strategy strategy, Method method, Protocol 
   this->m_url = this->get_collector_url();
 }
 
-// --- Helpers
-
-string Emitter::get_collector_url() {
-  stringstream url;
-  url << (this->m_protocol == HTTP ? "http" : "https") << "://" << this->m_uri;
-  url << (this->m_method == GET ? "/i" : "/com.snowplowanalytics.snowplow/tp2");
-  return url.str();
+Emitter::~Emitter() {
+  this->stop();
 }
 
-// --- Processors
+// --- Controls
+
+void Emitter::start() {
+  unique_lock<mutex> locker(this->m_run_check);
+  if (this->m_running) {
+    locker.unlock(); // refuse to start more than once
+    return;
+  }
+  this->m_running = true;
+  this->m_daemon_thread = thread(&Emitter::run, this);
+  locker.unlock();
+}
+
+void Emitter::stop() {
+  unique_lock<mutex> locker(this->m_run_check);
+  if (this->m_running == true) {
+    this->m_running = false;
+    locker.unlock();
+
+    this->m_check_db.notify_all();
+    this->m_daemon_thread.join();
+  } else {
+    locker.unlock();
+  }
+}
 
 void Emitter::add(Payload payload) {
-  unique_lock<mutex> locker(this->m_db_access);
   this->m_db.insert_payload(payload);
-  locker.unlock();
   this->m_check_db.notify_all();
 }
 
+void Emitter::flush() {
+  this->m_check_db.notify_all();
+}
+
+// --- Private
+
 void Emitter::run() {
+  list<Storage::EventRow>* event_rows = new list<Storage::EventRow>;
+  list<HttpRequestResult>* results = new list<HttpRequestResult>;
+  list<int>* success_ids = new list<int>;
+
   do {
     unique_lock<mutex> locker(this->m_db_access);
     this->m_check_db.wait(locker);
-
-    list<Storage::EventRow>* event_rows = new list<Storage::EventRow>;
     this->m_db.select_event_row_range(event_rows, this->m_send_limit);
-
     locker.unlock();
 
-    // Wait if no events are found
-    if (event_rows->size() != 0) {
-      list<HttpRequestResult>* results = new list<HttpRequestResult>;
+    if (event_rows->size() > 0) {
       this->do_send(event_rows, results);
 
       // Process results
       int success_count = 0;
       int failure_count = 0;
-      list<int>* success_ids = new list<int>;
-
+      
       for (list<HttpRequestResult>::iterator it = results->begin(); it != results->end(); ++it) {
         list<int> res_row_ids = it->get_row_ids();
         if (it->is_success()) {
@@ -84,51 +105,16 @@ void Emitter::run() {
       cout << "Success: " << success_count << endl;
       cout << "Failure: " << failure_count << endl;
 
-      // Return memory
+      // Reset collections
       event_rows->clear();
       results->clear();
       success_ids->clear();
-
-      delete(event_rows);
-      delete(results);
-      delete(success_ids);
-    } else {
-      delete(event_rows);
     }
   } while (is_running());
-}
 
-void Emitter::start() {
-  unique_lock<mutex> set_running(this->m_run_check);
-  if (this->m_running) {
-    set_running.unlock(); // refuse to start more than once
-    return;
-  }
-  this->m_running = true;
-  this->m_daemon_thread = thread(&Emitter::run, this);
-  set_running.unlock();
-}
-
-bool Emitter::is_running() {
-  lock_guard<mutex> guard(this->m_run_check);
-  return this->m_running;
-}
-
-void Emitter::stop() {
-  unique_lock<mutex> running_lock(this->m_run_check);
-
-  if (this->m_running == true) {
-    this->m_running = false;
-    running_lock.unlock();
-    flush();
-    this->m_daemon_thread.join();
-  } else {
-    running_lock.unlock();
-  }
-}
-
-void Emitter::flush() {
-  this->m_check_db.notify_all();
+  delete(event_rows);
+  delete(results);
+  delete(success_ids);
 }
 
 void Emitter::do_send(list<Storage::EventRow>* event_rows, list<HttpRequestResult>* results) {
@@ -139,15 +125,11 @@ void Emitter::do_send(list<Storage::EventRow>* event_rows, list<HttpRequestResul
     for (list<Storage::EventRow>::iterator it = event_rows->begin(); it != event_rows->end(); ++it) {
       map<string, string> event_map = it->event.get();
       event_map["stm"] = std::to_string(Utils::get_unix_epoch_ms());
-
       string final_url = this->m_url + "?" + Utils::map_to_query_string(event_map);
-      list<int> row_ids(it->id);
+      list<int> row_ids = {it->id};
 
-      std::packaged_task<HttpRequestResult(string, list<int>)> task([](string final_url, list<int> row_ids) {
-        return HttpClient::http_get(final_url, row_ids, false);
-      });
-      request_futures.push_back(task.get_future());
-      std::thread(std::move(task), final_url, row_ids).detach();
+      // TODO: Add checking of byte size
+      request_futures.push_back(std::async(HttpClient::http_get, final_url, row_ids, false));
     }
   }
 
@@ -156,4 +138,18 @@ void Emitter::do_send(list<Storage::EventRow>* event_rows, list<HttpRequestResul
     results->push_back(it->get());
   }
   request_futures.clear();
+}
+
+// --- Helpers
+
+string Emitter::get_collector_url() {
+  stringstream url;
+  url << (this->m_protocol == HTTP ? "http" : "https") << "://" << this->m_uri;
+  url << (this->m_method == GET ? "/i" : "/com.snowplowanalytics.snowplow/tp2");
+  return url.str();
+}
+
+bool Emitter::is_running() {
+  lock_guard<mutex> guard(this->m_run_check);
+  return this->m_running;
 }
