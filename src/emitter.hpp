@@ -17,6 +17,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <string>
 #include <sstream>
 #include <condition_variable>
+#include <future>
+#include <thread>
 #include "storage.hpp"
 #include "payload.hpp"
 #include "http_client.hpp"

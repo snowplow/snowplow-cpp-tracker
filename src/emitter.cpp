@@ -111,10 +111,26 @@ void Emitter::flush() {
 }
 
 void Emitter::do_send(list<Storage::EventRow>* event_rows, list<HttpRequestResult>* results) {
+  list<std::future<HttpRequestResult>>* request_futures = new list<std::future<HttpRequestResult>>;
+
+  // Send each request in its own thread
   if (this->m_method == GET) {
     for (list<Storage::EventRow>::iterator it = event_rows->begin(); it != event_rows->end(); ++it) {
-      string final_url = m_url + "?" + Utils::map_to_query_string(it->event.get());
-      results->push_back(HttpClient::http_get(final_url));
+      map<string, string> event_map = it->event.get();
+      event_map["stm"] = std::to_string(Utils::get_unix_epoch_ms());
+
+      string final_url = m_url + "?" + Utils::map_to_query_string(event_map);
+
+      std::packaged_task<HttpRequestResult(string)> task([](string final_url) { return HttpClient::http_get(final_url); });
+      std::future<HttpRequestResult> request_future = task.get_future();
+      std::thread(std::move(task), final_url).detach();
     }
   }
+
+  // Grab all the request results and return
+  for (list<std::future<HttpRequestResult>>::iterator it = request_futures->begin(); it != request_futures->end(); ++it) {
+    results->push_back(it->get());
+  }
+  request_futures->clear();
+  delete(request_futures);
 }
