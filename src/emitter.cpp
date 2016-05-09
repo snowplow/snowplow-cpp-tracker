@@ -62,8 +62,10 @@ void Emitter::stop() {
 }
 
 void Emitter::add(Payload payload) {
+  unique_lock<mutex> locker(this->m_db_insert);
   this->m_db.insert_payload(payload);
   this->m_check_db.notify_all();
+  locker.unlock();
 }
 
 void Emitter::flush() {
@@ -78,7 +80,7 @@ void Emitter::run() {
   list<int>* success_ids = new list<int>;
 
   do {
-    unique_lock<mutex> locker(this->m_db_access);
+    unique_lock<mutex> locker(this->m_db_select);
     this->m_check_db.wait(locker);
     this->m_db.select_event_row_range(event_rows, this->m_send_limit);
     locker.unlock();

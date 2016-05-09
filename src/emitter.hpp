@@ -62,7 +62,8 @@ private:
 
   thread m_daemon_thread;
   condition_variable m_check_db;
-  mutex m_db_access;
+  mutex m_db_insert;
+  mutex m_db_select;
   mutex m_run_check; 
   bool m_running;
 
