@@ -19,8 +19,10 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <condition_variable>
 #include <future>
 #include <thread>
+#include "utils.hpp"
 #include "storage.hpp"
 #include "payload.hpp"
+#include "self_describing_json.hpp"
 #include "http_client.hpp"
 #include "http_request_result.hpp"
 
@@ -49,7 +51,6 @@ public:
   void stop();
   void add(Payload payload);
   void flush();
-  bool is_running();
 
 private:
   string m_uri;
@@ -58,6 +59,8 @@ private:
   Method m_method;
   Protocol m_protocol;
   int m_send_limit;
+  int m_byte_limit_get;
+  int m_byte_limit_post;
   Storage m_db;
 
   thread m_daemon_thread;
@@ -69,7 +72,9 @@ private:
 
   void run();
   void do_send(list<Storage::EventRow>* event_rows, list<HttpRequestResult>* results);
+  string build_post_data_json(list<Payload> payload_list);
   string get_collector_url();
+  bool is_running();
 };
 
 #endif

@@ -11,31 +11,20 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#ifndef UTILS_H
-#define UTILS_H
+#include "self_describing_json.hpp"
 
-#include <list>
-#include <string>
-#include <sstream>
-#include <iostream>
-#include <map>
-#include <cctype>
-#include <iomanip>
-#include <chrono>
-#include "payload.hpp"
-#include "vendored/json.hpp"
+SelfDescribingJson::SelfDescribingJson(const string & schema, json data) {
+  this->m_schema = schema;
+  this->m_data = data;
+}
 
-using namespace std;
-using json = nlohmann::json;
+json SelfDescribingJson::get() {
+  json j;
+  j["schema"] = this->m_schema;
+  j["data"] = this->m_data;
+  return j;
+}
 
-class Utils {
-public:
-  static string int_list_to_string(list<int>* int_list, const string & delimiter);
-  static string map_to_query_string(map<string, string> m);
-  static string url_encode(string value);
-  static string serialize_payload(Payload payload);
-  static Payload deserialize_json_str(const string & json_str);
-  static unsigned long get_unix_epoch_ms();
-};
-
-#endif
+string SelfDescribingJson::to_string() {
+  return this->get().dump();
+}

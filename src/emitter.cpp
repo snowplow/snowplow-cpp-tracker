@@ -28,6 +28,9 @@ Emitter::Emitter(const string & uri, Strategy strategy, Method method, Protocol 
   this->m_protocol = protocol;
   this->m_send_limit = send_limit;
 
+  this->m_byte_limit_post = 52000;
+  this->m_byte_limit_get = 52000;
+
   this->m_url = this->get_collector_url();
 }
 
@@ -125,13 +128,48 @@ void Emitter::do_send(list<Storage::EventRow>* event_rows, list<HttpRequestResul
   // Send each request in its own thread
   if (this->m_method == GET) {
     for (list<Storage::EventRow>::iterator it = event_rows->begin(); it != event_rows->end(); ++it) {
-      map<string, string> event_map = it->event.get();
-      event_map["stm"] = std::to_string(Utils::get_unix_epoch_ms());
-      string final_url = this->m_url + "?" + Utils::map_to_query_string(event_map);
-      list<int> row_ids = {it->id};
+      Payload event_payload = it->event;
+      event_payload.add("stm", std::to_string(Utils::get_unix_epoch_ms()));
+      string final_url = this->m_url + "?" + Utils::map_to_query_string(event_payload.get());
+      list<int> row_id = {it->id};
 
-      // TODO: Add checking of byte size
-      request_futures.push_back(std::async(HttpClient::http_get, final_url, row_ids, false));
+      request_futures.push_back(std::async(HttpClient::http_get, final_url, row_id, (final_url.size() > this->m_byte_limit_get)));
+    }
+  } else {
+    list<int> row_ids;
+    list<Payload> payloads;
+    int total_byte_size = 0;
+
+    for (list<Storage::EventRow>::iterator it = event_rows->begin(); it != event_rows->end(); ++it) {
+      int byte_size = Utils::serialize_payload(it->event).size() + post_stm_bytes;
+
+      if ((byte_size + post_wrapper_bytes) > this->m_byte_limit_post) {
+        // A single payload has exceeded the Byte Limit
+        list<int> single_row_id = {it->id};
+        list<Payload> single_payload = {it->event};
+        request_futures.push_back(std::async(HttpClient::http_post, this->m_url, this->build_post_data_json(single_payload), single_row_id, true));
+
+        single_row_id.clear();
+        single_payload.clear();
+      } else if ((total_byte_size + byte_size + post_wrapper_bytes + (payloads.size() -1)) > this->m_byte_limit_post) {
+        // Byte limit reached
+        request_futures.push_back(std::async(HttpClient::http_post, this->m_url, this->build_post_data_json(payloads), row_ids, false));
+
+        // Reset accumulators
+        row_ids.clear();
+        row_ids = {it->id};
+        payloads.clear();
+        payloads = {it->event};
+        total_byte_size = byte_size;
+      } else {
+        row_ids.push_back(it->id);
+        payloads.push_back(it->event);
+        total_byte_size += byte_size;
+      }
+    }
+
+    if (payloads.size() > 0) {
+      request_futures.push_back(std::async(HttpClient::http_post, this->m_url, this->build_post_data_json(payloads), row_ids, false));
     }
   }
 
@@ -143,6 +181,21 @@ void Emitter::do_send(list<Storage::EventRow>* event_rows, list<HttpRequestResul
 }
 
 // --- Helpers
+
+string Emitter::build_post_data_json(list<Payload> payload_list) {
+  json data_array = json::array();
+
+  // Add 'stm' to each payload
+  string stm = std::to_string(Utils::get_unix_epoch_ms());
+  for (list<Payload>::iterator it = payload_list.begin(); it != payload_list.end(); ++it) {
+    it->add("stm", stm);
+    data_array.push_back(it->get());
+  }
+
+  // Build Post event
+  SelfDescribingJson post_envelope("iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-4", data_array);
+  return post_envelope.to_string();
+}
 
 string Emitter::get_collector_url() {
   stringstream url;
