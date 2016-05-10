@@ -18,6 +18,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <string>
 #include <iostream>
 #include <list>
+#include <thread>
 #include "vendored/sqlite3.h"
 #include "utils.hpp"
 #include "payload.hpp"
@@ -29,6 +30,7 @@ private:
   string m_db_name;
   sqlite3 *m_db;
   sqlite3_stmt *m_add_stmt;
+  mutex m_db_access;
 
 public:
   struct EventRow {

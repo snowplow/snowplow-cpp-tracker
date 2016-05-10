@@ -76,6 +76,8 @@ Storage::~Storage() {
 // --- INSERT
 
 void Storage::insert_payload(Payload payload) {
+  lock_guard<mutex> guard(this->m_db_access);
+  
   int rc;
 
   string payload_str = Utils::serialize_payload(payload);
@@ -120,6 +122,8 @@ static int select_callback(void *data, int argc, char **argv, char **az_col_name
 }
 
 void Storage::select_all_event_rows(list<Storage::EventRow>* event_list) {
+  lock_guard<mutex> guard(this->m_db_access);
+
   int rc;
   char *err_msg = 0;
 
@@ -134,6 +138,8 @@ void Storage::select_all_event_rows(list<Storage::EventRow>* event_list) {
 }
 
 void Storage::select_event_row_range(list<Storage::EventRow>* event_list, int range) {
+  lock_guard<mutex> guard(this->m_db_access);
+
   int rc;
   char *err_msg = 0;
 
@@ -151,6 +157,8 @@ void Storage::select_event_row_range(list<Storage::EventRow>* event_list, int ra
 // --- DELETE
 
 void Storage::delete_all_event_rows() {
+  lock_guard<mutex> guard(this->m_db_access);
+
   int rc;
   char *err_msg = 0;
 
@@ -165,6 +173,8 @@ void Storage::delete_all_event_rows() {
 }
 
 void Storage::delete_event_row_ids(list<int>* id_list) {
+  lock_guard<mutex> guard(this->m_db_access);
+  
   int rc;
   char *err_msg = 0;
 

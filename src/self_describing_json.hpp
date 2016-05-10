@@ -16,6 +16,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include <string>
 #include <list>
+#include "constants.hpp"
 #include "utils.hpp"
 #include "payload.hpp"
 #include "vendored/json.hpp"

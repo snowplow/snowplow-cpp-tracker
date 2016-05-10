@@ -23,9 +23,15 @@ HttpRequestResult HttpClient::http_get(const CrackedUrl url, const string & quer
   return HttpClient::http_request(GET, url, query_string, "", row_ids, oversize);
 }
 
+// --- Testing
+
+#if defined(SNOWPLOW_TEST_SUITE)
+
+// TODO: Ed
+
 // --- Windows32
 
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 
 const string HttpClient::TRACKER_AGENT = string("Snowplow C++ Tracker (Win32)");
 
@@ -144,6 +150,8 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, const Cra
 
 #elif defined(__APPLE__)
 
+const string HttpClient::TRACKER_AGENT = string("Snowplow C++ Tracker (MacOSX)");
+
 HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUrl url, const string & query_string, const string & post_data, list<int> row_ids, bool oversize) {
 
   // Get final url
@@ -154,6 +162,9 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUr
 
   // Create request
   CFStringRef cf_url_str = CFStringCreateWithBytes(kCFAllocatorDefault, (const unsigned char *) final_url.c_str(), final_url.length(), kCFStringEncodingUTF8, false);
+  CFStringRef cf_content_type_str = CFStringCreateWithBytes(kCFAllocatorDefault, (const unsigned char *) POST_CONTENT_TYPE.c_str(), POST_CONTENT_TYPE.length(), kCFStringEncodingUTF8, false);
+  CFStringRef cf_user_agent_str = CFStringCreateWithBytes(kCFAllocatorDefault, (const unsigned char *) HttpClient::TRACKER_AGENT.c_str(), HttpClient::TRACKER_AGENT.length(), kCFStringEncodingUTF8, false);
+
   CFURLRef cf_url = CFURLCreateWithString(kCFAllocatorDefault, cf_url_str, NULL);
   CFHTTPMessageRef cf_http_req;
 
@@ -162,9 +173,9 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUr
   } else {
     cf_http_req = CFHTTPMessageCreateRequest(kCFAllocatorDefault, CFSTR("POST"), cf_url, kCFHTTPVersion1_1);
     CFHTTPMessageSetBody(cf_http_req, CFDataCreate(kCFAllocatorDefault, (const UInt8*) post_data.data(), post_data.size()));
-    CFHTTPMessageSetHeaderFieldValue(cf_http_req, CFSTR("Content-Type"), CFSTR("application/json; charset=utf-8"));
+    CFHTTPMessageSetHeaderFieldValue(cf_http_req, CFSTR("Content-Type"), cf_content_type_str);
   }
-  CFHTTPMessageSetHeaderFieldValue(cf_http_req, CFSTR("User-Agent"), CFSTR("Snowplow C++ Tracker (MacOSX)"));
+  CFHTTPMessageSetHeaderFieldValue(cf_http_req, CFSTR("User-Agent"), cf_user_agent_str);
 
   CFReadStreamRef cf_read_stream = CFReadStreamCreateForHTTPRequest(kCFAllocatorDefault, cf_http_req);
   CFMutableDataRef cf_data_resp = CFDataCreateMutable(kCFAllocatorDefault, 0);
@@ -192,6 +203,8 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUr
   // Release resources
   CFReadStreamClose(cf_read_stream);
   CFRelease(cf_url_str);
+  CFRelease(cf_content_type_str);
+  CFRelease(cf_user_agent_str);
   CFRelease(cf_url);
   CFRelease(cf_http_req);
   CFRelease(cf_read_stream);

@@ -14,13 +14,9 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../vendored/catch.hpp"
 #include "../emitter.hpp"
 
-#include <iostream>
-#include <chrono>
-#include <thread>
-
 TEST_CASE("emitter") {
   
-  Emitter emitter("ea2673c7.ngrok.io", Emitter::Strategy::ASYNC, Emitter::Method::GET, Emitter::Protocol::HTTP, 500, 52000, 52000, "test.db");
+  Emitter emitter("ea2673c7.ngrok.io", Emitter::Strategy::ASYNC, Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 52000, "test.db");
   emitter.start();
 
   Payload payload;
@@ -29,10 +25,9 @@ TEST_CASE("emitter") {
   payload.add("p", "srv");
   payload.add("dtm", std::to_string(Utils::get_unix_epoch_ms()));
 
-  for (int i = 0; i < 100; i++) {
+  for (int i = 0; i < 1000; i++) {
     emitter.add(payload);
   }
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(10000));
-  emitter.stop();
+  emitter.flush();
 }

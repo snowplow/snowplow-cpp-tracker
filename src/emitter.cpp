@@ -65,14 +65,18 @@ void Emitter::stop() {
 }
 
 void Emitter::add(Payload payload) {
-  unique_lock<mutex> locker(this->m_db_insert);
   this->m_db.insert_payload(payload);
   this->m_check_db.notify_all();
-  locker.unlock();
 }
 
 void Emitter::flush() {
   this->m_check_db.notify_all();
+
+  unique_lock<mutex> locker(this->m_flush_fin);
+  this->m_check_fin.wait(locker);
+  locker.unlock();
+
+  this->stop();
 }
 
 // --- Private
@@ -115,6 +119,9 @@ void Emitter::run() {
       delete(success_ids);
     } else {
       delete(event_rows);
+
+      this->m_check_fin.notify_all();
+
       unique_lock<mutex> locker(this->m_db_select);
       this->m_check_db.wait(locker);
       locker.unlock();
