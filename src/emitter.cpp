@@ -23,8 +23,8 @@ Emitter::Emitter(const string & uri, Strategy strategy, Method method, Protocol 
     throw invalid_argument("FATAL: Emitter URI cannot be empty.");
   }
 
-  if (!url.get_is_valid()) {
-    throw invalid_argument("FATAL: Emitter URL is not valid - " + url.to_string());
+  if (!this->m_url.get_is_valid()) {
+    throw invalid_argument("FATAL: Emitter URL is not valid - " + this->m_url.to_string());
   }
 
   this->m_strategy = strategy;
