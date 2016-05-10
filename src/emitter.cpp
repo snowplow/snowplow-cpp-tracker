@@ -75,20 +75,16 @@ void Emitter::flush() {
 // --- Private
 
 void Emitter::run() {
-  list<Storage::EventRow>* event_rows = new list<Storage::EventRow>;
-  list<HttpRequestResult>* results = new list<HttpRequestResult>;
-  list<int>* success_ids = new list<int>;
-
   do {
-    unique_lock<mutex> locker(this->m_db_select);
-    this->m_check_db.wait(locker);
+    list<Storage::EventRow>* event_rows = new list<Storage::EventRow>;
     this->m_db.select_event_row_range(event_rows, this->m_send_limit);
-    locker.unlock();
 
     if (event_rows->size() > 0) {
+      list<HttpRequestResult>* results = new list<HttpRequestResult>;
       this->do_send(event_rows, results);
 
       // Process results
+      list<int>* success_ids = new list<int>;
       int success_count = 0;
       int failure_count = 0;
       
@@ -111,12 +107,16 @@ void Emitter::run() {
       event_rows->clear();
       results->clear();
       success_ids->clear();
+      delete(event_rows);
+      delete(results);
+      delete(success_ids);
+    } else {
+      delete(event_rows);
+      unique_lock<mutex> locker(this->m_db_select);
+      this->m_check_db.wait(locker);
+      locker.unlock();
     }
-  } while (is_running());
-
-  delete(event_rows);
-  delete(results);
-  delete(success_ids);
+  } while (this->is_running());
 }
 
 void Emitter::do_send(list<Storage::EventRow>* event_rows, list<HttpRequestResult>* results) {
