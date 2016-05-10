@@ -25,8 +25,7 @@ Storage::Storage(const string & db_name) {
   // Open Database connection
   rc = sqlite3_open((const char *) db_name.c_str(), &db);
   if (rc) {
-    cerr << "FATAL: Cannot open database: " << sqlite3_errmsg(db) << endl;
-    exit(1);
+    throw runtime_error((string) "FATAL: Cannot open database: " + sqlite3_errmsg(db));
   }
   this->m_db_name = db_name;
   this->m_db = db;
@@ -35,9 +34,9 @@ Storage::Storage(const string & db_name) {
   string wal_query = "PRAGMA journal_mode=WAL;";
   rc = sqlite3_exec(this->m_db, (const char *) wal_query.c_str(), NULL, NULL, &err_msg);
   if (rc != SQLITE_OK) {
-    cerr << "FATAL: Cannot enable WAL: " << err_msg << endl;
+    string err = "FATAL: Cannot enable WAL: " + string(err_msg);
     sqlite3_free(err_msg);
-    exit(1);
+    throw runtime_error(err);
   }
 
   // Create query
@@ -51,8 +50,9 @@ Storage::Storage(const string & db_name) {
   rc = sqlite3_exec(this->m_db, (const char *) create_query.c_str(), NULL, NULL, &err_msg);
   if (rc != SQLITE_OK) {
     cerr << "FATAL: Cannot create events table: " << err_msg << endl;
+    string err = "FATAL: Cannot create events table: " + string(err_msg);
     sqlite3_free(err_msg);
-    exit(1);
+    throw runtime_error(err);
   }
 
   // Insert query
@@ -64,8 +64,7 @@ Storage::Storage(const string & db_name) {
   // Prepare insert statement
   rc = sqlite3_prepare_v2(this->m_db, (const char *) insert_query.c_str(), -1, &this->m_add_stmt, NULL);
   if (rc != SQLITE_OK) {
-    cerr << "FATAL: Cannot prepare event insert statement: " << rc << endl;
-    exit(1);
+    throw runtime_error("FATAL: Cannot prepare event insert statement: " + std::to_string(rc));
   }
 }
 
