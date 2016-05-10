@@ -20,7 +20,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 TEST_CASE("emitter") {
   
-  Emitter emitter("ea2673c7.ngrok.io", Emitter::Strategy::ASYNC, Emitter::Method::POST, Emitter::Protocol::HTTP, 500, "test.db");
+  Emitter emitter("ea2673c7.ngrok.io", Emitter::Strategy::ASYNC, Emitter::Method::GET, Emitter::Protocol::HTTP, 500, 52000, 52000, "test.db");
   emitter.start();
 
   Payload payload;

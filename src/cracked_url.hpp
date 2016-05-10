@@ -11,24 +11,35 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#ifndef TRACKER_H
-#define TRACKER_H
+#ifndef CRACKED_URL_H
+#define CRACKED_URL_H
 
 #include <string>
-#include "emitter.hpp"
+#include <sstream>
+#include <regex>
 
 using namespace std;
 
-class Tracker {
-private:
-  Emitter & m_emitter;
-
+class CrackedUrl {
 public:
-  void track(Payload p);
-  Tracker(const string & url, Emitter & e);
-  ~Tracker();
-  void flush();
-  void close();
+  CrackedUrl(const string & url);
+  string get_hostname();
+  string get_path();
+  bool get_is_https();
+  bool get_is_valid();
+  int get_error_code();
+  unsigned int get_port();
+  bool get_use_default_port();
+  string to_string();
+
+private:
+  string hostname;
+  string path;
+  bool is_https;
+  bool is_valid;
+  int error_code;
+  unsigned int port;
+  bool use_default_port;
 };
 
 #endif

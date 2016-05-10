@@ -17,50 +17,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 //#define HTTP_TEST_URL "http://requestb.in/1gqq0of1" // url to use for get/post integration tests, comment out to skip
 
 TEST_CASE("http_client") {
-  SECTION("URL cracking works for the current build target") {
-    HttpClient::CrackedUrl c = HttpClient::crack_url("http://google.com/search");
-    REQUIRE(c.is_valid == true);
-    REQUIRE(c.error_code == 0);
-    REQUIRE(c.hostname == "google.com");
-    REQUIRE(c.path == "/search");
-    REQUIRE(c.port == 0);
-    REQUIRE(c.use_default_port == true);
-    REQUIRE(c.is_https == false);
-  }
 
-  SECTION("URL cracking can distinguish between http and https urls") {
-    HttpClient::CrackedUrl c = HttpClient::crack_url("https://google.com/search");
-    REQUIRE(c.is_valid == true);
-    REQUIRE(c.error_code == 0);
-    REQUIRE(c.hostname == "google.com");
-    REQUIRE(c.path == "/search");
-    REQUIRE(c.port == 0);
-    REQUIRE(c.use_default_port == true);
-    REQUIRE(c.is_https == true);
-  }
-
-  SECTION("URL cracking can decipher port specifications") {
-    HttpClient::CrackedUrl c = HttpClient::crack_url("http://google.com:8080/search");
-    REQUIRE(c.hostname == "google.com");
-    REQUIRE(c.port == 8080);
-    REQUIRE(c.use_default_port == false);
-  }
-
-  SECTION("URL cracking defaults hosts to http if no protocol (e.g. http://) is specified") {
-    HttpClient::CrackedUrl c = HttpClient::crack_url("google.com");
-    REQUIRE(c.is_valid == true);
-    REQUIRE(c.hostname == "google.com");
-    REQUIRE(c.is_https == false);
-    REQUIRE(c.use_default_port == true);
-  }
-
-  SECTION("URL cracking defaults hosts to http if no protocol (e.g. http://) is specified") {
-    HttpClient::CrackedUrl c = HttpClient::crack_url("google.com");
-    REQUIRE(c.is_valid == true);
-    REQUIRE(c.hostname == "google.com");
-    REQUIRE(c.is_https == false);
-  }
-
+/**
   SECTION("Invalid url triggers exception for GET request") {
     // TBC - until I can think of something better to return (a message, or defined error codes)
     bool arg_exception_occurred = false;
@@ -83,6 +41,7 @@ TEST_CASE("http_client") {
     }
     REQUIRE(arg_exception_occurred == true);
   }
+*/
 
 #ifdef HTTP_TEST_URL
 

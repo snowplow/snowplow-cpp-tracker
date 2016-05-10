@@ -19,12 +19,14 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <condition_variable>
 #include <future>
 #include <thread>
+#include "constants.hpp"
 #include "utils.hpp"
 #include "storage.hpp"
 #include "payload.hpp"
 #include "self_describing_json.hpp"
 #include "http_client.hpp"
 #include "http_request_result.hpp"
+#include "cracked_url.hpp"
 
 using namespace std;
 
@@ -45,7 +47,8 @@ public:
     HTTPS
   };
 
-  Emitter(const string & uri, Strategy strategy, Method method, Protocol protocol, int send_limit, const string & db_name);
+  Emitter(const string & uri, Strategy strategy, Method method, Protocol protocol, int send_limit, 
+    int byte_limit_post, int byte_limit_get, const string & db_name);
   ~Emitter();
   void start();
   void stop();
@@ -53,11 +56,9 @@ public:
   void flush();
 
 private:
-  string m_uri;
-  string m_url;
+  CrackedUrl m_url;
   Strategy m_strategy;
   Method m_method;
-  Protocol m_protocol;
   int m_send_limit;
   int m_byte_limit_get;
   int m_byte_limit_post;
@@ -73,7 +74,7 @@ private:
   void run();
   void do_send(list<Storage::EventRow>* event_rows, list<HttpRequestResult>* results);
   string build_post_data_json(list<Payload> payload_list);
-  string get_collector_url();
+  string get_collector_url(const string & uri, Protocol protocol, Method method);
   bool is_running();
 };
 

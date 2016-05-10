@@ -13,13 +13,24 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "http_client.hpp"
 
+// --- Common
+
+HttpRequestResult HttpClient::http_post(const CrackedUrl url, const string & post_data, list<int> row_ids, bool oversize) {
+  return HttpClient::http_request(POST, url, "", post_data, row_ids, oversize);
+}
+
+HttpRequestResult HttpClient::http_get(const CrackedUrl url, const string & query_string, list<int> row_ids, bool oversize) {
+  return HttpClient::http_request(GET, url, query_string, "", row_ids, oversize);
+}
+
+// --- Windows32
+
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 
 const string HttpClient::TRACKER_AGENT = string("Snowplow C++ Tracker (Win32)");
 
-HttpRequestResult HttpClient::http_request(const RequestMethod method, const string & host, const string & path, 
-  const string & post_data, bool use_default_port, unsigned int port, bool use_https, list<int> row_ids, bool oversize) {
-  
+HttpRequestResult HttpClient::http_request(const RequestMethod method, const CrackedUrl url, const string & query_string, const string & post_data, list<int> row_ids, bool oversize) {
+
   HINTERNET h_internet = InternetOpen(
     TEXT(HttpClient::TRACKER_AGENT.c_str()),
     INTERNET_OPEN_TYPE_DIRECT,
@@ -32,9 +43,9 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, const str
     return HttpRequestResult(GetLastError(), 0, row_ids, oversize);
   }
 
-  int use_port = port;
-  if (use_default_port) {
-    if (use_https) {
+  int use_port = url.get_port();
+  if (url.get_use_default_port()) {
+    if (url.get_is_https()) {
       use_port = INTERNET_DEFAULT_HTTPS_PORT;
     } else {
       use_port = INTERNET_DEFAULT_HTTP_PORT;
@@ -43,7 +54,7 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, const str
 
   HINTERNET h_connect = InternetConnect(
     h_internet,
-    TEXT(host.c_str()),
+    TEXT(url.get_hostname().c_str()),
     use_port,
     NULL,
     NULL,
@@ -58,10 +69,11 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, const str
   }
 
   DWORD flags = 0 | INTERNET_FLAG_RELOAD;
-  if (use_https) {
+  if (url.get_is_https()) {
     flags = flags | INTERNET_FLAG_SECURE;
   }
 
+  string final_path = url.get_path();
   string request_method_string;
   LPVOID post_buf;
   int post_buf_len;
@@ -69,8 +81,8 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, const str
     request_method_string = "GET";
     post_buf = NULL;
     post_buf_len = 0;
-  }
-  else {
+    final_path += "?" + query_string;
+  } else {
     request_method_string = "POST";
     post_buf = (LPVOID)TEXT(post_data.c_str());
     post_buf_len = strlen(TEXT(post_data.c_str()));
@@ -79,7 +91,7 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, const str
   HINTERNET h_request = HttpOpenRequest(
     h_connect,
     TEXT(request_method_string.c_str()),
-    TEXT(path.c_str()),
+    TEXT(final_path.c_str()),
     NULL,
     NULL,
     NULL,
@@ -128,25 +140,20 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, const str
   return HttpRequestResult(0, http_status_code, row_ids, oversize);
 }
 
+// --- Mac OSX
+
 #elif defined(__APPLE__)
 
-HttpRequestResult HttpClient::http_request(const RequestMethod method, const string & host, const string & path, 
-  const string & post_data, bool use_default_port, unsigned int port, bool use_https, list<int> row_ids, bool oversize) {
+HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUrl url, const string & query_string, const string & post_data, list<int> row_ids, bool oversize) {
 
-  stringstream s;
-  if (use_https) {
-    s << "https://" << host;
-  } else {
-    s << "http://" << host;
+  // Get final url
+  string final_url = url.to_string();
+  if (method == GET) {
+    final_url += "?" + query_string;
   }
-  if (!use_default_port) {
-    s << ":" << std::to_string(port);
-  }
-  s << path;
-  string url = s.str();
 
   // Create request
-  CFStringRef cf_url_str = CFStringCreateWithBytes(kCFAllocatorDefault, (const unsigned char *) url.c_str(), url.length(), kCFStringEncodingUTF8, false);
+  CFStringRef cf_url_str = CFStringCreateWithBytes(kCFAllocatorDefault, (const unsigned char *) final_url.c_str(), final_url.length(), kCFStringEncodingUTF8, false);
   CFURLRef cf_url = CFURLCreateWithString(kCFAllocatorDefault, cf_url_str, NULL);
   CFHTTPMessageRef cf_http_req;
 
@@ -195,81 +202,3 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, const str
 }
 
 #endif
-
-HttpRequestResult HttpClient::http_post(const string & url, const string & post_data, list<int> row_ids, bool oversize) {
-  HttpClient::CrackedUrl cracked_url = HttpClient::crack_url(url);
-  if (cracked_url.is_valid) {
-    return HttpClient::http_request(
-      POST,
-      cracked_url.hostname,
-      cracked_url.path,
-      post_data,
-      cracked_url.use_default_port,
-      cracked_url.port,
-      cracked_url.is_https,
-      row_ids,
-      oversize);
-  } else {
-    throw invalid_argument("Invalid URL '" + url + "'");
-  }
-}
-
-HttpRequestResult HttpClient::http_get(const string & url, list<int> row_ids, bool oversize) {
-  HttpClient::CrackedUrl cracked_url = HttpClient::crack_url(url);
-  if (cracked_url.is_valid) {
-    return HttpClient::http_request(
-      GET,
-      cracked_url.hostname,
-      cracked_url.path,
-      "",
-      cracked_url.use_default_port,
-      cracked_url.port,
-      cracked_url.is_https,
-      row_ids,
-      oversize);
-  } else {
-    throw invalid_argument("Invalid URL '" + url + "'");
-  }
-}
-
-HttpClient::CrackedUrl HttpClient::crack_url(const string & url) {
-  HttpClient::CrackedUrl cracked_url;
-
-  string cleaned_url = url;
-  if (regex_match(cleaned_url, regex("^https?://.+")) == false) {
-    cleaned_url = string("http://") + url;
-  }
-
-  regex r_host("(https?)://([^\\s]+\\.[^\\s/]+)(/.*)?");
-  regex r_hostname_port("([^:]+):(\\d+)");
-  smatch match;
-
-  if (regex_search(cleaned_url, match, r_host)) {
-    string protocol = match.str(1);
-    string hostname_port = match.str(2);
-    cracked_url.path = match.str(3);
-
-    smatch host_match;
-    if (regex_search(hostname_port, host_match, r_hostname_port)) {
-      cracked_url.hostname = host_match.str(1);
-      string port = host_match.str(2);
-      cracked_url.port = stoi(port);
-      cracked_url.use_default_port = false;
-    }
-    else {
-      cracked_url.hostname = hostname_port; // it's just a hostname
-      cracked_url.port = 0;
-      cracked_url.use_default_port = true;
-    }
-
-    cracked_url.is_https = protocol == "https";
-    cracked_url.error_code = 0;
-    cracked_url.is_valid = true;
-  }
-  else {
-    cracked_url.error_code = -1;
-    cracked_url.is_valid = false;
-  }
-
-  return cracked_url;
-}

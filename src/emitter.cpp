@@ -13,25 +13,25 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "emitter.hpp"
 
-const int post_wrapper_bytes = 88; // "schema":"iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-3","data":[]
+const int post_wrapper_bytes = 88; // "schema":"iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-4","data":[]
 const int post_stm_bytes = 22;     // "stm":"1443452851000"
 
-Emitter::Emitter(const string & uri, Strategy strategy, Method method, Protocol protocol, int send_limit, const string & db_name) : m_db(db_name) {
+Emitter::Emitter(const string & uri, Strategy strategy, Method method, Protocol protocol, int send_limit, 
+  int byte_limit_post, int byte_limit_get, const string & db_name) : m_db(db_name), m_url(this->get_collector_url(uri, protocol, method)) {
 
   if (uri == "") {
     throw invalid_argument("FATAL: Emitter URI cannot be empty.");
   }
 
-  this->m_uri = uri;
+  if (!url.get_is_valid()) {
+    throw invalid_argument("FATAL: Emitter URL is not valid - " + url.to_string());
+  }
+
   this->m_strategy = strategy;
   this->m_method = method;
-  this->m_protocol = protocol;
   this->m_send_limit = send_limit;
-
-  this->m_byte_limit_post = 52000;
-  this->m_byte_limit_get = 52000;
-
-  this->m_url = this->get_collector_url();
+  this->m_byte_limit_post = byte_limit_post;
+  this->m_byte_limit_get = byte_limit_get;
 }
 
 Emitter::~Emitter() {
@@ -129,11 +129,11 @@ void Emitter::do_send(list<Storage::EventRow>* event_rows, list<HttpRequestResul
   if (this->m_method == GET) {
     for (list<Storage::EventRow>::iterator it = event_rows->begin(); it != event_rows->end(); ++it) {
       Payload event_payload = it->event;
-      event_payload.add("stm", std::to_string(Utils::get_unix_epoch_ms()));
-      string final_url = this->m_url + "?" + Utils::map_to_query_string(event_payload.get());
+      event_payload.add(SENT_TIMESTAMP, std::to_string(Utils::get_unix_epoch_ms()));
+      string query_string = Utils::map_to_query_string(event_payload.get());
       list<int> row_id = {it->id};
 
-      request_futures.push_back(std::async(HttpClient::http_get, final_url, row_id, (final_url.size() > this->m_byte_limit_get)));
+      request_futures.push_back(std::async(HttpClient::http_get, this->m_url, query_string, row_id, (query_string.size() > this->m_byte_limit_get)));
     }
   } else {
     list<int> row_ids;
@@ -188,19 +188,19 @@ string Emitter::build_post_data_json(list<Payload> payload_list) {
   // Add 'stm' to each payload
   string stm = std::to_string(Utils::get_unix_epoch_ms());
   for (list<Payload>::iterator it = payload_list.begin(); it != payload_list.end(); ++it) {
-    it->add("stm", stm);
+    it->add(SENT_TIMESTAMP, stm);
     data_array.push_back(it->get());
   }
 
   // Build Post event
-  SelfDescribingJson post_envelope("iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-4", data_array);
+  SelfDescribingJson post_envelope(SCHEMA_PAYLOAD_DATA, data_array);
   return post_envelope.to_string();
 }
 
-string Emitter::get_collector_url() {
+string Emitter::get_collector_url(const string & uri, Protocol protocol, Method method) {
   stringstream url;
-  url << (this->m_protocol == HTTP ? "http" : "https") << "://" << this->m_uri;
-  url << (this->m_method == GET ? "/i" : "/com.snowplowanalytics.snowplow/tp2");
+  url << (protocol == HTTP ? "http" : "https") << "://" << uri;
+  url << "/" << (method == GET ? GET_PROTOCOL_PATH : POST_PROTOCOL_VENDOR + "/" + POST_PROTOCOL_VERSION);
   return url.str();
 }
 

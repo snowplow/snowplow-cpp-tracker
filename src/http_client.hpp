@@ -17,6 +17,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <map>
 #include <string>
 #include <regex>
+#include "constants.hpp"
+#include "cracked_url.hpp"
 #include "http_request_result.hpp"
 
 using namespace std;
@@ -32,7 +34,6 @@ using namespace std;
 #elif defined(__APPLE__)
 
 #include <iostream>
-#include <fstream>
 #include <sstream>
 #include <CoreFoundation/CoreFoundation.h>
 #include <CFNetwork/CFNetwork.h>
@@ -45,26 +46,12 @@ using namespace std;
 class HttpClient {
 private:
   enum RequestMethod { POST, GET };
-  static HttpRequestResult http_request(const RequestMethod method, const string & host, const string & path, 
-    const string & post_data, bool use_default_port, unsigned int port, bool use_https, list<int> row_ids, bool oversize);
+  static HttpRequestResult http_request(const RequestMethod method, const CrackedUrl url, const string & query_string, const string & post_data, list<int> row_ids, bool oversize);
 
 public:
-  struct CrackedUrl {
-    string hostname;
-    string path;
-    bool is_https;
-    bool is_valid;
-    int error_code;
-    unsigned int port;
-    bool use_default_port;
-  };
-
   static const string TRACKER_AGENT;
-
-  static CrackedUrl crack_url(const string & url);
-  
-  static HttpRequestResult http_post(const string & url, const string & post_data, list<int> row_ids, bool oversize);
-  static HttpRequestResult http_get(const string & url, list<int> row_ids, bool oversize);
+  static HttpRequestResult http_post(const CrackedUrl url, const string & post_data, list<int> row_ids, bool oversize);
+  static HttpRequestResult http_get(const CrackedUrl url, const string & query_string, list<int> row_ids, bool oversize);
 };
 
 #endif
