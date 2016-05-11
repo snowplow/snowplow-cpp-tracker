@@ -136,7 +136,7 @@ void Emitter::do_send(list<Storage::EventRow>* event_rows, list<HttpRequestResul
   if (this->m_method == GET) {
     for (list<Storage::EventRow>::iterator it = event_rows->begin(); it != event_rows->end(); ++it) {
       Payload event_payload = it->event;
-      event_payload.add(SENT_TIMESTAMP, std::to_string(Utils::get_unix_epoch_ms()));
+      event_payload.add(SNOWPLOW_SENT_TIMESTAMP, std::to_string(Utils::get_unix_epoch_ms()));
       string query_string = Utils::map_to_query_string(event_payload.get());
       list<int> row_id = {it->id};
 
@@ -195,19 +195,19 @@ string Emitter::build_post_data_json(list<Payload> payload_list) {
   // Add 'stm' to each payload
   string stm = std::to_string(Utils::get_unix_epoch_ms());
   for (list<Payload>::iterator it = payload_list.begin(); it != payload_list.end(); ++it) {
-    it->add(SENT_TIMESTAMP, stm);
+    it->add(SNOWPLOW_SENT_TIMESTAMP, stm);
     data_array.push_back(it->get());
   }
 
   // Build Post event
-  SelfDescribingJson post_envelope(SCHEMA_PAYLOAD_DATA, data_array);
+  SelfDescribingJson post_envelope(SNOWPLOW_SCHEMA_PAYLOAD_DATA, data_array);
   return post_envelope.to_string();
 }
 
 string Emitter::get_collector_url(const string & uri, Protocol protocol, Method method) {
   stringstream url;
   url << (protocol == HTTP ? "http" : "https") << "://" << uri;
-  url << "/" << (method == GET ? GET_PROTOCOL_PATH : POST_PROTOCOL_VENDOR + "/" + POST_PROTOCOL_VERSION);
+  url << "/" << (method == GET ? SNOWPLOW_GET_PROTOCOL_PATH : SNOWPLOW_POST_PROTOCOL_VENDOR + "/" + SNOWPLOW_POST_PROTOCOL_VERSION);
   return url.str();
 }
 

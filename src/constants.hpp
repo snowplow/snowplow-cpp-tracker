@@ -18,68 +18,68 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 using namespace std;
 
-const string TRACKER_VERSION_LABEL = "cpp-0.1.0";
+const string SNOWPLOW_TRACKER_VERSION_LABEL = "cpp-0.1.0";
 
 // post requests
-const string POST_PROTOCOL_VENDOR = "com.snowplowanalytics.snowplow";
-const string POST_PROTOCOL_VERSION = "tp2";
-const string POST_CONTENT_TYPE = "application/json; charset=utf-8";
+const string SNOWPLOW_POST_PROTOCOL_VENDOR = "com.snowplowanalytics.snowplow";
+const string SNOWPLOW_POST_PROTOCOL_VERSION = "tp2";
+const string SNOWPLOW_POST_CONTENT_TYPE = "application/json; charset=utf-8";
 
 // get requests
-const string GET_PROTOCOL_PATH = "i";
+const string SNOWPLOW_GET_PROTOCOL_PATH = "i";
 
 // schema versions
-const string SCHEMA_PAYLOAD_DATA = "iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-4";
-const string SCHEMA_CONTEXTS = "iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-1";
-const string SCHEMA_UNSTRUCT_EVENT = "iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0";
-const string SCHEMA_SCREEN_VIEW = "iglu:com.snowplowanalytics.snowplow/screen_view/jsonschema/1-0-0";
-const string SCHEMA_USER_TIMINGS = "iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0";
+const string SNOWPLOW_SCHEMA_PAYLOAD_DATA = "iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-4";
+const string SNOWPLOW_SCHEMA_CONTEXTS = "iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-1";
+const string SNOWPLOW_SCHEMA_UNSTRUCT_EVENT = "iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0";
+const string SNOWPLOW_SCHEMA_SCREEN_VIEW = "iglu:com.snowplowanalytics.snowplow/screen_view/jsonschema/1-0-0";
+const string SNOWPLOW_SCHEMA_USER_TIMINGS = "iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0";
 
 // event types
-const string EVENT_STRUCTURED = "se";
-const string EVENT_UNSTRUCTURED = "ue";
+const string SNOWPLOW_EVENT_STRUCTURED = "se";
+const string SNOWPLOW_EVENT_UNSTRUCTURED = "ue";
 
-const string spCONTEXT = "co";
-const string CONTEXT_ENCODED = "cx";
-const string UNSTRUCTURED = "ue_pr";
-const string UNSTRUCTURED_ENCODED = "ue_px";
+const string SNOWPLOW_CONTEXT = "co";
+const string SNOWPLOW_CONTEXT_ENCODED = "cx";
+const string SNOWPLOW_UNSTRUCTURED = "ue_pr";
+const string SNOWPLOW_UNSTRUCTURED_ENCODED = "ue_px";
 
 // general
-const string SCHEMA = "schema";
-const string DATA = "data";
-const string EVENT = "e";
-const string EID = "eid";
-const string TIMESTAMP = "dtm";
-const string SENT_TIMESTAMP = "stm";
-const string TRUE_TIMESTAMP = "ttm";
-const string TRACKER_VERSION = "tv";
-const string APP_ID = "aid";
-const string SP_NAMESPACE = "tna";
-const string PLATFORM = "p";
+const string SNOWPLOW_SCHEMA = "schema";
+const string SNOWPLOW_DATA = "data";
+const string SNOWPLOW_EVENT = "e";
+const string SNOWPLOW_EID = "eid";
+const string SNOWPLOW_TIMESTAMP = "dtm";
+const string SNOWPLOW_SENT_TIMESTAMP = "stm";
+const string SNOWPLOW_TRUE_TIMESTAMP = "ttm";
+const string SNOWPLOW_TRACKER_VERSION = "tv";
+const string SNOWPLOW_APP_ID = "aid";
+const string SNOWPLOW_SP_NAMESPACE = "tna";
+const string SNOWPLOW_PLATFORM = "p";
 
 // subject class
-const string UID = "uid";
-const string RESOLUTION = "res";
-const string VIEWPORT = "vp";
-const string COLOR_DEPTH = "cd";
-const string TIMEZONE = "tz";
-const string LANGUAGE = "lang";
+const string SNOWPLOW_UID = "uid";
+const string SNOWPLOW_RESOLUTION = "res";
+const string SNOWPLOW_VIEWPORT = "vp";
+const string SNOWPLOW_COLOR_DEPTH = "cd";
+const string SNOWPLOW_TIMEZONE = "tz";
+const string SNOWPLOW_LANGUAGE = "lang";
 
 // structured event
-const string SE_CATEGORY = "se_ca";
-const string SE_ACTION = "se_ac";
-const string SE_LABEL = "se_la";
-const string SE_PROPERTY = "se_pr";
-const string SE_VALUE = "se_va";
+const string SNOWPLOW_SE_CATEGORY = "se_ca";
+const string SNOWPLOW_SE_ACTION = "se_ac";
+const string SNOWPLOW_SE_LABEL = "se_la";
+const string SNOWPLOW_SE_PROPERTY = "se_pr";
+const string SNOWPLOW_SE_VALUE = "se_va";
 
 // screen view
-const string SV_ID = "id";
-const string SV_NAME = "name";
+const string SNOWPLOW_SV_ID = "id";
+const string SNOWPLOW_SV_NAME = "name";
 
 // user timing
-const string UT_CATEGORY = "category";
-const string UT_VARIABLE = "variable";
-const string UT_TIMING = "timing";
-const string UT_LABEL = "label";
+const string SNOWPLOW_UT_CATEGORY = "category";
+const string SNOWPLOW_UT_VARIABLE = "variable";
+const string SNOWPLOW_UT_TIMING = "timing";
+const string SNOWPLOW_UT_LABEL = "label";
 
 #endif

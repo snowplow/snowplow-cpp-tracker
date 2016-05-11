@@ -20,8 +20,8 @@ SelfDescribingJson::SelfDescribingJson(const string & schema, json data) {
 
 json SelfDescribingJson::get() {
   json j;
-  j[SCHEMA] = this->m_schema;
-  j[DATA] = this->m_data;
+  j[SNOWPLOW_SCHEMA] = this->m_schema;
+  j[SNOWPLOW_DATA] = this->m_data;
   return j;
 }
 
