@@ -13,3 +13,4 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #define CATCH_CONFIG_MAIN
 #include "../vendored/catch.hpp"
+//#define SNOWPLOW_TEST_SUITE 1
