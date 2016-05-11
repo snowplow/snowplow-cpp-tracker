@@ -25,11 +25,20 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "payload.hpp"
 #include "vendored/json.hpp"
 
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+
+#elif defined(__APPLE__)
+
+#include <CoreFoundation/CoreFoundation.h>
+
+#endif
+
 using namespace std;
 using json = nlohmann::json;
 
 class Utils {
 public:
+  static string get_uuid4();
   static string int_list_to_string(list<int>* int_list, const string & delimiter);
   static string map_to_query_string(map<string, string> m);
   static string url_encode(string value);

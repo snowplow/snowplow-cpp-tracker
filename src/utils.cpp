@@ -13,6 +13,28 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "utils.hpp"
 
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+
+string Utils::get_uuid4() {
+  return "";
+}
+
+#elif defined(__APPLE__)
+
+string Utils::get_uuid4() {
+  CFUUIDRef cf_uuid_ref = CFUUIDCreate(kCFAllocatorDefault);
+  CFStringRef cf_uuid_str_ref = CFUUIDCreateString(kCFAllocatorDefault, cf_uuid_ref);
+
+  string uuid(CFStringGetCStringPtr(cf_uuid_str_ref, kCFStringEncodingUTF8));
+
+  CFRelease(cf_uuid_ref);
+  CFRelease(cf_uuid_str_ref);
+
+  return uuid;
+}
+
+#endif
+
 string Utils::int_list_to_string(list<int>* int_list, const string & delimiter) {
   stringstream s;
   int i;

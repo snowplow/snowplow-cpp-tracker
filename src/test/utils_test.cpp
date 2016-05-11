@@ -13,8 +13,14 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "../vendored/catch.hpp"
 #include "../utils.hpp"
+#include <regex>
 
 TEST_CASE("utils") {
+  SECTION("get_uuid4 should return valid uuid up to the spefication") {
+    regex r_uuid4("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}");
+    REQUIRE(true == regex_match(Utils::get_uuid4(), r_uuid4));
+  }
+
   SECTION("int_list_to_string will successfully convert a list of integers to a string") {
     list<int>* int_list = new list<int>;
     int_list->push_back(1);
