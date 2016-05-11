@@ -162,7 +162,7 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUr
 
   // Create request
   CFStringRef cf_url_str = CFStringCreateWithBytes(kCFAllocatorDefault, (const unsigned char *) final_url.c_str(), final_url.length(), kCFStringEncodingUTF8, false);
-  CFStringRef cf_content_type_str = CFStringCreateWithBytes(kCFAllocatorDefault, (const unsigned char *) POST_CONTENT_TYPE.c_str(), POST_CONTENT_TYPE.length(), kCFStringEncodingUTF8, false);
+  CFStringRef cf_content_type_str = CFStringCreateWithBytes(kCFAllocatorDefault, (const unsigned char *) SNOWPLOW_POST_CONTENT_TYPE.c_str(), SNOWPLOW_POST_CONTENT_TYPE.length(), kCFStringEncodingUTF8, false);
   CFStringRef cf_user_agent_str = CFStringCreateWithBytes(kCFAllocatorDefault, (const unsigned char *) HttpClient::TRACKER_AGENT.c_str(), HttpClient::TRACKER_AGENT.length(), kCFStringEncodingUTF8, false);
 
   CFURLRef cf_url = CFURLCreateWithString(kCFAllocatorDefault, cf_url_str, NULL);
