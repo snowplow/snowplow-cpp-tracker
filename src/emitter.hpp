@@ -59,9 +59,9 @@ private:
   CrackedUrl m_url;
   Strategy m_strategy;
   Method m_method;
-  int m_send_limit;
-  int m_byte_limit_get;
-  int m_byte_limit_post;
+  unsigned int m_send_limit;
+  unsigned int m_byte_limit_get;
+  unsigned int m_byte_limit_post;
   Storage m_db;
 
   thread m_daemon_thread;

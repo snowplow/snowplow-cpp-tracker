@@ -148,7 +148,7 @@ void Emitter::do_send(list<Storage::EventRow>* event_rows, list<HttpRequestResul
     int total_byte_size = 0;
 
     for (list<Storage::EventRow>::iterator it = event_rows->begin(); it != event_rows->end(); ++it) {
-      int byte_size = Utils::serialize_payload(it->event).size() + post_stm_bytes;
+      unsigned int byte_size = Utils::serialize_payload(it->event).size() + post_stm_bytes;
 
       if ((byte_size + post_wrapper_bytes) > this->m_byte_limit_post) {
         // A single payload has exceeded the Byte Limit
