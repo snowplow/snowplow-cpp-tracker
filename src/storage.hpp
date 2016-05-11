@@ -19,6 +19,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <iostream>
 #include <list>
 #include <thread>
+#include <mutex>
 #include "vendored/sqlite3.h"
 #include "utils.hpp"
 #include "payload.hpp"

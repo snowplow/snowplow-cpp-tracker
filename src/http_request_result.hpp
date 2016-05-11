@@ -26,6 +26,7 @@ private:
   bool m_is_successful;
 
 public:
+  HttpRequestResult();
   HttpRequestResult(int internal_error_code, int http_response_code, list<int> row_ids, bool oversize);
   int get_http_response_code();
   list<int> get_row_ids();

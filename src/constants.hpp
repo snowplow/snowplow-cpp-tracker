@@ -39,7 +39,7 @@ const string SCHEMA_USER_TIMINGS = "iglu:com.snowplowanalytics.snowplow/timing/j
 const string EVENT_STRUCTURED = "se";
 const string EVENT_UNSTRUCTURED = "ue";
 
-const string CONTEXT = "co";
+const string spCONTEXT = "co";
 const string CONTEXT_ENCODED = "cx";
 const string UNSTRUCTURED = "ue_pr";
 const string UNSTRUCTURED_ENCODED = "ue_px";

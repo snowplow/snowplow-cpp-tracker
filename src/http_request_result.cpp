@@ -13,6 +13,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "http_request_result.hpp"
 
+HttpRequestResult::HttpRequestResult() {}
+
 HttpRequestResult::HttpRequestResult(int internal_error_code, int http_response_code, list<int> row_ids, bool oversize) {
   if (oversize) {
     this->m_internal_error_code = 0;

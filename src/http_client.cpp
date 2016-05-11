@@ -35,7 +35,7 @@ HttpRequestResult HttpClient::http_get(const CrackedUrl url, const string & quer
 
 const string HttpClient::TRACKER_AGENT = string("Snowplow C++ Tracker (Win32)");
 
-HttpRequestResult HttpClient::http_request(const RequestMethod method, const CrackedUrl url, const string & query_string, const string & post_data, list<int> row_ids, bool oversize) {
+HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUrl url, const string & query_string, const string & post_data, list<int> row_ids, bool oversize) {
 
   HINTERNET h_internet = InternetOpen(
     TEXT(HttpClient::TRACKER_AGENT.c_str()),
@@ -49,7 +49,7 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, const Cra
     return HttpRequestResult(GetLastError(), 0, row_ids, oversize);
   }
 
-  int use_port = url.get_port();
+  unsigned int use_port = url.get_port();
   if (url.get_use_default_port()) {
     if (url.get_is_https()) {
       use_port = INTERNET_DEFAULT_HTTPS_PORT;
