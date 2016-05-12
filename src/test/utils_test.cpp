@@ -21,6 +21,12 @@ TEST_CASE("utils") {
     REQUIRE(true == regex_match(Utils::get_uuid4(), r_uuid4));
   }
 
+  SECTION("get_uuid4 should return different values on each run") {
+    string first = Utils::get_uuid4();
+    string second = Utils::get_uuid4();
+    REQUIRE(first != second);
+  }
+
   SECTION("int_list_to_string will successfully convert a list of integers to a string") {
     list<int>* int_list = new list<int>;
     int_list->push_back(1);
