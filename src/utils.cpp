@@ -25,6 +25,9 @@ string Utils::get_uuid4() {
     uid = (char*)szUuid;
     ::RpcStringFreeA(&szUuid);
   }
+  else {
+    throw runtime_error("couldn't generate UUID!");
+  }
 
   return uid;
 }
