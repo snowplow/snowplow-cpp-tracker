@@ -27,6 +27,11 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 
+#include <Windows.h>
+#include <rpc.h>
+
+#pragma comment (lib, "Rpcrt4.lib")
+
 #elif defined(__APPLE__)
 
 #include <CoreFoundation/CoreFoundation.h>
@@ -44,7 +49,7 @@ public:
   static string url_encode(string value);
   static string serialize_payload(Payload payload);
   static Payload deserialize_json_str(const string & json_str);
-  static unsigned long get_unix_epoch_ms();
+  static unsigned long long get_unix_epoch_ms();
 };
 
 #endif

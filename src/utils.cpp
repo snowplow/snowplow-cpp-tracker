@@ -16,7 +16,17 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 
 string Utils::get_uuid4() {
-  return "";
+  UUID uuid = { 0 };
+  string uid;
+
+  ::UuidCreate(&uuid);
+  RPC_CSTR szUuid = NULL;
+  if (::UuidToStringA(&uuid, &szUuid) == RPC_S_OK) {
+    uid = (char*)szUuid;
+    ::RpcStringFreeA(&szUuid);
+  }
+
+  return uid;
 }
 
 #elif defined(__APPLE__)
@@ -104,6 +114,6 @@ Payload Utils::deserialize_json_str(const string & json_str) {
   return p;
 }
 
-unsigned long Utils::get_unix_epoch_ms() {
+unsigned long long Utils::get_unix_epoch_ms() {
   return chrono::duration_cast<chrono::milliseconds> (chrono::system_clock::now().time_since_epoch()).count();
 }
