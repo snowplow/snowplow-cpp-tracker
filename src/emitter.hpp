@@ -50,10 +50,10 @@ public:
   Emitter(const string & uri, Strategy strategy, Method method, Protocol protocol, int send_limit, 
     int byte_limit_post, int byte_limit_get, const string & db_name);
   ~Emitter();
-  void start();
-  void stop();
-  void add(Payload payload);
-  void flush();
+  virtual void start();
+  virtual void stop();
+  virtual void add(Payload payload);
+  virtual void flush();
 
 private:
   CrackedUrl m_url;

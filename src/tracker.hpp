@@ -25,6 +25,7 @@ class Tracker {
 private:
   Emitter & m_emitter;
   Subject m_subject;
+  bool m_has_subject;
   string m_namespace;
   string m_app_id;
   string m_platform;
@@ -32,7 +33,7 @@ private:
 
 public:
   void track(Payload p, vector<SelfDescribingJson> & contexts);
-  Tracker(const string & url, Emitter & e);
+  Tracker(string & url, Emitter & e);
   ~Tracker();
   void flush();
   void close();

@@ -13,12 +13,30 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "tracker.hpp"
 
-Tracker::Tracker(const string & url, Emitter & e) : m_emitter(e), m_subject() {
+Tracker::Tracker(string & url, Emitter & e) : m_emitter(e), m_subject() {
   e.start();
+  //this->m_has_subject = false;
 }
 
-void Tracker::track(Payload p, vector<SelfDescribingJson> & contexts) {
-  //p.add(&this->tracker_version,  )
+void Tracker::track(Payload payload, vector<SelfDescribingJson> & contexts) {
+
+  payload.add(SNOWPLOW_TRACKER_VERSION, SNOWPLOW_TRACKER_VERSION_LABEL);
+  payload.add(SNOWPLOW_PLATFORM, this->m_platform);
+  payload.add(SNOWPLOW_APP_ID, this->m_app_id);
+  payload.add(SNOWPLOW_SP_NAMESPACE, this->m_namespace);
+
+  if (m_has_subject) {
+    payload.add_map(m_subject.get_map());
+  }
+
+  if (contexts.size() > 0) {
+    for (int i = 0; i < contexts.size(); i++) {
+      payload.add_json(contexts[i].get(), m_use_base64, SNOWPLOW_CONTEXT_ENCODED, SNOWPLOW_CONTEXT);
+    }
+  }
+
+  this->m_emitter.add(payload);
+
 }
 
 void Tracker::flush()
