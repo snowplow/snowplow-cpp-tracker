@@ -79,8 +79,8 @@ void Emitter::flush() {
   this->m_check_db.notify_all();
 
   unique_lock<mutex> locker_2(this->m_flush_fin);
-  this->m_check_fin.wait(locker);
-  locker.locker_2();
+  this->m_check_fin.wait(locker_2);
+  locker_2.unlock();
 
   this->stop();
 }
