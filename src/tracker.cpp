@@ -13,11 +13,11 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "tracker.hpp"
 
-Tracker::Tracker(const string & url, Emitter & e) : m_emitter(e) {
+Tracker::Tracker(const string & url, Emitter & e) : m_emitter(e), m_subject() {
   e.start();
 }
 
-void Tracker::track(Payload p) {
+void Tracker::track(Payload p, vector<SelfDescribingJson> & contexts) {
   //p.add(&this->tracker_version,  )
 }
 

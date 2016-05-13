@@ -16,15 +16,22 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include <string>
 #include "emitter.hpp"
+#include "subject.hpp"
+#include "self_describing_json.hpp"
 
 using namespace std;
 
 class Tracker {
 private:
   Emitter & m_emitter;
+  Subject m_subject;
+  string m_namespace;
+  string m_app_id;
+  string m_platform;
+  bool m_use_base64;
 
 public:
-  void track(Payload p);
+  void track(Payload p, vector<SelfDescribingJson> & contexts);
   Tracker(const string & url, Emitter & e);
   ~Tracker();
   void flush();
