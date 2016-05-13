@@ -60,6 +60,20 @@ TEST_CASE("tracker") {
     t.track(p, v);
     vector<Payload> payloads = me.get_added_payloads();
     REQUIRE(payloads.size() == 1);
+
+    auto payload = payloads[0].get();
+
+    /*
+     payload.add(SNOWPLOW_TRACKER_VERSION, SNOWPLOW_TRACKER_VERSION_LABEL);
+  payload.add(SNOWPLOW_PLATFORM, this->m_platform);
+  payload.add(SNOWPLOW_APP_ID, this->m_app_id);
+  payload.add(SNOWPLOW_SP_NAMESPACE, this->m_namespace);
+
+    */
+
+    REQUIRE(payload[SNOWPLOW_TRACKER_VERSION] == SNOWPLOW_TRACKER_VERSION_LABEL);
+    //REQUIRE(payload[SNOWPLOW_PLATFORM] == SNOWPLOW_PL);
+
   }
 
 }
