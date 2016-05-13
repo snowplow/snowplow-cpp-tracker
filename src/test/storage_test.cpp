@@ -18,13 +18,14 @@ TEST_CASE("storage") {
   Storage storage("test.db");
   REQUIRE("test.db" == storage.get_db_name());
   storage.delete_all_event_rows();
-
-  Payload p;
-  p.add("e", "pv");
-  p.add("p", "srv");
-  p.add("tv", "cpp-0.1.0");
+  storage.delete_all_session_rows();
 
   SECTION("should be able to insert,select and delete Payload objects to and from the database") {
+    Payload p;
+    p.add("e", "pv");
+    p.add("p", "srv");
+    p.add("tv", "cpp-0.1.0");
+
     // INSERT 50 rows
     for (int i = 0; i < 50; i++) {
       storage.insert_payload(p);
@@ -70,5 +71,40 @@ TEST_CASE("storage") {
 
     // Delete memory for list
     delete(event_list);
+  }
+
+  SECTION("should be able to insert only one session object into the database") {
+    list<json>* session_rows = new list<json>;
+
+    // Insert and check row
+    json j = "{\"storage\":\"SQLITE\",\"previousSessionId\":null}"_json;
+    storage.insert_update_session(j);
+    storage.select_all_session_rows(session_rows);
+
+    REQUIRE(1 == session_rows->size());
+    REQUIRE("{\"previousSessionId\":null,\"storage\":\"SQLITE\"}" == session_rows->front().dump());
+    session_rows->clear();
+
+    // Check we can only insert one row
+    for (int i = 0; i < 50; i++) {
+      storage.insert_update_session(j);
+    }
+    storage.select_all_session_rows(session_rows);
+
+    REQUIRE(1 == session_rows->size());
+    REQUIRE("{\"previousSessionId\":null,\"storage\":\"SQLITE\"}" == session_rows->front().dump());
+    session_rows->clear();
+
+    // Check we can update the row values
+    j = "{\"storage\":\"SQLITE\",\"previousSessionId\":\"a_value\"}"_json;
+    storage.insert_update_session(j);
+    storage.select_all_session_rows(session_rows);
+
+    REQUIRE(1 == session_rows->size());
+    REQUIRE("{\"previousSessionId\":\"a_value\",\"storage\":\"SQLITE\"}" == session_rows->front().dump());
+    session_rows->clear();
+
+    // Delete memory for list
+    delete(session_rows);
   }
 }
