@@ -70,11 +70,17 @@ void Emitter::add(Payload payload) {
 }
 
 void Emitter::flush() {
+  unique_lock<mutex> locker_1(this->m_run_check);
+  if (this->m_running == false) {
+    locker_1.unlock();
+    return;
+  }
+
   this->m_check_db.notify_all();
 
-  unique_lock<mutex> locker(this->m_flush_fin);
+  unique_lock<mutex> locker_2(this->m_flush_fin);
   this->m_check_fin.wait(locker);
-  locker.unlock();
+  locker.locker_2();
 
   this->stop();
 }
