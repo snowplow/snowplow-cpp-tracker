@@ -32,6 +32,7 @@ private:
   bool m_use_base64;
 
 public:
+
   void track(Payload p, vector<SelfDescribingJson> & contexts);
   Tracker(string & url, Emitter & e);
   ~Tracker();
@@ -40,32 +41,100 @@ public:
 
   class PageViewEvent {
   public:
-    string notsure;
+    string page_url; // required
+    string page_title; // optional from here
+    string referrer;
+    unsigned long long timestamp;
+    string event_id;
+    unsigned long long true_timestamp;
+    vector<SelfDescribingJson> contexts;
+
+    PageViewEvent(string);
   };
 
   class StructuredEvent {
   public:
-    string notsure;
+    string category; // required
+    string action; // required
+    string label;
+    string property;
+    double value;
+    unsigned long long timestamp;
+    string event_id;
+    unsigned long long true_timestamp;
+    vector<SelfDescribingJson> contexts;
+
+    StructuredEvent(string, string); // cat / action
   };
 
   class SelfDescribingEvent {
   public:
-    string notsure;
+    SelfDescribingJson event; // required
+    unsigned long long timestamp;
+    string event_id;
+    unsigned long long true_timestamp;
+    vector<SelfDescribingJson> contexts;
+
+    SelfDescribingEvent(SelfDescribingJson);
   };
 
   class ScreenViewEvent {
   public:
-    string notsure;
+    string name;
+    string id;
+    unsigned long long timestamp;
+    string event_id;
+    unsigned long long true_timestamp;
+    vector<SelfDescribingJson> contexts;
+
+    ScreenViewEvent();
   };
 
   class TimingEvent {
   public:
-    string notsure;
+    string category; // required
+    string variable; // required
+    unsigned long long timing;
+    string label;
+    unsigned long long timestamp;
+    string event_id;
+    unsigned long long true_timestamp;
+    vector<SelfDescribingJson> contexts;
+
+    TimingEvent(string, string);
+  };
+
+  class EcommerceTransactionItemEvent {
+  public:
+    string sku; // required
+    double price; // required
+    long quantity;
+    string name;
+    string category;
+    string event_id;
+    vector<SelfDescribingJson> contexts;
+
+    EcommerceTransactionItemEvent(string, double);
   };
 
   class EcommerceTransactionEvent {
   public:
-    string notsure;
+    string order_id; // required
+    double total_value; // required
+    string affiliation;
+    double tax_value;
+    double shipping;
+    string city;
+    string state;
+    string country;
+    string currency;
+    vector<EcommerceTransactionItemEvent> items;
+    unsigned long long timestamp;
+    string event_id;
+    unsigned long long true_timestamp;
+    vector<SelfDescribingJson> contexts;
+
+    EcommerceTransactionEvent(string, double);
   };
 
 };

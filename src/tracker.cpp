@@ -20,7 +20,7 @@ Tracker::Tracker(string & url, Emitter & e) : m_emitter(e), m_subject() {
   this->m_app_id = "";
   this->m_use_base64 = true;
   this->m_namespace = "";
-  
+
   // start the emitter daemon if it's not started already
   e.start();
 }
@@ -58,4 +58,80 @@ void Tracker::close()
 Tracker::~Tracker()
 {
   close();
+}
+
+Tracker::PageViewEvent::PageViewEvent(string page_url) {
+  this->page_url = page_url;
+  this->page_title = "";
+  this->event_id = Utils::get_uuid4();
+  this->referrer = "";
+  this->timestamp = Utils::get_unix_epoch_ms();
+  this->true_timestamp = 0;
+  this->contexts = vector<SelfDescribingJson>();
+}
+
+Tracker::StructuredEvent::StructuredEvent(string category, string action) {
+  this->category = category;
+  this->action = action;
+  this->contexts = vector<SelfDescribingJson>();
+  this->event_id = Utils::get_uuid4();
+  this->timestamp = Utils::get_unix_epoch_ms();
+  this->true_timestamp = 0;
+  this->label = "";
+  this->property = "";
+  this->value = 0.0;
+}
+
+Tracker::SelfDescribingEvent::SelfDescribingEvent(SelfDescribingJson event): event(event) {
+  this->event_id = Utils::get_uuid4();
+  this->timestamp = Utils::get_unix_epoch_ms();
+  this->true_timestamp = 0;
+  this->contexts = vector<SelfDescribingJson>();
+}
+
+Tracker::ScreenViewEvent::ScreenViewEvent() {
+  this->contexts = vector<SelfDescribingJson>();
+  this->event_id = Utils::get_uuid4();
+  this->timestamp = Utils::get_unix_epoch_ms();
+  this->true_timestamp = 0;
+  this->id = "";
+  this->name = "";
+}
+
+Tracker::TimingEvent::TimingEvent(string category, string variable) {
+  this->category = category;
+  this->variable = variable;
+  this->timestamp = Utils::get_unix_epoch_ms();
+  this->true_timestamp = 0;
+  this->timing = 0;
+  this->contexts = vector<SelfDescribingJson>();
+  this->event_id = Utils::get_uuid4();
+  this->label = "";
+}
+
+Tracker::EcommerceTransactionItemEvent::EcommerceTransactionItemEvent(string sku, double price) {
+  this->sku = sku;
+  this->price = price;
+  this->event_id = Utils::get_uuid4();
+  this->quantity = 1;
+  this->contexts = vector<SelfDescribingJson>();
+  this->name = "";
+  this->category = "";
+}
+
+Tracker::EcommerceTransactionEvent::EcommerceTransactionEvent(string order_id, double total_value) {
+  this->order_id = order_id;
+  this->total_value = total_value;
+  this->items = vector<EcommerceTransactionItemEvent>();
+  this->affiliation = "";
+  this->city = "";
+  this->contexts = vector<SelfDescribingJson>();
+  this->country = "";
+  this->currency = "";
+  this->event_id = Utils::get_uuid4();
+  this->timestamp = Utils::get_unix_epoch_ms();
+  this->shipping = 0.0;
+  this->state = "";
+  this->tax_value = 0.0;
+  this->true_timestamp = 0;
 }
