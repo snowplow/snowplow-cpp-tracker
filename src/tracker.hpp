@@ -50,12 +50,12 @@ public:
   public:
     string category; // required
     string action; // required
-    string label;
-    string property;
-    double value;
+    string *label;
+    string *property;
+    double *value;
     unsigned long long timestamp;
     string event_id;
-    unsigned long long true_timestamp;
+    unsigned long long *true_timestamp;
     vector<SelfDescribingJson> contexts;
 
     StructuredEvent(string, string); // cat / action
@@ -74,11 +74,11 @@ public:
 
   class ScreenViewEvent {
   public:
-    string name;
-    string id;
+    string *name;
+    string *id;
     unsigned long long timestamp;
     string event_id;
-    unsigned long long true_timestamp;
+    unsigned long long *true_timestamp;
     vector<SelfDescribingJson> contexts;
 
     ScreenViewEvent();
@@ -89,13 +89,13 @@ public:
     string category; // required
     string variable; // required
     unsigned long long timing;
-    string label;
+    string *label;
     unsigned long long timestamp;
     string event_id;
-    unsigned long long true_timestamp;
+    unsigned long long *true_timestamp;
     vector<SelfDescribingJson> contexts;
 
-    TimingEvent(string, string);
+    TimingEvent(string, string, unsigned long long);
   };
 
   //class EcommerceTransactionItemEvent {

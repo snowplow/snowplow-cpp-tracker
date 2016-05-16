@@ -90,11 +90,11 @@ TEST_CASE("tracker") {
     REQUIRE(s.action == "action");
     REQUIRE(s.contexts.size() == 0);
     REQUIRE(s.event_id.size() > 5);
-    REQUIRE(s.label == "");
+    REQUIRE(s.label == NULL);
     REQUIRE(s.timestamp > (time_now - 1000));
     REQUIRE(s.timestamp < (time_now + 1000));
-    REQUIRE(s.true_timestamp == 0);
-    REQUIRE(s.value == 0.0);
+    REQUIRE(s.true_timestamp == NULL);
+    REQUIRE(s.value == NULL);
   }
 
   //SECTION("SelfDescribingEvents have appropriate defaults") {
@@ -114,23 +114,23 @@ TEST_CASE("tracker") {
     Tracker::ScreenViewEvent sve;
     REQUIRE(sve.contexts.size() == 0);
     REQUIRE(sve.event_id.size() > 5);
-    REQUIRE(sve.id == "");
-    REQUIRE(sve.name == "");
+    REQUIRE(sve.id == NULL);
+    REQUIRE(sve.name == NULL);
     REQUIRE(sve.timestamp > time_now - 1000);
     REQUIRE(sve.timestamp < time_now + 1000);
-    REQUIRE(sve.true_timestamp == 0);
-  }
+    REQUIRE(sve.true_timestamp == NULL);
+  }  
 
   SECTION("TimingEvents have appropriate defaults") {
     unsigned long long time_now = Utils::get_unix_epoch_ms();
-    Tracker::TimingEvent t("cat", "variable");
+    Tracker::TimingEvent t("cat", "variable", 123);
     REQUIRE(t.category == "cat");
     REQUIRE(t.variable == "variable");
     REQUIRE(t.timestamp > time_now - 1000);
     REQUIRE(t.timestamp < time_now + 1000);
-    REQUIRE(t.true_timestamp == 0);
-    REQUIRE(t.label == "");
-    REQUIRE(t.timing == 0);
+    REQUIRE(t.true_timestamp == NULL);
+    REQUIRE(t.label == NULL);
+    REQUIRE(t.timing == 123);
     REQUIRE(t.contexts.size() == 0);
     REQUIRE(t.event_id.size() > 5);
   }
@@ -264,10 +264,14 @@ TEST_CASE("tracker") {
 
     sv.contexts = vector<SelfDescribingJson>();
     sv.contexts.push_back(SelfDescribingJson("hello", "{\"hello\":\"world\"}"_json));
-    sv.label = "label";
-    sv.property = "property";
-    sv.value = 11.11;
-    sv.true_timestamp = Utils::get_unix_epoch_ms();
+    string label = "label";
+    sv.label = &label;
+    string property = "property";
+    sv.property = &property;
+    double value = 11.11;
+    sv.value = &value;
+    unsigned long long ts = Utils::get_unix_epoch_ms();
+    sv.true_timestamp = &ts;
 
     t.track_struct_event(sv);
     auto new_payload = e.get_added_payloads()[1].get();
@@ -278,7 +282,97 @@ TEST_CASE("tracker") {
     REQUIRE(new_payload[SNOWPLOW_SE_LABEL] == "label");
     REQUIRE(new_payload[SNOWPLOW_SE_PROPERTY] == "property");
     REQUIRE(new_payload[SNOWPLOW_SE_VALUE] == to_string(11.11));
-    REQUIRE(new_payload[SNOWPLOW_TRUE_TIMESTAMP] == to_string(sv.true_timestamp));   
+    REQUIRE(new_payload[SNOWPLOW_TRUE_TIMESTAMP] == to_string(ts));   
   }
 
+  SECTION("track screen view events generates sane event") {
+    MockEmitter e;
+    string url = "somewhere";
+    Tracker t(url, e);
+
+    Tracker::ScreenViewEvent se;
+    string id = "123";
+    se.id = &id;
+    t.track_screen_view(se);
+
+    REQUIRE(e.get_added_payloads().size() == 1);
+    auto payload = e.get_added_payloads()[0].get();
+
+    REQUIRE(payload[SNOWPLOW_TRACKER_VERSION] == SNOWPLOW_TRACKER_VERSION_LABEL);
+    REQUIRE(payload[SNOWPLOW_PLATFORM] == "srv");
+    REQUIRE(payload[SNOWPLOW_APP_ID] == "");
+    REQUIRE(payload[SNOWPLOW_SP_NAMESPACE] == "");
+
+    REQUIRE(payload[SNOWPLOW_SV_ID] == id);
+    REQUIRE(payload.count(SNOWPLOW_SV_NAME) == 0);
+    REQUIRE(payload.count(SNOWPLOW_TRUE_TIMESTAMP) == 0);
+
+    REQUIRE(payload[SNOWPLOW_TIMESTAMP].size() > 10);
+    REQUIRE(payload[SNOWPLOW_EID].size() > 5);
+
+    se.id = NULL;
+    string name = "name";
+    se.name = &name;
+    unsigned long long ttm = Utils::get_unix_epoch_ms();
+    se.true_timestamp = &ttm;
+
+    t.track_screen_view(se);
+    auto new_payload = e.get_added_payloads()[1].get();
+
+    REQUIRE(new_payload.count(SNOWPLOW_SV_ID) == 0);
+    REQUIRE(new_payload[SNOWPLOW_SV_NAME] == "name");
+    REQUIRE(new_payload[SNOWPLOW_TRUE_TIMESTAMP] ==  to_string(ttm));
+
+    se.id = NULL;
+    se.name = NULL;
+    bool arg_exception_on_no_id_or_name = false;
+    try {
+      t.track_screen_view(se);
+    }
+    catch (invalid_argument) {
+      arg_exception_on_no_id_or_name = true;
+    }
+
+    REQUIRE(arg_exception_on_no_id_or_name == true);
+  }
+
+  SECTION("track timing generates a sane event") {
+    MockEmitter e;
+    string url = "url";
+    Tracker t(url, e);
+
+    Tracker::TimingEvent te("category", "variable", 123);
+    t.track_timing(te);
+
+    REQUIRE(e.get_added_payloads().size() == 1);
+    auto payload = e.get_added_payloads()[0].get();
+
+    // default stuff for all events
+    REQUIRE(payload[SNOWPLOW_TRACKER_VERSION] == SNOWPLOW_TRACKER_VERSION_LABEL);
+    REQUIRE(payload[SNOWPLOW_PLATFORM] == "srv");
+    REQUIRE(payload[SNOWPLOW_APP_ID] == "");
+    REQUIRE(payload[SNOWPLOW_SP_NAMESPACE] == "");
+
+    // required
+    REQUIRE(payload[SNOWPLOW_UT_CATEGORY] == "category");
+    REQUIRE(payload[SNOWPLOW_UT_VARIABLE] == "variable");
+    REQUIRE(payload[SNOWPLOW_EID].size() > 5);
+    REQUIRE(payload[SNOWPLOW_TIMESTAMP].size() > 10);
+
+    REQUIRE(payload.count(SNOWPLOW_TRUE_TIMESTAMP) == 0);
+    REQUIRE(payload.count(SNOWPLOW_UT_LABEL) == 0);
+    REQUIRE(payload[SNOWPLOW_UT_TIMING] == "123");
+
+    string label = "hello world";
+    te.label = &label;
+    unsigned long long ts = Utils::get_unix_epoch_ms();
+    te.true_timestamp = &ts;
+
+    t.track_timing(te);
+
+    auto new_payload = e.get_added_payloads()[1].get();
+
+    REQUIRE(new_payload[SNOWPLOW_TRUE_TIMESTAMP] == to_string(ts));
+    REQUIRE(new_payload[SNOWPLOW_UT_LABEL] == "hello world");
+  }
 }

@@ -26,7 +26,7 @@ Tracker::Tracker(string & url, Emitter & e) : m_emitter(e), m_subject() {
 }
 
 void Tracker::track(Payload payload, vector<SelfDescribingJson> & contexts) {
-
+ 
   // Add standard KV Pairs
   payload.add(SNOWPLOW_TRACKER_VERSION, SNOWPLOW_TRACKER_VERSION_LABEL);
   payload.add(SNOWPLOW_PLATFORM, this->m_platform);
@@ -84,21 +84,75 @@ void Tracker::track_struct_event(StructuredEvent se) {
   p.add(SNOWPLOW_EVENT, SNOWPLOW_EVENT_STRUCTURED);
   p.add(SNOWPLOW_SE_ACTION, se.action);
   p.add(SNOWPLOW_SE_CATEGORY, se.category);
+  p.add(SNOWPLOW_TIMESTAMP, to_string(se.timestamp));
 
-  if (se.timestamp > 0) {
-    p.add(SNOWPLOW_TIMESTAMP, to_string(se.timestamp));
-  }
-
-  if (se.true_timestamp != 0) {
-    p.add(SNOWPLOW_TRUE_TIMESTAMP, to_string(se.true_timestamp));
+  if (se.true_timestamp != NULL) {
+    p.add(SNOWPLOW_TRUE_TIMESTAMP, to_string(*se.true_timestamp));
   }
 
   p.add(SNOWPLOW_EID, se.event_id);
-  p.add(SNOWPLOW_SE_LABEL, se.label);
-  p.add(SNOWPLOW_SE_PROPERTY, se.property);
-  p.add(SNOWPLOW_SE_VALUE, to_string(se.value));
+
+  if (se.label != NULL) {
+    p.add(SNOWPLOW_SE_LABEL, *se.label);
+  }
+
+  if (se.property != NULL) {
+    p.add(SNOWPLOW_SE_PROPERTY, *se.property);
+  }
+
+  if (se.value != NULL) {
+    p.add(SNOWPLOW_SE_VALUE, to_string(*se.value));
+  }
 
   track(p, se.contexts);
+}
+
+void Tracker::track_screen_view(Tracker::ScreenViewEvent sve) {
+
+  if (sve.name == NULL && sve.id == NULL) {
+    throw invalid_argument("Either name or id field must be set");
+  }
+
+  Payload p;
+
+  p.add(SNOWPLOW_EID, sve.event_id);
+  p.add(SNOWPLOW_TIMESTAMP, sve.event_id);
+
+  if (sve.id != NULL) {
+    p.add(SNOWPLOW_SV_ID, *sve.id);
+  }
+
+  if (sve.name != NULL) {
+    p.add(SNOWPLOW_SV_NAME, *sve.name);
+  }
+
+  if (sve.true_timestamp != NULL) {
+    p.add(SNOWPLOW_TRUE_TIMESTAMP, to_string(*sve.true_timestamp));
+  }
+
+  track(p, sve.contexts);
+}
+
+void Tracker::track_timing(TimingEvent te) {
+  Payload p;
+
+  p.add(SNOWPLOW_UT_CATEGORY, te.category);
+  p.add(SNOWPLOW_UT_VARIABLE, te.variable);
+
+  p.add(SNOWPLOW_EID, te.event_id);
+  p.add(SNOWPLOW_TIMESTAMP, to_string(te.timestamp));
+
+  if (te.true_timestamp != NULL) {
+    p.add(SNOWPLOW_TRUE_TIMESTAMP, to_string(*te.true_timestamp));
+  }
+
+  p.add(SNOWPLOW_UT_TIMING, to_string(te.timing));
+  
+  if (te.label != NULL) {
+    p.add(SNOWPLOW_UT_LABEL, *te.label);
+  }
+
+  track(p, te.contexts);
 }
 
 void Tracker::flush()
@@ -132,10 +186,10 @@ Tracker::StructuredEvent::StructuredEvent(string category, string action) {
   this->contexts = vector<SelfDescribingJson>();
   this->event_id = Utils::get_uuid4();
   this->timestamp = Utils::get_unix_epoch_ms();
-  this->true_timestamp = 0;
-  this->label = "";
-  this->property = "";
-  this->value = 0.0;
+  this->true_timestamp = NULL;
+  this->label = NULL;
+  this->property = NULL;
+  this->value = NULL;
 }
 //
 //Tracker::SelfDescribingEvent::SelfDescribingEvent(SelfDescribingJson event): event(event) {
@@ -149,20 +203,20 @@ Tracker::ScreenViewEvent::ScreenViewEvent() {
   this->contexts = vector<SelfDescribingJson>();
   this->event_id = Utils::get_uuid4();
   this->timestamp = Utils::get_unix_epoch_ms();
-  this->true_timestamp = 0;
-  this->id = "";
-  this->name = "";
+  this->true_timestamp = NULL;
+  this->id = NULL;
+  this->name = NULL;
 }
 
-Tracker::TimingEvent::TimingEvent(string category, string variable) {
+Tracker::TimingEvent::TimingEvent(string category, string variable, unsigned long long timing) {
   this->category = category;
   this->variable = variable;
   this->timestamp = Utils::get_unix_epoch_ms();
-  this->true_timestamp = 0;
-  this->timing = 0;
+  this->true_timestamp = NULL;
+  this->timing = timing;
   this->contexts = vector<SelfDescribingJson>();
   this->event_id = Utils::get_uuid4();
-  this->label = "";
+  this->label = NULL;
 }
 //
 //Tracker::EcommerceTransactionItemEvent::EcommerceTransactionItemEvent(string sku, double price) {
