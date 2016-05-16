@@ -32,11 +32,6 @@ using namespace std;
 
 class Emitter {
 public:
-  enum Strategy {
-    SYNC,
-    ASYNC
-  };
-
   enum Method {
     POST,
     GET
@@ -47,7 +42,7 @@ public:
     HTTPS
   };
 
-  Emitter(const string & uri, Strategy strategy, Method method, Protocol protocol, int send_limit, 
+  Emitter(const string & uri, Method method, Protocol protocol, int send_limit, 
     int byte_limit_post, int byte_limit_get, const string & db_name);
   ~Emitter();
   virtual void start();
@@ -57,12 +52,11 @@ public:
 
 private:
   CrackedUrl m_url;
-  Strategy m_strategy;
   Method m_method;
   unsigned int m_send_limit;
   unsigned int m_byte_limit_get;
   unsigned int m_byte_limit_post;
-  Storage m_db;
+  string m_db_name;
 
   thread m_daemon_thread;
   condition_variable m_check_db;
