@@ -16,8 +16,6 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 TEST_CASE("client_session") {
   ClientSession cs("test.db");
-  //REQUIRE("" == cs.get_session_context("fuck-off").to_string());
-
   cs.start(2000, 2000, 500);
 
   this_thread::sleep_for(chrono::milliseconds(5000));
