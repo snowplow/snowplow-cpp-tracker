@@ -22,7 +22,7 @@ TEST_CASE("tracker") {
     bool started = false;
     vector<Payload> p;
   public:
-    MockEmitter() : Emitter("abc123.duck", Emitter::Strategy::ASYNC, Emitter::Method::POST, Emitter::Protocol::HTTP, 0, 0, 0, "test.db") {}
+    MockEmitter() : Emitter("abc123.duck", Emitter::Method::POST, Emitter::Protocol::HTTP, 0, 0, 0, "test.db") {}
 
     void start() {
       started = true;
