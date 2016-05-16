@@ -63,17 +63,10 @@ TEST_CASE("tracker") {
 
     auto payload = payloads[0].get();
 
-    /*
-     payload.add(SNOWPLOW_TRACKER_VERSION, SNOWPLOW_TRACKER_VERSION_LABEL);
-  payload.add(SNOWPLOW_PLATFORM, this->m_platform);
-  payload.add(SNOWPLOW_APP_ID, this->m_app_id);
-  payload.add(SNOWPLOW_SP_NAMESPACE, this->m_namespace);
-
-    */
-
     REQUIRE(payload[SNOWPLOW_TRACKER_VERSION] == SNOWPLOW_TRACKER_VERSION_LABEL);
-    //REQUIRE(payload[SNOWPLOW_PLATFORM] == SNOWPLOW_PL);
-
+    REQUIRE(payload[SNOWPLOW_PLATFORM] == "srv");
+    REQUIRE(payload[SNOWPLOW_APP_ID] == "");
+    REQUIRE(payload[SNOWPLOW_SP_NAMESPACE] == "");
   }
 
 }

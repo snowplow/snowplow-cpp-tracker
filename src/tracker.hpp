@@ -37,6 +37,37 @@ public:
   ~Tracker();
   void flush();
   void close();
+
+  class PageViewEvent {
+  public:
+    string notsure;
+  };
+
+  class StructuredEvent {
+  public:
+    string notsure;
+  };
+
+  class SelfDescribingEvent {
+  public:
+    string notsure;
+  };
+
+  class ScreenViewEvent {
+  public:
+    string notsure;
+  };
+
+  class TimingEvent {
+  public:
+    string notsure;
+  };
+
+  class EcommerceTransactionEvent {
+  public:
+    string notsure;
+  };
+
 };
 
 #endif

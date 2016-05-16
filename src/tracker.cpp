@@ -14,8 +14,15 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "tracker.hpp"
 
 Tracker::Tracker(string & url, Emitter & e) : m_emitter(e), m_subject() {
+  // set defaults
+  this->m_has_subject = false;
+  this->m_platform = "srv";
+  this->m_app_id = "";
+  this->m_use_base64 = true;
+  this->m_namespace = "";
+  
+  // start the emitter daemon if it's not started already
   e.start();
-  //this->m_has_subject = false;
 }
 
 void Tracker::track(Payload payload, vector<SelfDescribingJson> & contexts) {
@@ -36,7 +43,6 @@ void Tracker::track(Payload payload, vector<SelfDescribingJson> & contexts) {
   }
 
   this->m_emitter.add(payload);
-
 }
 
 void Tracker::flush()
