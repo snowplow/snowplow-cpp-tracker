@@ -72,18 +72,6 @@ TEST_CASE("tracker") {
     REQUIRE(payload[SNOWPLOW_SP_NAMESPACE] == "");
   }
 
-  //SECTION("page view events have appropriate defaults") {
-  //  unsigned long long time_now = Utils::get_unix_epoch_ms();
-  //  Tracker::PageViewEvent p("http://hello/world");
-  //  REQUIRE(p.page_url == "http://hello/world");
-  //  REQUIRE(p.page_title == "");
-  //  REQUIRE(p.referrer == "");
-  //  REQUIRE(p.timestamp > (time_now - 1000));
-  //  REQUIRE(p.timestamp < (time_now + 1000));
-  //  REQUIRE(p.true_timestamp == 0);
-  //  REQUIRE(p.contexts.size() == 0);
-  //}
-
   SECTION("structured events have appropriate defaults") {
     unsigned long long time_now = Utils::get_unix_epoch_ms();
     Tracker::StructuredEvent s("category", "action");
@@ -135,86 +123,6 @@ TEST_CASE("tracker") {
     REQUIRE(t.contexts.size() == 0);
     REQUIRE(t.event_id.size() > 5);
   }
-
-  //SECTION("EcommerceTransactionItemEvent's have appropriate defaults") {
-  //  unsigned long long time_now = Utils::get_unix_epoch_ms();
-  //  Tracker::EcommerceTransactionItemEvent e("cat", 99.99);
-  //  REQUIRE(e.sku == "cat");
-  //  REQUIRE(e.price == 99.99);
-  //  REQUIRE(e.category == "");
-  //  REQUIRE(e.contexts.size() == 0);
-  //  REQUIRE(e.event_id.size() > 5);
-  //  REQUIRE(e.name == "");
-  //  REQUIRE(e.quantity == 1);
-  //}
-
-  /*SECTION("EcommerceTransactionEvent's have appropriate defaults") {
-    unsigned long long time_now = Utils::get_unix_epoch_ms();
-    Tracker::EcommerceTransactionEvent e("order", 99.99);
-    REQUIRE(e.order_id == "order");
-    REQUIRE(e.total_value == 99.99);
-    REQUIRE(e.affiliation == "");
-    REQUIRE(e.city == "");
-    REQUIRE(e.contexts.size() == 0);
-    REQUIRE(e.country == "");
-    REQUIRE(e.currency == "");
-    REQUIRE(e.event_id.size() > 5);
-    REQUIRE(e.items.size() == 0);
-    REQUIRE(e.shipping == 0.0);
-    REQUIRE(e.state == "");
-    REQUIRE(e.tax_value == 0.0);
-    REQUIRE(e.true_timestamp == 0);
-    REQUIRE(e.timestamp > time_now - 1000);
-    REQUIRE(e.timestamp < time_now + 1000);
-  }*/
-
-  //SECTION("Track page view event tracks a pageview event") {
-  //  MockEmitter e;
-  //  string url = "";
-  //  Tracker t(url, e);
-
-  //  Tracker::PageViewEvent pve("page!");
-  //  t.track_page_view_event(pve);
-
-  //  REQUIRE(e.get_added_payloads().size() == 1);
-  //  auto payload = e.get_added_payloads()[0].get();
-
-  //  REQUIRE(payload[SNOWPLOW_TRACKER_VERSION] == SNOWPLOW_TRACKER_VERSION_LABEL);
-  //  REQUIRE(payload[SNOWPLOW_PLATFORM] == "srv");
-  //  REQUIRE(payload[SNOWPLOW_APP_ID] == "");
-  //  REQUIRE(payload[SNOWPLOW_SP_NAMESPACE] == "");
-
-  //  REQUIRE(payload[SNOWPLOW_EVENT] == SNOWPLOW_EVENT_PAGE_VIEW);
-  //  REQUIRE(payload[SNOWPLOW_PAGE_URL] == "page!");
-  //  REQUIRE(payload[SNOWPLOW_PAGE_TITLE] == "");
-  //  REQUIRE(payload[SNOWPLOW_PAGE_REFR] == "");
-  //  REQUIRE(payload[SNOWPLOW_TIMESTAMP].size() > 10);
-  //  REQUIRE(payload[SNOWPLOW_EID].size() > 5);
-  //  REQUIRE(payload.find(SNOWPLOW_TRUE_TIMESTAMP) == payload.end()); // ttm is not present!
-
-  //  pve.true_timestamp = Utils::get_unix_epoch_ms();
-  //  pve.page_title = "hello world";
-  //  pve.referrer = "http://google.com";
-
-  //  t.track_page_view_event(pve);
-
-  //  auto new_payload = e.get_added_payloads()[1].get();
-  //  REQUIRE(new_payload[SNOWPLOW_PAGE_TITLE] == "hello world");
-  //  REQUIRE(new_payload[SNOWPLOW_PAGE_REFR] == "http://google.com");
-  //  REQUIRE(new_payload[SNOWPLOW_TRUE_TIMESTAMP].size() > 10);
-
-  //  // page url is mandatory
-  //  pve.page_url = "";
-  //  bool is_arg_exception_no_page_url = false;
-  //  try {
-  //    t.track_page_view_event(pve);
-  //  }
-  //  catch (invalid_argument) {
-  //    is_arg_exception_no_page_url = true;
-  //  }
-
-  //  REQUIRE(is_arg_exception_no_page_url == true);
-  //}
 
   SECTION("track structured event tracks a structured event") {
     bool is_arg_exception_empty_category;

@@ -33,19 +33,6 @@ private:
 
 public:
 
-  //class PageViewEvent {
-  //public:
-  //  string page_url; // required
-  //  string page_title; // optional from here
-  //  string referrer;
-  //  unsigned long long timestamp;
-  //  string event_id;
-  //  unsigned long long true_timestamp;
-  //  vector<SelfDescribingJson> contexts;
-
-  //  PageViewEvent(string);
-  //};
-
   class StructuredEvent {
   public:
     string category; // required
@@ -98,39 +85,6 @@ public:
     TimingEvent(string, string, unsigned long long);
   };
 
-  //class EcommerceTransactionItemEvent {
-  //public:
-  //  string sku; // required
-  //  double price; // required
-  //  long quantity;
-  //  string name;
-  //  string category;
-  //  string event_id;
-  //  vector<SelfDescribingJson> contexts;
-
-  //  EcommerceTransactionItemEvent(string, double);
-  //};
-
-  //class EcommerceTransactionEvent {
-  //public:
-  //  string order_id; // required
-  //  double total_value; // required
-  //  string affiliation;
-  //  double tax_value;
-  //  double shipping;
-  //  string city;
-  //  string state;
-  //  string country;
-  //  string currency;
-  //  vector<EcommerceTransactionItemEvent> items;
-  //  unsigned long long timestamp;
-  //  string event_id;
-  //  unsigned long long true_timestamp;
-  //  vector<SelfDescribingJson> contexts;
-
-  //  EcommerceTransactionEvent(string, double);
-  //};
-
   Tracker(string & url, Emitter & e);
   ~Tracker();
 
@@ -138,14 +92,11 @@ public:
   void close();
   
   void track(Payload p, vector<SelfDescribingJson> & contexts);
-  //void track_page_view_event(PageViewEvent);
+
   void track_struct_event(StructuredEvent);
-  //void track_self_describing_event(SelfDescribingEvent);
   void track_screen_view(ScreenViewEvent);
   void track_timing(TimingEvent);
   void track_unstruct_event(SelfDescribingEvent e);
-  //void track_ecomerce_transaction(EcommerceTransactionEvent);
-  //void track_ecomerce_transaction_item(EcommerceTransactionItemEvent, string, string, unsigned long long, unsigned long long);
 
 };
 

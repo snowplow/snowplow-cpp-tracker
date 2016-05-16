@@ -51,30 +51,6 @@ void Tracker::track(Payload payload, vector<SelfDescribingJson> & contexts) {
   this->m_emitter.add(payload);
 }
 
-//void Tracker::track_page_view_event(PageViewEvent p) {
-//
-//  if (p.page_url == "") { throw invalid_argument("Page view URL cannot be empty"); }
-//
-//  Payload payload;
-//  payload.add(SNOWPLOW_EVENT, SNOWPLOW_EVENT_PAGE_VIEW);
-//  payload.add(SNOWPLOW_PAGE_URL, p.page_url);
-//  
-//  if (p.timestamp > 0) {
-//    payload.add(SNOWPLOW_TIMESTAMP, to_string(p.timestamp));
-//  }
-//
-//  payload.add(SNOWPLOW_EID, p.event_id);
-//
-//  if (p.true_timestamp > 0) {
-//    payload.add(SNOWPLOW_TRUE_TIMESTAMP, to_string(p.true_timestamp));
-//  }
-//  
-//  payload.add(SNOWPLOW_PAGE_REFR, p.referrer);
-//  payload.add(SNOWPLOW_PAGE_TITLE, p.page_title);
-//
-//  track(payload, p.contexts);
-//}
-
 void Tracker::track_struct_event(StructuredEvent se) {
   if (se.action == "") { throw invalid_argument("Action is required"); }
   if (se.category == "") { throw invalid_argument("Category is required"); }
@@ -182,16 +158,6 @@ Tracker::~Tracker()
 {
   close();
 }
-//
-//Tracker::PageViewEvent::PageViewEvent(string page_url) {
-//  this->page_url = page_url;
-//  this->page_title = "";
-//  this->event_id = Utils::get_uuid4();
-//  this->referrer = "";
-//  this->timestamp = Utils::get_unix_epoch_ms();
-//  this->true_timestamp = 0;
-//  this->contexts = vector<SelfDescribingJson>();
-//}
 
 Tracker::StructuredEvent::StructuredEvent(string category, string action) {
   this->category = category;
@@ -231,30 +197,3 @@ Tracker::TimingEvent::TimingEvent(string category, string variable, unsigned lon
   this->event_id = Utils::get_uuid4();
   this->label = NULL;
 }
-//
-//Tracker::EcommerceTransactionItemEvent::EcommerceTransactionItemEvent(string sku, double price) {
-//  this->sku = sku;
-//  this->price = price;
-//  this->event_id = Utils::get_uuid4();
-//  this->quantity = 1;
-//  this->contexts = vector<SelfDescribingJson>();
-//  this->name = "";
-//  this->category = "";
-//}
-//
-//Tracker::EcommerceTransactionEvent::EcommerceTransactionEvent(string order_id, double total_value) {
-//  this->order_id = order_id;
-//  this->total_value = total_value;
-//  this->items = vector<EcommerceTransactionItemEvent>();
-//  this->affiliation = "";
-//  this->city = "";
-//  this->contexts = vector<SelfDescribingJson>();
-//  this->country = "";
-//  this->currency = "";
-//  this->event_id = Utils::get_uuid4();
-//  this->timestamp = Utils::get_unix_epoch_ms();
-//  this->shipping = 0.0;
-//  this->state = "";
-//  this->tax_value = 0.0;
-//  this->true_timestamp = 0;
-//}
