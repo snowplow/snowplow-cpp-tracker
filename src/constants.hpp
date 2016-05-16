@@ -39,6 +39,7 @@ const string SNOWPLOW_SCHEMA_CLIENT_SESSION = "iglu:com.snowplowanalytics.snowpl
 // event types
 const string SNOWPLOW_EVENT_STRUCTURED = "se";
 const string SNOWPLOW_EVENT_UNSTRUCTURED = "ue";
+const string SNOWPLOW_EVENT_PAGE_VIEW = "pv";
 
 const string SNOWPLOW_CONTEXT = "co";
 const string SNOWPLOW_CONTEXT_ENCODED = "cx";
@@ -72,6 +73,11 @@ const string SNOWPLOW_SE_ACTION = "se_ac";
 const string SNOWPLOW_SE_LABEL = "se_la";
 const string SNOWPLOW_SE_PROPERTY = "se_pr";
 const string SNOWPLOW_SE_VALUE = "se_va";
+
+// page view
+const string SNOWPLOW_PAGE_URL = "url";
+const string SNOWPLOW_PAGE_TITLE = "page";
+const string SNOWPLOW_PAGE_REFR = "refr";
 
 // screen view
 const string SNOWPLOW_SV_ID = "id";

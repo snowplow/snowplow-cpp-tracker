@@ -33,24 +33,18 @@ private:
 
 public:
 
-  void track(Payload p, vector<SelfDescribingJson> & contexts);
-  Tracker(string & url, Emitter & e);
-  ~Tracker();
-  void flush();
-  void close();
+  //class PageViewEvent {
+  //public:
+  //  string page_url; // required
+  //  string page_title; // optional from here
+  //  string referrer;
+  //  unsigned long long timestamp;
+  //  string event_id;
+  //  unsigned long long true_timestamp;
+  //  vector<SelfDescribingJson> contexts;
 
-  class PageViewEvent {
-  public:
-    string page_url; // required
-    string page_title; // optional from here
-    string referrer;
-    unsigned long long timestamp;
-    string event_id;
-    unsigned long long true_timestamp;
-    vector<SelfDescribingJson> contexts;
-
-    PageViewEvent(string);
-  };
+  //  PageViewEvent(string);
+  //};
 
   class StructuredEvent {
   public:
@@ -67,16 +61,16 @@ public:
     StructuredEvent(string, string); // cat / action
   };
 
-  class SelfDescribingEvent {
-  public:
-    SelfDescribingJson event; // required
-    unsigned long long timestamp;
-    string event_id;
-    unsigned long long true_timestamp;
-    vector<SelfDescribingJson> contexts;
+  //class SelfDescribingEvent {
+  //public:
+  //  SelfDescribingJson event; // required
+  //  unsigned long long timestamp;
+  //  string event_id;
+  //  unsigned long long true_timestamp;
+  //  vector<SelfDescribingJson> contexts;
 
-    SelfDescribingEvent(SelfDescribingJson);
-  };
+  //  SelfDescribingEvent(SelfDescribingJson);
+  //};
 
   class ScreenViewEvent {
   public:
@@ -104,38 +98,53 @@ public:
     TimingEvent(string, string);
   };
 
-  class EcommerceTransactionItemEvent {
-  public:
-    string sku; // required
-    double price; // required
-    long quantity;
-    string name;
-    string category;
-    string event_id;
-    vector<SelfDescribingJson> contexts;
+  //class EcommerceTransactionItemEvent {
+  //public:
+  //  string sku; // required
+  //  double price; // required
+  //  long quantity;
+  //  string name;
+  //  string category;
+  //  string event_id;
+  //  vector<SelfDescribingJson> contexts;
 
-    EcommerceTransactionItemEvent(string, double);
-  };
+  //  EcommerceTransactionItemEvent(string, double);
+  //};
 
-  class EcommerceTransactionEvent {
-  public:
-    string order_id; // required
-    double total_value; // required
-    string affiliation;
-    double tax_value;
-    double shipping;
-    string city;
-    string state;
-    string country;
-    string currency;
-    vector<EcommerceTransactionItemEvent> items;
-    unsigned long long timestamp;
-    string event_id;
-    unsigned long long true_timestamp;
-    vector<SelfDescribingJson> contexts;
+  //class EcommerceTransactionEvent {
+  //public:
+  //  string order_id; // required
+  //  double total_value; // required
+  //  string affiliation;
+  //  double tax_value;
+  //  double shipping;
+  //  string city;
+  //  string state;
+  //  string country;
+  //  string currency;
+  //  vector<EcommerceTransactionItemEvent> items;
+  //  unsigned long long timestamp;
+  //  string event_id;
+  //  unsigned long long true_timestamp;
+  //  vector<SelfDescribingJson> contexts;
 
-    EcommerceTransactionEvent(string, double);
-  };
+  //  EcommerceTransactionEvent(string, double);
+  //};
+
+  Tracker(string & url, Emitter & e);
+  ~Tracker();
+
+  void flush();
+  void close();
+  
+  void track(Payload p, vector<SelfDescribingJson> & contexts);
+  //void track_page_view_event(PageViewEvent);
+  void track_struct_event(StructuredEvent);
+  //void track_self_describing_event(SelfDescribingEvent);
+  void track_screen_view(ScreenViewEvent);
+  void track_timing(TimingEvent);
+  //void track_ecomerce_transaction(EcommerceTransactionEvent);
+  //void track_ecomerce_transaction_item(EcommerceTransactionItemEvent, string, string, unsigned long long, unsigned long long);
 
 };
 

@@ -70,17 +70,17 @@ TEST_CASE("tracker") {
     REQUIRE(payload[SNOWPLOW_SP_NAMESPACE] == "");
   }
 
-  SECTION("page view events have appropriate defaults") {
-    unsigned long long time_now = Utils::get_unix_epoch_ms();
-    Tracker::PageViewEvent p("http://hello/world");
-    REQUIRE(p.page_url == "http://hello/world");
-    REQUIRE(p.page_title == "");
-    REQUIRE(p.referrer == "");
-    REQUIRE(p.timestamp > (time_now - 1000));
-    REQUIRE(p.timestamp < (time_now + 1000));
-    REQUIRE(p.true_timestamp == 0);
-    REQUIRE(p.contexts.size() == 0);
-  }
+  //SECTION("page view events have appropriate defaults") {
+  //  unsigned long long time_now = Utils::get_unix_epoch_ms();
+  //  Tracker::PageViewEvent p("http://hello/world");
+  //  REQUIRE(p.page_url == "http://hello/world");
+  //  REQUIRE(p.page_title == "");
+  //  REQUIRE(p.referrer == "");
+  //  REQUIRE(p.timestamp > (time_now - 1000));
+  //  REQUIRE(p.timestamp < (time_now + 1000));
+  //  REQUIRE(p.true_timestamp == 0);
+  //  REQUIRE(p.contexts.size() == 0);
+  //}
 
   SECTION("structured events have appropriate defaults") {
     unsigned long long time_now = Utils::get_unix_epoch_ms();
@@ -96,17 +96,17 @@ TEST_CASE("tracker") {
     REQUIRE(s.value == 0.0);
   }
 
-  SECTION("SelfDescribingEvents have appropriate defaults") {
-    unsigned long long time_now = Utils::get_unix_epoch_ms();
-    SelfDescribingJson e = SelfDescribingJson("abc", "{\"hello\": \"world\"}"_json);
-    Tracker::SelfDescribingEvent sde(e);
-    REQUIRE(sde.event.to_string() == e.to_string());
-    REQUIRE(sde.contexts.size() == 0);
-    REQUIRE(sde.event_id.size() > 5);
-    REQUIRE(sde.timestamp > time_now - 1000);
-    REQUIRE(sde.timestamp < time_now + 1000);
-    REQUIRE(sde.true_timestamp == 0);
-  }
+  //SECTION("SelfDescribingEvents have appropriate defaults") {
+  //  unsigned long long time_now = Utils::get_unix_epoch_ms();
+  //  SelfDescribingJson e = SelfDescribingJson("abc", "{\"hello\": \"world\"}"_json);
+  //  Tracker::SelfDescribingEvent sde(e);
+  //  REQUIRE(sde.event.to_string() == e.to_string());
+  //  REQUIRE(sde.contexts.size() == 0);
+  //  REQUIRE(sde.event_id.size() > 5);
+  //  REQUIRE(sde.timestamp > time_now - 1000);
+  //  REQUIRE(sde.timestamp < time_now + 1000);
+  //  REQUIRE(sde.true_timestamp == 0);
+  //}
 
   SECTION("ScreenViewEvents have appropriate defaults") {
     unsigned long long time_now = Utils::get_unix_epoch_ms();
@@ -134,19 +134,19 @@ TEST_CASE("tracker") {
     REQUIRE(t.event_id.size() > 5);
   }
 
-  SECTION("EcommerceTransactionItemEvent's have appropriate defaults") {
-    unsigned long long time_now = Utils::get_unix_epoch_ms();
-    Tracker::EcommerceTransactionItemEvent e("cat", 99.99);
-    REQUIRE(e.sku == "cat");
-    REQUIRE(e.price == 99.99);
-    REQUIRE(e.category == "");
-    REQUIRE(e.contexts.size() == 0);
-    REQUIRE(e.event_id.size() > 5);
-    REQUIRE(e.name == "");
-    REQUIRE(e.quantity == 1);
-  }
+  //SECTION("EcommerceTransactionItemEvent's have appropriate defaults") {
+  //  unsigned long long time_now = Utils::get_unix_epoch_ms();
+  //  Tracker::EcommerceTransactionItemEvent e("cat", 99.99);
+  //  REQUIRE(e.sku == "cat");
+  //  REQUIRE(e.price == 99.99);
+  //  REQUIRE(e.category == "");
+  //  REQUIRE(e.contexts.size() == 0);
+  //  REQUIRE(e.event_id.size() > 5);
+  //  REQUIRE(e.name == "");
+  //  REQUIRE(e.quantity == 1);
+  //}
 
-  SECTION("EcommerceTransactionEvent's have appropriate defaults") {
+  /*SECTION("EcommerceTransactionEvent's have appropriate defaults") {
     unsigned long long time_now = Utils::get_unix_epoch_ms();
     Tracker::EcommerceTransactionEvent e("order", 99.99);
     REQUIRE(e.order_id == "order");
@@ -164,5 +164,120 @@ TEST_CASE("tracker") {
     REQUIRE(e.true_timestamp == 0);
     REQUIRE(e.timestamp > time_now - 1000);
     REQUIRE(e.timestamp < time_now + 1000);
+  }*/
+
+  //SECTION("Track page view event tracks a pageview event") {
+  //  MockEmitter e;
+  //  string url = "";
+  //  Tracker t(url, e);
+
+  //  Tracker::PageViewEvent pve("page!");
+  //  t.track_page_view_event(pve);
+
+  //  REQUIRE(e.get_added_payloads().size() == 1);
+  //  auto payload = e.get_added_payloads()[0].get();
+
+  //  REQUIRE(payload[SNOWPLOW_TRACKER_VERSION] == SNOWPLOW_TRACKER_VERSION_LABEL);
+  //  REQUIRE(payload[SNOWPLOW_PLATFORM] == "srv");
+  //  REQUIRE(payload[SNOWPLOW_APP_ID] == "");
+  //  REQUIRE(payload[SNOWPLOW_SP_NAMESPACE] == "");
+
+  //  REQUIRE(payload[SNOWPLOW_EVENT] == SNOWPLOW_EVENT_PAGE_VIEW);
+  //  REQUIRE(payload[SNOWPLOW_PAGE_URL] == "page!");
+  //  REQUIRE(payload[SNOWPLOW_PAGE_TITLE] == "");
+  //  REQUIRE(payload[SNOWPLOW_PAGE_REFR] == "");
+  //  REQUIRE(payload[SNOWPLOW_TIMESTAMP].size() > 10);
+  //  REQUIRE(payload[SNOWPLOW_EID].size() > 5);
+  //  REQUIRE(payload.find(SNOWPLOW_TRUE_TIMESTAMP) == payload.end()); // ttm is not present!
+
+  //  pve.true_timestamp = Utils::get_unix_epoch_ms();
+  //  pve.page_title = "hello world";
+  //  pve.referrer = "http://google.com";
+
+  //  t.track_page_view_event(pve);
+
+  //  auto new_payload = e.get_added_payloads()[1].get();
+  //  REQUIRE(new_payload[SNOWPLOW_PAGE_TITLE] == "hello world");
+  //  REQUIRE(new_payload[SNOWPLOW_PAGE_REFR] == "http://google.com");
+  //  REQUIRE(new_payload[SNOWPLOW_TRUE_TIMESTAMP].size() > 10);
+
+  //  // page url is mandatory
+  //  pve.page_url = "";
+  //  bool is_arg_exception_no_page_url = false;
+  //  try {
+  //    t.track_page_view_event(pve);
+  //  }
+  //  catch (invalid_argument) {
+  //    is_arg_exception_no_page_url = true;
+  //  }
+
+  //  REQUIRE(is_arg_exception_no_page_url == true);
+  //}
+
+  SECTION("track structured event tracks a structured event") {
+    bool is_arg_exception_empty_category;
+    bool is_arg_exception_empty_action;
+
+    MockEmitter e; 
+    string url = "somewhere";
+    Tracker t(url, e);
+    
+    Tracker::StructuredEvent sv("", "hello");
+
+    try { t.track_struct_event(sv); } 
+    catch (invalid_argument) { is_arg_exception_empty_category = true; }
+
+    sv.action = "";
+    sv.category = "hello";
+
+    try { t.track_struct_event(sv); }
+    catch (invalid_argument) { is_arg_exception_empty_action = true; }
+
+    REQUIRE(is_arg_exception_empty_action);
+    REQUIRE(is_arg_exception_empty_category);
+
+    REQUIRE(e.get_added_payloads().size() == 0);
+
+    sv.action = "action";
+    sv.category = "category";
+
+    t.track_struct_event(sv);
+
+    REQUIRE(e.get_added_payloads().size() == 1);
+    auto payload = e.get_added_payloads()[0].get();
+
+    // default stuff for all events
+    REQUIRE(payload[SNOWPLOW_TRACKER_VERSION] == SNOWPLOW_TRACKER_VERSION_LABEL);
+    REQUIRE(payload[SNOWPLOW_PLATFORM] == "srv");
+    REQUIRE(payload[SNOWPLOW_APP_ID] == "");
+    REQUIRE(payload[SNOWPLOW_SP_NAMESPACE] == "");
+
+    // required
+    REQUIRE(payload[SNOWPLOW_EVENT] == SNOWPLOW_EVENT_STRUCTURED);
+    REQUIRE(payload[SNOWPLOW_SE_CATEGORY] == "category");
+    REQUIRE(payload[SNOWPLOW_SE_ACTION] == "action");
+
+    REQUIRE(payload[SNOWPLOW_TIMESTAMP].size() > 10);
+    REQUIRE(payload[SNOWPLOW_EID].size() > 5);
+    REQUIRE(payload.find(SNOWPLOW_TRUE_TIMESTAMP) == payload.end());
+
+    sv.contexts = vector<SelfDescribingJson>();
+    sv.contexts.push_back(SelfDescribingJson("hello", "{\"hello\":\"world\"}"_json));
+    sv.label = "label";
+    sv.property = "property";
+    sv.value = 11.11;
+    sv.true_timestamp = Utils::get_unix_epoch_ms();
+
+    t.track_struct_event(sv);
+    auto new_payload = e.get_added_payloads()[1].get();
+
+    REQUIRE(new_payload[SNOWPLOW_TIMESTAMP].size() > 10);
+    REQUIRE(new_payload[SNOWPLOW_EID].size() > 5);
+    REQUIRE(new_payload[SNOWPLOW_TIMESTAMP].size() > 10);
+    REQUIRE(new_payload[SNOWPLOW_SE_LABEL] == "label");
+    REQUIRE(new_payload[SNOWPLOW_SE_PROPERTY] == "property");
+    REQUIRE(new_payload[SNOWPLOW_SE_VALUE] == to_string(11.11));
+    REQUIRE(new_payload[SNOWPLOW_TRUE_TIMESTAMP] == to_string(sv.true_timestamp));   
   }
+
 }
