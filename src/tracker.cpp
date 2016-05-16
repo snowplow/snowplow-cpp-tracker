@@ -32,14 +32,17 @@ void Tracker::track(Payload payload, vector<SelfDescribingJson> & contexts) {
   payload.add(SNOWPLOW_APP_ID, this->m_app_id);
   payload.add(SNOWPLOW_SP_NAMESPACE, this->m_namespace);
 
-  if (m_has_subject) {
+  if (this->m_has_subject) {
     payload.add_map(m_subject.get_map());
   }
 
   if (contexts.size() > 0) {
-    for (int i = 0; i < contexts.size(); i++) {
-      payload.add_json(contexts[i].get(), m_use_base64, SNOWPLOW_CONTEXT_ENCODED, SNOWPLOW_CONTEXT);
+    json context_data_array;
+    for (int i = 0; i < contexts.size(); ++i) {
+      context_data_array.push_back(contexts[i].get());
     }
+    SelfDescribingJson context_json(SNOWPLOW_SCHEMA_CONTEXTS, context_data_array);
+    payload.add_json(context_json.get(), m_use_base64, SNOWPLOW_CONTEXT_ENCODED, SNOWPLOW_CONTEXT);
   }
 
   this->m_emitter.add(payload);
