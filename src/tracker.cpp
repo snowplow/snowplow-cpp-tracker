@@ -27,15 +27,18 @@ Tracker::Tracker(string & url, Emitter & e) : m_emitter(e), m_subject() {
 
 void Tracker::track(Payload payload, vector<SelfDescribingJson> & contexts) {
 
+  // Add standard KV Pairs
   payload.add(SNOWPLOW_TRACKER_VERSION, SNOWPLOW_TRACKER_VERSION_LABEL);
   payload.add(SNOWPLOW_PLATFORM, this->m_platform);
   payload.add(SNOWPLOW_APP_ID, this->m_app_id);
   payload.add(SNOWPLOW_SP_NAMESPACE, this->m_namespace);
 
+  // Add Subject KV Pairs
   if (this->m_has_subject) {
     payload.add_map(m_subject.get_map());
   }
 
+  // Build the final context and add it to the payload
   if (contexts.size() > 0) {
     json context_data_array;
     for (int i = 0; i < contexts.size(); ++i) {
@@ -45,6 +48,7 @@ void Tracker::track(Payload payload, vector<SelfDescribingJson> & contexts) {
     payload.add_json(context_json.get(), m_use_base64, SNOWPLOW_CONTEXT_ENCODED, SNOWPLOW_CONTEXT);
   }
 
+  // Add the event to the Emitter
   this->m_emitter.add(payload);
 }
 

@@ -27,6 +27,7 @@ Emitter::Emitter(const string & uri, Method method, Protocol protocol, int send_
     throw invalid_argument("FATAL: Emitter URL is not valid - " + this->m_url.to_string());
   }
 
+  this->m_running = false;
   this->m_method = method;
   this->m_send_limit = send_limit;
   this->m_byte_limit_post = byte_limit_post;

@@ -19,11 +19,12 @@ See the Apache License Version 2.0 for the specific language governing permissio
 TEST_CASE("tracker") {
 
   class MockEmitter : public Emitter {
+  private:
     bool started = false;
     vector<Payload> p;
+
   public:
     MockEmitter() : Emitter("abc123.duck", Emitter::Method::POST, Emitter::Protocol::HTTP, 0, 0, 0, "test.db") {}
-
     void start() {
       started = true;
     }
