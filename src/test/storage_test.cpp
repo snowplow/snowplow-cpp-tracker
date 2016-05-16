@@ -15,10 +15,10 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../storage.hpp"
 
 TEST_CASE("storage") {
-  Storage storage("test.db");
-  REQUIRE("test.db" == storage.get_db_name());
-  storage.delete_all_event_rows();
-  storage.delete_all_session_rows();
+  Storage *storage = Storage::instance("test.db");
+  REQUIRE("test.db" == storage->get_db_name());
+  storage->delete_all_event_rows();
+  storage->delete_all_session_rows();
 
   SECTION("should be able to insert,select and delete Payload objects to and from the database") {
     Payload p;
@@ -28,12 +28,12 @@ TEST_CASE("storage") {
 
     // INSERT 50 rows
     for (int i = 0; i < 50; i++) {
-      storage.insert_payload(p);
+      storage->insert_payload(p);
     }
 
     // SELECT one row
     list<Storage::EventRow>* event_list = new list<Storage::EventRow>;
-    storage.select_all_event_rows(event_list);
+    storage->select_all_event_rows(event_list);
     REQUIRE(50 == event_list->size());
 
     for (list<Storage::EventRow>::iterator it = event_list->begin(); it != event_list->end(); ++it) {
@@ -43,10 +43,10 @@ TEST_CASE("storage") {
     }
     event_list->clear();
 
-    storage.select_event_row_range(event_list, 100);
+    storage->select_event_row_range(event_list, 100);
     REQUIRE(50 == event_list->size());
     event_list->clear();
-    storage.select_event_row_range(event_list, 5);
+    storage->select_event_row_range(event_list, 5);
     REQUIRE(5 == event_list->size());
     
     // DELETE rows by id
@@ -54,23 +54,25 @@ TEST_CASE("storage") {
     for (list<Storage::EventRow>::iterator it = event_list->begin(); it != event_list->end(); ++it) {
       id_list->push_back(it->id);
     }
-    storage.delete_event_row_ids(id_list);
+    storage->delete_event_row_ids(id_list);
     event_list->clear();
     id_list->clear();
     delete(id_list);
 
-    storage.select_event_row_range(event_list, 100);
+    storage->select_event_row_range(event_list, 100);
     REQUIRE(45 == event_list->size());
     event_list->clear();
 
     // DELETE all rows
-    storage.delete_all_event_rows();
-    storage.select_all_event_rows(event_list);
+    storage->delete_all_event_rows();
+    storage->select_all_event_rows(event_list);
     REQUIRE(0 == event_list->size());
     event_list->clear();
 
     // Delete memory for list
     delete(event_list);
+    storage->delete_all_event_rows();
+    Storage::close();
   }
 
   SECTION("should be able to insert only one session object into the database") {
@@ -78,8 +80,8 @@ TEST_CASE("storage") {
 
     // Insert and check row
     json j = "{\"storage\":\"SQLITE\",\"previousSessionId\":null}"_json;
-    storage.insert_update_session(j);
-    storage.select_all_session_rows(session_rows);
+    storage->insert_update_session(j);
+    storage->select_all_session_rows(session_rows);
 
     REQUIRE(1 == session_rows->size());
     REQUIRE("{\"previousSessionId\":null,\"storage\":\"SQLITE\"}" == session_rows->front().dump());
@@ -87,9 +89,9 @@ TEST_CASE("storage") {
 
     // Check we can only insert one row
     for (int i = 0; i < 50; i++) {
-      storage.insert_update_session(j);
+      storage->insert_update_session(j);
     }
-    storage.select_all_session_rows(session_rows);
+    storage->select_all_session_rows(session_rows);
 
     REQUIRE(1 == session_rows->size());
     REQUIRE("{\"previousSessionId\":null,\"storage\":\"SQLITE\"}" == session_rows->front().dump());
@@ -97,8 +99,8 @@ TEST_CASE("storage") {
 
     // Check we can update the row values
     j = "{\"storage\":\"SQLITE\",\"previousSessionId\":\"a_value\"}"_json;
-    storage.insert_update_session(j);
-    storage.select_all_session_rows(session_rows);
+    storage->insert_update_session(j);
+    storage->select_all_session_rows(session_rows);
 
     REQUIRE(1 == session_rows->size());
     REQUIRE("{\"previousSessionId\":\"a_value\",\"storage\":\"SQLITE\"}" == session_rows->front().dump());
@@ -106,5 +108,7 @@ TEST_CASE("storage") {
 
     // Delete memory for list
     delete(session_rows);
+    storage->delete_all_session_rows();
+    Storage::close();
   }
 }

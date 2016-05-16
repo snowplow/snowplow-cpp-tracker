@@ -30,19 +30,25 @@ using json = nlohmann::json;
 
 class Storage {
 private:
+  static Storage *m_instance;
+  static mutex m_db_get;
+
+  Storage(const string & db_name);
+  ~Storage();
   string m_db_name;
   sqlite3 *m_db;
   sqlite3_stmt *m_add_stmt;
   mutex m_db_access;
 
 public:
+  static Storage *instance(const string & db_name);
+  static void close();
+
   struct EventRow {
     int id;
     Payload event;
   };
 
-  Storage(const string & db_name);
-  ~Storage();
   void insert_payload(Payload payload);
   void insert_update_session(json session_data);
   void select_all_event_rows(list<EventRow>* event_list);

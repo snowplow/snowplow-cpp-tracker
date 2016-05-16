@@ -21,6 +21,26 @@ const string db_table_session = "sessions";
 const string db_column_session_id = "id";
 const string db_column_session_data = "data";
 
+// --- Static Singleton Access
+
+Storage *Storage::m_instance = 0;
+mutex Storage::m_db_get;
+
+Storage *Storage::instance(const string & db_name) {
+  lock_guard<mutex> guard(m_db_get);
+  if (!m_instance) {
+    m_instance = new Storage(db_name);
+  }
+  return m_instance;
+}
+
+void Storage::close() {
+  delete(m_instance);
+  m_instance = 0;
+}
+
+// --- Constructor & Destructor
+
 Storage::Storage(const string & db_name) {
   sqlite3 *db;
   char *err_msg = 0;
