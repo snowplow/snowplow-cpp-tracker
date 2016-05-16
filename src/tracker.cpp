@@ -25,8 +25,7 @@ Tracker::Tracker(string & url, Emitter & e) : m_emitter(e), m_subject() {
   e.start();
 }
 
-void Tracker::track(Payload payload, vector<SelfDescribingJson> & contexts) {
- 
+void Tracker::track(Payload payload, vector<SelfDescribingJson> & contexts) { 
   // Add standard KV Pairs
   payload.add(SNOWPLOW_TRACKER_VERSION, SNOWPLOW_TRACKER_VERSION_LABEL);
   payload.add(SNOWPLOW_PLATFORM, this->m_platform);
@@ -136,8 +135,17 @@ void Tracker::track_screen_view(Tracker::ScreenViewEvent sve) {
 void Tracker::track_timing(TimingEvent te) {
   Payload p;
 
-  p.add(SNOWPLOW_UT_CATEGORY, te.category);
-  p.add(SNOWPLOW_UT_VARIABLE, te.variable);
+  map<string, string> m;
+  m[SNOWPLOW_UT_CATEGORY] = te.category;
+  m[SNOWPLOW_UT_VARIABLE] = te.variable;
+  m[SNOWPLOW_UT_TIMING] = to_string(te.timing);
+
+  if (te.label != NULL) {
+    m[SNOWPLOW_UT_LABEL] = *te.label;
+  }
+
+  auto sdj = SelfDescribingJson(SNOWPLOW_SCHEMA_USER_TIMINGS, m);
+  p.add_json(sdj.get(), this->m_use_base64, SNOWPLOW_UNSTRUCTURED_ENCODED, SNOWPLOW_UNSTRUCTURED);
 
   p.add(SNOWPLOW_EID, te.event_id);
   p.add(SNOWPLOW_TIMESTAMP, to_string(te.timestamp));
@@ -145,14 +153,19 @@ void Tracker::track_timing(TimingEvent te) {
   if (te.true_timestamp != NULL) {
     p.add(SNOWPLOW_TRUE_TIMESTAMP, to_string(*te.true_timestamp));
   }
-
-  p.add(SNOWPLOW_UT_TIMING, to_string(te.timing));
   
-  if (te.label != NULL) {
-    p.add(SNOWPLOW_UT_LABEL, *te.label);
-  }
-
   track(p, te.contexts);
+}
+
+void Tracker::track_unstruct_event(SelfDescribingEvent sde) {
+  Payload p;
+  p.add(SNOWPLOW_EVENT, SNOWPLOW_EVENT_UNSTRUCTURED);
+  p.add(SNOWPLOW_TIMESTAMP, to_string(sde.timestamp));
+  p.add(SNOWPLOW_EID, sde.event_id);
+
+  p.add_json(sde.event.get(), this->m_use_base64, SNOWPLOW_UNSTRUCTURED_ENCODED, SNOWPLOW_UNSTRUCTURED);
+
+  track(p, sde.contexts);
 }
 
 void Tracker::flush()
@@ -191,13 +204,13 @@ Tracker::StructuredEvent::StructuredEvent(string category, string action) {
   this->property = NULL;
   this->value = NULL;
 }
-//
-//Tracker::SelfDescribingEvent::SelfDescribingEvent(SelfDescribingJson event): event(event) {
-//  this->event_id = Utils::get_uuid4();
-//  this->timestamp = Utils::get_unix_epoch_ms();
-//  this->true_timestamp = 0;
-//  this->contexts = vector<SelfDescribingJson>();
-//}
+
+Tracker::SelfDescribingEvent::SelfDescribingEvent(SelfDescribingJson event): event(event) {
+  this->event_id = Utils::get_uuid4();
+  this->timestamp = Utils::get_unix_epoch_ms();
+  this->true_timestamp = NULL;
+  this->contexts = vector<SelfDescribingJson>();
+}
 
 Tracker::ScreenViewEvent::ScreenViewEvent() {
   this->contexts = vector<SelfDescribingJson>();

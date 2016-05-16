@@ -61,16 +61,16 @@ public:
     StructuredEvent(string, string); // cat / action
   };
 
-  //class SelfDescribingEvent {
-  //public:
-  //  SelfDescribingJson event; // required
-  //  unsigned long long timestamp;
-  //  string event_id;
-  //  unsigned long long true_timestamp;
-  //  vector<SelfDescribingJson> contexts;
+  class SelfDescribingEvent {
+  public:
+    SelfDescribingJson event; // required
+    unsigned long long timestamp;
+    string event_id;
+    unsigned long long *true_timestamp;
+    vector<SelfDescribingJson> contexts;
 
-  //  SelfDescribingEvent(SelfDescribingJson);
-  //};
+    SelfDescribingEvent(SelfDescribingJson);
+  };
 
   class ScreenViewEvent {
   public:
@@ -143,6 +143,7 @@ public:
   //void track_self_describing_event(SelfDescribingEvent);
   void track_screen_view(ScreenViewEvent);
   void track_timing(TimingEvent);
+  void track_unstruct_event(SelfDescribingEvent e);
   //void track_ecomerce_transaction(EcommerceTransactionEvent);
   //void track_ecomerce_transaction_item(EcommerceTransactionItemEvent, string, string, unsigned long long, unsigned long long);
 

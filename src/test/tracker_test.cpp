@@ -15,6 +15,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../tracker.hpp"
 #include "../emitter.hpp"
 #include "../vendored/json.hpp"
+#include "../vendored/base64.hpp"
 
 TEST_CASE("tracker") {
 
@@ -97,17 +98,17 @@ TEST_CASE("tracker") {
     REQUIRE(s.value == NULL);
   }
 
-  //SECTION("SelfDescribingEvents have appropriate defaults") {
-  //  unsigned long long time_now = Utils::get_unix_epoch_ms();
-  //  SelfDescribingJson e = SelfDescribingJson("abc", "{\"hello\": \"world\"}"_json);
-  //  Tracker::SelfDescribingEvent sde(e);
-  //  REQUIRE(sde.event.to_string() == e.to_string());
-  //  REQUIRE(sde.contexts.size() == 0);
-  //  REQUIRE(sde.event_id.size() > 5);
-  //  REQUIRE(sde.timestamp > time_now - 1000);
-  //  REQUIRE(sde.timestamp < time_now + 1000);
-  //  REQUIRE(sde.true_timestamp == 0);
-  //}
+  SECTION("SelfDescribingEvents have appropriate defaults") {
+    unsigned long long time_now = Utils::get_unix_epoch_ms();
+    SelfDescribingJson e = SelfDescribingJson("abc", "{\"hello\": \"world\"}"_json);
+    Tracker::SelfDescribingEvent sde(e);
+    REQUIRE(sde.event.to_string() == e.to_string());
+    REQUIRE(sde.contexts.size() == 0);
+    REQUIRE(sde.event_id.size() > 5);
+    REQUIRE(sde.timestamp > time_now - 1000);
+    REQUIRE(sde.timestamp < time_now + 1000);
+    REQUIRE(sde.true_timestamp == 0);
+  }
 
   SECTION("ScreenViewEvents have appropriate defaults") {
     unsigned long long time_now = Utils::get_unix_epoch_ms();
@@ -353,15 +354,21 @@ TEST_CASE("tracker") {
     REQUIRE(payload[SNOWPLOW_APP_ID] == "");
     REQUIRE(payload[SNOWPLOW_SP_NAMESPACE] == "");
 
-    // required
-    REQUIRE(payload[SNOWPLOW_UT_CATEGORY] == "category");
-    REQUIRE(payload[SNOWPLOW_UT_VARIABLE] == "variable");
     REQUIRE(payload[SNOWPLOW_EID].size() > 5);
     REQUIRE(payload[SNOWPLOW_TIMESTAMP].size() > 10);
 
     REQUIRE(payload.count(SNOWPLOW_TRUE_TIMESTAMP) == 0);
-    REQUIRE(payload.count(SNOWPLOW_UT_LABEL) == 0);
-    REQUIRE(payload[SNOWPLOW_UT_TIMING] == "123");
+
+    map<string, string> expected;
+    expected[SNOWPLOW_UT_TIMING] = "123";
+    expected[SNOWPLOW_UT_CATEGORY] = "category";
+    expected[SNOWPLOW_UT_VARIABLE] = "variable";
+    
+    SelfDescribingJson sdj(SNOWPLOW_SCHEMA_USER_TIMINGS, expected);
+
+    string json = sdj.to_string();
+    const unsigned char* c_json = (const unsigned char*)json.c_str();
+    REQUIRE(payload[SNOWPLOW_UNSTRUCTURED_ENCODED] == base64_encode(c_json, json.length()));
 
     string label = "hello world";
     te.label = &label;
@@ -369,10 +376,42 @@ TEST_CASE("tracker") {
     te.true_timestamp = &ts;
 
     t.track_timing(te);
-
+  
+    expected[SNOWPLOW_UT_LABEL] = "hello world";
     auto new_payload = e.get_added_payloads()[1].get();
 
     REQUIRE(new_payload[SNOWPLOW_TRUE_TIMESTAMP] == to_string(ts));
-    REQUIRE(new_payload[SNOWPLOW_UT_LABEL] == "hello world");
+   
+    SelfDescribingJson sde_w_label(SNOWPLOW_SCHEMA_USER_TIMINGS, expected);
+    string json_w_label = sde_w_label.to_string();
+    REQUIRE(base64_decode(new_payload[SNOWPLOW_UNSTRUCTURED_ENCODED]) == json_w_label);
+  }
+
+  SECTION("track unstruct event generates a sane event") {
+    MockEmitter e;
+    string url = "something";
+    Tracker t(url, e);
+
+    Tracker::SelfDescribingEvent sde(SelfDescribingJson("schema", "{ \"hello\":\"world\" }"_json));
+
+    t.track_unstruct_event(sde);
+
+    REQUIRE(e.get_added_payloads().size() == 1);
+    auto payload = e.get_added_payloads()[0].get();
+
+    REQUIRE(payload[SNOWPLOW_TRACKER_VERSION] == SNOWPLOW_TRACKER_VERSION_LABEL);
+    REQUIRE(payload[SNOWPLOW_PLATFORM] == "srv");
+    REQUIRE(payload[SNOWPLOW_APP_ID] == "");
+    REQUIRE(payload[SNOWPLOW_SP_NAMESPACE] == "");
+
+    REQUIRE(payload[SNOWPLOW_EVENT] == SNOWPLOW_EVENT_UNSTRUCTURED);
+    REQUIRE(payload[SNOWPLOW_TIMESTAMP].size() > 10);
+    REQUIRE(payload[SNOWPLOW_EID].size() > 5);
+
+    REQUIRE(payload.count(SNOWPLOW_TRUE_TIMESTAMP) == 0);
+
+    string json = sde.event.to_string();
+    const unsigned char* str = (const unsigned char*)json.c_str();
+    REQUIRE(payload[SNOWPLOW_UNSTRUCTURED_ENCODED] == base64_encode(str, json.length()));
   }
 }
