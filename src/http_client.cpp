@@ -152,6 +152,9 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUr
   BOOL is_sent = HttpSendRequest(h_request, NULL, 0, post_buf, post_buf_len);
 
   if (!is_sent) {
+    InternetCloseHandle(h_internet);
+    InternetCloseHandle(h_connect);
+    InternetCloseHandle(h_request);
     return HttpRequestResult(GetLastError(), 0, row_ids, oversize);
   }
 

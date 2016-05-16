@@ -14,7 +14,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../vendored/catch.hpp"
 #include "../http_client.hpp"
 
-//#define HTTP_TEST_URL "http://requestb.in/1gqq0of1" // url to use for get/post integration tests, comment out to skip
+//#define HTTP_TEST_URL "http://requestb.in/1ii1ykb1" // url to use for get/post integration tests, comment out to skip
 
 TEST_CASE("http_client") {
 
@@ -46,31 +46,37 @@ TEST_CASE("http_client") {
 #ifdef HTTP_TEST_URL
 
   SECTION("get requests work") {
-    HttpRequestResult r = HttpClient::http_get("http://requestb.in/1gqq0of1", list<int>(), false);
+    CrackedUrl c(HTTP_TEST_URL);
+    HttpRequestResult r = HttpClient::http_get(c, c.get_path(), list<int>(), false);
     REQUIRE(r.get_http_response_code() == 200);
     REQUIRE(r.is_success() == true);
   }
 
   SECTION("https get requests work") {
-    HttpRequestResult r = HttpClient::http_get("https://google.com", list<int>(), false);
+    CrackedUrl c(HTTP_TEST_URL);
+    HttpRequestResult r = HttpClient::http_get(c, c.get_path(), list<int>(), false);
     REQUIRE(r.get_http_response_code() == 200);
     REQUIRE(r.is_success() == true);
   }
 
   SECTION("post requests work") {
-    HttpRequestResult r = HttpClient::http_post("http://requestb.in/1gqq0of1", "{\"hello\":\"world\"}", list<int>(), false);
+    CrackedUrl c(HTTP_TEST_URL);
+    string post_data = "{\"hello\":\"world\"}";
+    HttpRequestResult r = HttpClient::http_post(c, post_data, list<int>(), false);
     REQUIRE(r.get_http_response_code() == 200);
     REQUIRE(r.is_success() == true);
   }
 
   SECTION("GET request to valid endpoint must return 200 code") {
-    HttpRequestResult r = HttpClient::http_get("http://a3b57da8.ngrok.io/i?e=pv", list<int>(), false);
+    CrackedUrl c(HTTP_TEST_URL);
+    HttpRequestResult r = HttpClient::http_get(c, c.get_path(), list<int>(), false);
     REQUIRE(r.get_http_response_code() == 200);
     REQUIRE(r.is_success() == true);
   }
 
   SECTION("POST request to valid endpoint must return 200 code") {
-    HttpRequestResult r = HttpClient::http_post("http://a3b57da8.ngrok.io/com.snowplowanalytics.snowplow/tp2", "{\"schema\":\"iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-3\",\"data\":[{\"dtm\":\"1234567890123\"}]}", list<int>(), false);
+    CrackedUrl c(HTTP_TEST_URL);
+    HttpRequestResult r = HttpClient::http_post(c, "{\"schema\":\"iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-3\",\"data\":[{\"dtm\":\"1234567890123\"}]}", list<int>(), false);
     REQUIRE(r.get_http_response_code() == 200);
     REQUIRE(r.is_success() == true);
   }
