@@ -30,12 +30,12 @@ HttpRequestResult HttpClient::http_get(const CrackedUrl url, const string & quer
 mutex log_read_write;
 
 struct Requests {
-	RequestMethod method,
-	CrackedUrl url,
-	string query_string,
-    string post_data, 
-	list<int> row_ids,
-	bool oversize
+  RequestMethod method,
+  CrackedUrl url,
+  string query_string,
+  string post_data, 
+  list<int> row_ids,
+  bool oversize
 };
 
 // int internal_error_code, int http_response_code, list<int> row_ids, bool oversize
@@ -46,25 +46,25 @@ Vector<Requests> requests_vec();
 const string HttpClient::TRACKER_AGENT = string("Snowplow C++ Tracker (Integration tests)");
 
 HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUrl url, const string & query_string, const string & post_data, list<int> row_ids, bool oversize) {
-	lock_guard<mutex> guard(log_read_write);
-	Requests r;
-	r.method = method;
-	r.url = url;
-	r.query_string = query_string;
-	r.post_data = post_data;
-	r.row_ids = row_ids;
-	r.oversize = oversize;
-	requests_vec.add(r);
+  lock_guard<mutex> guard(log_read_write);
+  Requests r;
+  r.method = method;
+  r.url = url;
+  r.query_string = query_string;
+  r.post_data = post_data;
+  r.row_ids = row_ids;
+  r.oversize = oversize;
+  requests_vec.add(r);
 }
 
 void test_set_http_response(HttpRequestResult r) {
-	lock_guard<mutex> guard(log_read_write);
-	test_http_response = r;
+  lock_guard<mutex> guard(log_read_write);
+  test_http_response = r;
 }
 
 Vector<Requests> test_get_http_request_results() {
-	lock_guard<mutex> guard(log_read_write);
-	return requests_vec;
+  lock_guard<mutex> guard(log_read_write);
+  return requests_vec;
 }
 
 // --- Windows32
