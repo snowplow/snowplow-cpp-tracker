@@ -27,9 +27,10 @@ ClientSession::ClientSession(const string & db_name) {
   if (session_rows->size() == 1) {
     try {
       json session_context = session_rows->front();
-      this->m_user_id = session_context[SNOWPLOW_SESSION_USER_ID];
-      this->m_current_session_id = session_context[SNOWPLOW_SESSION_ID];
-      this->m_session_index = session_context[SNOWPLOW_SESSION_INDEX];  
+
+      this->m_user_id = session_context[SNOWPLOW_SESSION_USER_ID].get<std::string>();
+      this->m_current_session_id = session_context[SNOWPLOW_SESSION_ID].get<std::string>();
+      this->m_session_index = session_context[SNOWPLOW_SESSION_INDEX].get<unsigned long long>();  
     } catch (...) {
       this->m_user_id = Utils::get_uuid4();
       this->m_current_session_id = "";
