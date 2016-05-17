@@ -1,22 +1,21 @@
 .PHONY: all clean dist-clean
 
-appname = tracker_test.o
+name = tracker_test.o
+files := $(shell find src -maxdepth 2 -name "*.cpp")
+objects  := $(patsubst %.cpp, %.o, $(files))
 
 CXX := g++
 CXXFLAGS := -std=c++11
 LDFLAGS = -l sqlite3 -framework CoreFoundation -framework CFNetwork
 
-srcfiles := $(shell find src -maxdepth 2 -name "*.cpp")
-objects  := $(patsubst %.cpp, %.o, $(srcfiles))
+all: $(name)
 
-all: $(appname)
-
-$(appname): $(objects)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(appname) $(objects) $(LDLIBS)
+$(name): $(objects)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(name) $(objects) $(LDLIBS)
 
 depend: .depend
 
-.depend: $(srcfiles)
+.depend: $(files)
 	rm -f ./.depend
 	$(CXX) $(CXXFLAGS) -MM $^>>./.depend;
 
