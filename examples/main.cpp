@@ -12,15 +12,15 @@ int main(int argc, char** argv) {
   // POST requests are broken?
   // the tests in http_client_test pass on win
 
-  Emitter e("ec2-52-49-138-71.eu-west-1.compute.amazonaws.com:8080", Emitter::Method::GET, Emitter::HTTP, 5000, 5000, 5000, "demo.db");
-  string url = "ec2-52-49-138-71.eu-west-1.compute.amazonaws.com:8080";
+  Emitter e("c91c801c.ngrok.io", Emitter::Method::POST, Emitter::HTTP, 5000, 5000, 5000, "demo.db");
+  string url = "c91c801c.ngrok.io";
   Tracker t(url, e);
 
   string my_schema = "schema";
   json data = "{\"hello\":\"world\"}"_json;
 
   Tracker::SelfDescribingEvent sde(SelfDescribingJson(my_schema,data));
-  t.track_unstruct_event(sde);
+  t.track_self_describing_event(sde);
 
   t.close();
 

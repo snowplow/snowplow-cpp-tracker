@@ -149,7 +149,8 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUr
     return HttpRequestResult(GetLastError(), 0, row_ids, oversize);
   }
 
-  BOOL is_sent = HttpSendRequest(h_request, NULL, 0, post_buf, post_buf_len);
+  LPCSTR hdrs = TEXT("Content-Type: application/json; charset=utf-8");  
+  BOOL is_sent = HttpSendRequest(h_request, hdrs, strlen(hdrs), post_buf, post_buf_len);
 
   if (!is_sent) {
     InternetCloseHandle(h_internet);
