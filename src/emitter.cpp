@@ -76,6 +76,7 @@ void Emitter::flush() {
     locker_1.unlock();
     return;
   }
+  locker_1.unlock();
 
   this->m_check_db.notify_all();
 
@@ -89,16 +90,17 @@ void Emitter::flush() {
 // --- Private
 
 void Emitter::run() {
-  do {
-    list<Storage::EventRow>* event_rows = new list<Storage::EventRow>;
-    Storage::instance(this->m_db_name)->select_event_row_range(event_rows, this->m_send_limit);
+  list<Storage::EventRow>* event_rows = new list<Storage::EventRow>;
+  list<HttpRequestResult>* results = new list<HttpRequestResult>;
+  list<int>* success_ids = new list<int>;
 
+  do {
+    Storage::instance(this->m_db_name)->select_event_row_range(event_rows, this->m_send_limit);
+    
     if (event_rows->size() > 0) {
-      list<HttpRequestResult>* results = new list<HttpRequestResult>;
       this->do_send(event_rows, results);
 
       // Process results
-      list<int>* success_ids = new list<int>;
       int success_count = 0;
       int failure_count = 0;
       
@@ -121,19 +123,18 @@ void Emitter::run() {
       event_rows->clear();
       results->clear();
       success_ids->clear();
-      delete(event_rows);
-      delete(results);
-      delete(success_ids);
     } else {
-      delete(event_rows);
-
       this->m_check_fin.notify_all();
 
       unique_lock<mutex> locker(this->m_db_select);
-      this->m_check_db.wait(locker);
+      this->m_check_db.wait_for(locker, std::chrono::seconds(5));
       locker.unlock();
     }
   } while (this->is_running());
+
+  delete(event_rows);
+  delete(results);
+  delete(success_ids);
 }
 
 void Emitter::do_send(list<Storage::EventRow>* event_rows, list<HttpRequestResult>* results) {
