@@ -13,6 +13,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "tracker.hpp"
 
+// --- Constructor & Destructor
+
 Tracker::Tracker(string & url, Emitter & e) : m_emitter(e), m_subject() {
   // set defaults
   this->m_has_subject = false;
@@ -24,6 +26,26 @@ Tracker::Tracker(string & url, Emitter & e) : m_emitter(e), m_subject() {
   // start the emitter daemon if it's not started already
   e.start();
 }
+
+Tracker::~Tracker() {
+  this->close();
+}
+
+// --- Controls
+
+void Tracker::start() {
+  this->m_emitter.start();
+}
+
+void Tracker::close() {
+  this->m_emitter.stop();
+}
+
+void Tracker::flush() {
+  this->m_emitter.flush();
+}
+
+// --- Event Tracking
 
 void Tracker::track(Payload payload, vector<SelfDescribingJson> & contexts) { 
   // Add standard KV Pairs
@@ -52,20 +74,17 @@ void Tracker::track(Payload payload, vector<SelfDescribingJson> & contexts) {
 }
 
 void Tracker::track_struct_event(StructuredEvent se) {
-  if (se.action == "") { throw invalid_argument("Action is required"); }
-  if (se.category == "") { throw invalid_argument("Category is required"); }
+  if (se.action == "") {
+    throw invalid_argument("Action is required"); 
+  }
+  if (se.category == "") { 
+    throw invalid_argument("Category is required"); 
+  }
 
   Payload p;
   p.add(SNOWPLOW_EVENT, SNOWPLOW_EVENT_STRUCTURED);
   p.add(SNOWPLOW_SE_ACTION, se.action);
   p.add(SNOWPLOW_SE_CATEGORY, se.category);
-  p.add(SNOWPLOW_TIMESTAMP, to_string(se.timestamp));
-
-  if (se.true_timestamp != NULL) {
-    p.add(SNOWPLOW_TRUE_TIMESTAMP, to_string(*se.true_timestamp));
-  }
-
-  p.add(SNOWPLOW_EID, se.event_id);
 
   if (se.label != NULL) {
     p.add(SNOWPLOW_SE_LABEL, *se.label);
@@ -79,85 +98,84 @@ void Tracker::track_struct_event(StructuredEvent se) {
     p.add(SNOWPLOW_SE_VALUE, to_string(*se.value));
   }
 
+  p.add(SNOWPLOW_TIMESTAMP, to_string(se.timestamp));
+  p.add(SNOWPLOW_EID, se.event_id);
+
+  if (se.true_timestamp != NULL) {
+    p.add(SNOWPLOW_TRUE_TIMESTAMP, to_string(*se.true_timestamp));
+  }
+
   track(p, se.contexts);
 }
 
 void Tracker::track_screen_view(Tracker::ScreenViewEvent sve) {
-
   if (sve.name == NULL && sve.id == NULL) {
     throw invalid_argument("Either name or id field must be set");
   }
 
-  Payload p;
-
-  p.add(SNOWPLOW_EID, sve.event_id);
-  p.add(SNOWPLOW_TIMESTAMP, sve.event_id);
+  json data;
 
   if (sve.id != NULL) {
-    p.add(SNOWPLOW_SV_ID, *sve.id);
+    data[SNOWPLOW_SV_ID] = *sve.id;
   }
-
   if (sve.name != NULL) {
-    p.add(SNOWPLOW_SV_NAME, *sve.name);
+    data[SNOWPLOW_SV_NAME] = *sve.name;
   }
 
-  if (sve.true_timestamp != NULL) {
-    p.add(SNOWPLOW_TRUE_TIMESTAMP, to_string(*sve.true_timestamp));
-  }
+  SelfDescribingJson sdj = SelfDescribingJson(SNOWPLOW_SCHEMA_SCREEN_VIEW, data);
 
-  track(p, sve.contexts);
+  SelfDescribingEvent sde(sdj);
+  sde.event_id = sve.event_id;
+  sde.timestamp = sve.timestamp;
+  sde.true_timestamp = sve.true_timestamp;
+  sde.contexts = sve.contexts;
+
+  track_self_describing_event(sde);
 }
 
 void Tracker::track_timing(TimingEvent te) {
-  Payload p;
+  if (te.category == "") {
+    throw invalid_argument("Category is required"); 
+  }
+  if (te.variable == "") { 
+    throw invalid_argument("Variable is required"); 
+  }
 
-  map<string, string> m;
-  m[SNOWPLOW_UT_CATEGORY] = te.category;
-  m[SNOWPLOW_UT_VARIABLE] = te.variable;
-  m[SNOWPLOW_UT_TIMING] = to_string(te.timing);
+  json data;
+  data[SNOWPLOW_UT_CATEGORY] = te.category;
+  data[SNOWPLOW_UT_VARIABLE] = te.variable;
+  data[SNOWPLOW_UT_TIMING] = te.timing;
 
   if (te.label != NULL) {
-    m[SNOWPLOW_UT_LABEL] = *te.label;
+    data[SNOWPLOW_UT_LABEL] = *te.label;
   }
 
-  auto sdj = SelfDescribingJson(SNOWPLOW_SCHEMA_USER_TIMINGS, m);
-  p.add_json(sdj.get(), this->m_use_base64, SNOWPLOW_UNSTRUCTURED_ENCODED, SNOWPLOW_UNSTRUCTURED);
+  SelfDescribingJson sdj = SelfDescribingJson(SNOWPLOW_SCHEMA_USER_TIMINGS, data);
 
-  p.add(SNOWPLOW_EID, te.event_id);
-  p.add(SNOWPLOW_TIMESTAMP, to_string(te.timestamp));
+  SelfDescribingEvent sde(sdj);
+  sde.event_id = te.event_id;
+  sde.timestamp = te.timestamp;
+  sde.true_timestamp = te.true_timestamp;
+  sde.contexts = te.contexts;
 
-  if (te.true_timestamp != NULL) {
-    p.add(SNOWPLOW_TRUE_TIMESTAMP, to_string(*te.true_timestamp));
-  }
-  
-  track(p, te.contexts);
+  track_self_describing_event(sde);
 }
 
-void Tracker::track_unstruct_event(SelfDescribingEvent sde) {
+void Tracker::track_self_describing_event(SelfDescribingEvent sde) {
   Payload p;
   p.add(SNOWPLOW_EVENT, SNOWPLOW_EVENT_UNSTRUCTURED);
   p.add(SNOWPLOW_TIMESTAMP, to_string(sde.timestamp));
   p.add(SNOWPLOW_EID, sde.event_id);
-
   p.add_json(sde.event.get(), this->m_use_base64, SNOWPLOW_UNSTRUCTURED_ENCODED, SNOWPLOW_UNSTRUCTURED);
+
+  if (sde.true_timestamp != NULL) {
+    p.add(SNOWPLOW_TRUE_TIMESTAMP, to_string(*sde.true_timestamp));
+  }
 
   track(p, sde.contexts);
 }
 
-void Tracker::flush()
-{
-  m_emitter.flush();
-}
-
-void Tracker::close()
-{
-  m_emitter.stop();
-}
-
-Tracker::~Tracker()
-{
-  close();
-}
+// --- Event Builders
 
 Tracker::StructuredEvent::StructuredEvent(string category, string action) {
   this->category = category;

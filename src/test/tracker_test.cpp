@@ -40,7 +40,7 @@ TEST_CASE("tracker") {
     bool is_started() { return started; }
   };
 
-  SECTION("mock emitter stores payloads") {
+  SECTION("Mock emitter stores payloads") {
     MockEmitter me;
 
     me.start();    
@@ -194,7 +194,7 @@ TEST_CASE("tracker") {
     REQUIRE(new_payload[SNOWPLOW_TRUE_TIMESTAMP] == to_string(ts));   
   }
 
-  SECTION("track screen view events generates sane event") {
+  SECTION("track_screen_view generates sane event") {
     MockEmitter e;
     string url = "somewhere";
     Tracker t(url, e);
@@ -212,13 +212,19 @@ TEST_CASE("tracker") {
     REQUIRE(payload[SNOWPLOW_APP_ID] == "");
     REQUIRE(payload[SNOWPLOW_SP_NAMESPACE] == "");
 
-    REQUIRE(payload[SNOWPLOW_SV_ID] == id);
-    REQUIRE(payload.count(SNOWPLOW_SV_NAME) == 0);
+    REQUIRE(payload[SNOWPLOW_EID].size() > 5);
+    REQUIRE(payload[SNOWPLOW_TIMESTAMP].size() > 10);
+
     REQUIRE(payload.count(SNOWPLOW_TRUE_TIMESTAMP) == 0);
 
-    REQUIRE(payload[SNOWPLOW_TIMESTAMP].size() > 10);
-    REQUIRE(payload[SNOWPLOW_EID].size() > 5);
+    nlohmann::json expected;
+    expected[SNOWPLOW_SV_ID] = "123";
+    SelfDescribingJson sdj(SNOWPLOW_SCHEMA_SCREEN_VIEW, expected);
 
+    string json = sdj.to_string();
+    const unsigned char* c_json = (const unsigned char*)json.c_str();
+    REQUIRE(payload[SNOWPLOW_UNSTRUCTURED_ENCODED] == base64_encode(c_json, json.length()));
+    
     se.id = NULL;
     string name = "name";
     se.name = &name;
@@ -228,9 +234,15 @@ TEST_CASE("tracker") {
     t.track_screen_view(se);
     auto new_payload = e.get_added_payloads()[1].get();
 
-    REQUIRE(new_payload.count(SNOWPLOW_SV_ID) == 0);
-    REQUIRE(new_payload[SNOWPLOW_SV_NAME] == "name");
     REQUIRE(new_payload[SNOWPLOW_TRUE_TIMESTAMP] ==  to_string(ttm));
+
+    nlohmann::json new_expected;
+    new_expected[SNOWPLOW_SV_NAME] = "name";
+    SelfDescribingJson sdj_1(SNOWPLOW_SCHEMA_SCREEN_VIEW, new_expected);
+
+    string json_1 = sdj_1.to_string();
+    const unsigned char* c_json_1 = (const unsigned char*)json_1.c_str();
+    REQUIRE(new_payload[SNOWPLOW_UNSTRUCTURED_ENCODED] == base64_encode(c_json_1, json_1.length()));
 
     se.id = NULL;
     se.name = NULL;
@@ -245,7 +257,7 @@ TEST_CASE("tracker") {
     REQUIRE(arg_exception_on_no_id_or_name == true);
   }
 
-  SECTION("track timing generates a sane event") {
+  SECTION("track_timing generates a sane event") {
     MockEmitter e;
     string url = "url";
     Tracker t(url, e);
@@ -267,8 +279,8 @@ TEST_CASE("tracker") {
 
     REQUIRE(payload.count(SNOWPLOW_TRUE_TIMESTAMP) == 0);
 
-    map<string, string> expected;
-    expected[SNOWPLOW_UT_TIMING] = "123";
+    json expected;
+    expected[SNOWPLOW_UT_TIMING] = 123;
     expected[SNOWPLOW_UT_CATEGORY] = "category";
     expected[SNOWPLOW_UT_VARIABLE] = "variable";
     
@@ -295,14 +307,14 @@ TEST_CASE("tracker") {
     REQUIRE(base64_decode(new_payload[SNOWPLOW_UNSTRUCTURED_ENCODED]) == json_w_label);
   }
 
-  SECTION("track unstruct event generates a sane event") {
+  SECTION("track_self_describing_event generates a sane event") {
     MockEmitter e;
     string url = "something";
     Tracker t(url, e);
 
     Tracker::SelfDescribingEvent sde(SelfDescribingJson("schema", "{ \"hello\":\"world\" }"_json));
 
-    t.track_unstruct_event(sde);
+    t.track_self_describing_event(sde);
 
     REQUIRE(e.get_added_payloads().size() == 1);
     auto payload = e.get_added_payloads()[0].get();

@@ -45,7 +45,7 @@ public:
     unsigned long long *true_timestamp;
     vector<SelfDescribingJson> contexts;
 
-    StructuredEvent(string, string); // cat / action
+    StructuredEvent(string category, string action);
   };
 
   class SelfDescribingEvent {
@@ -56,7 +56,7 @@ public:
     unsigned long long *true_timestamp;
     vector<SelfDescribingJson> contexts;
 
-    SelfDescribingEvent(SelfDescribingJson);
+    SelfDescribingEvent(SelfDescribingJson event);
   };
 
   class ScreenViewEvent {
@@ -75,28 +75,29 @@ public:
   public:
     string category; // required
     string variable; // required
-    unsigned long long timing;
+    unsigned long long timing; // required
     string *label;
     unsigned long long timestamp;
     string event_id;
     unsigned long long *true_timestamp;
     vector<SelfDescribingJson> contexts;
 
-    TimingEvent(string, string, unsigned long long);
+    TimingEvent(string category, string variable, unsigned long long timing);
   };
 
   Tracker(string & url, Emitter & e);
   ~Tracker();
 
-  void flush();
+  void start();
   void close();
+  void flush();
   
   void track(Payload p, vector<SelfDescribingJson> & contexts);
 
   void track_struct_event(StructuredEvent);
   void track_screen_view(ScreenViewEvent);
   void track_timing(TimingEvent);
-  void track_unstruct_event(SelfDescribingEvent e);
+  void track_self_describing_event(SelfDescribingEvent e);
 
 };
 
