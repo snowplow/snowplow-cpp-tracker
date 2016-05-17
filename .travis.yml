@@ -4,5 +4,4 @@ os:
   - osx
     
 script: 
-  - make
-  - ./tracker_test.o
+  - make unit-tests

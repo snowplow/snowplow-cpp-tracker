@@ -242,7 +242,7 @@ void Storage::select_event_row_range(list<Storage::EventRow>* event_list, int ra
 }
 
 static int select_session_callback(void *data, int argc, char **argv, char **az_col_name) {
-   int i, id;
+   int i;
    list<json>* data_list = (list<json>*)data;
    json session_data;
 
