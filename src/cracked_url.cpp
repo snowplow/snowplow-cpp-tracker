@@ -19,7 +19,7 @@ CrackedUrl::CrackedUrl(const string & url) {
     cleaned_url = string("http://") + url;
   }
 
-  regex r_host("(https?)://([^\\s]+\\.[^\\s/]+)(/.*)?");
+  regex r_host("(https?)://([^\\s\.]+\\.[^\\s/]+)(/.*)?");
   regex r_hostname_port("([^:]+):(\\d+)");
   smatch match;
 
