@@ -12,8 +12,8 @@ int main(int argc, char** argv) {
   // POST requests are broken?
   // the tests in http_client_test pass on win
 
-  Emitter e("c91c801c.ngrok.io", Emitter::Method::POST, Emitter::HTTP, 5000, 5000, 5000, "demo.db");
-  string url = "c91c801c.ngrok.io";
+  Emitter e("52.30.36.95:8080", Emitter::Method::POST, Emitter::HTTP, 5000, 5000, 5000, "demo.db");
+  string url = "52.30.36.95:8080";
   Tracker t(url, e);
 
   string my_schema = "schema";
