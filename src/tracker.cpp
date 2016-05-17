@@ -15,16 +15,15 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 // --- Constructor & Destructor
 
-Tracker::Tracker(string & url, Emitter & e) : m_emitter(e), m_subject() {
-  // set defaults
-  this->m_has_subject = false;
-  this->m_platform = "srv";
-  this->m_app_id = "";
-  this->m_use_base64 = true;
-  this->m_namespace = "";
+Tracker::Tracker(Emitter &emitter, Subject *subject, string *platform, string *app_id, string *name_space, bool *use_base64) : m_emitter(emitter) {
+  this->m_subject = subject;
+  this->m_platform = (platform != NULL ? *platform : "srv");
+  this->m_app_id = (app_id != NULL ? *app_id : "");
+  this->m_namespace = (name_space != NULL ? *name_space : "");
+  this->m_use_base64 = (use_base64 != NULL ? *use_base64 : true);
 
-  // start the emitter daemon if it's not started already
-  e.start();
+  // Start daemon threads
+  this->start();
 }
 
 Tracker::~Tracker() {
@@ -45,6 +44,12 @@ void Tracker::flush() {
   this->m_emitter.flush();
 }
 
+// --- Setters
+
+void Tracker::set_subject(Subject *subject) {
+  this->m_subject = subject;
+}
+
 // --- Event Tracking
 
 void Tracker::track(Payload payload, vector<SelfDescribingJson> & contexts) { 
@@ -55,8 +60,8 @@ void Tracker::track(Payload payload, vector<SelfDescribingJson> & contexts) {
   payload.add(SNOWPLOW_SP_NAMESPACE, this->m_namespace);
 
   // Add Subject KV Pairs
-  if (this->m_has_subject) {
-    payload.add_map(m_subject.get_map());
+  if (this->m_subject != NULL) {
+    payload.add_map(this->m_subject->get_map());
   }
 
   // Build the final context and add it to the payload

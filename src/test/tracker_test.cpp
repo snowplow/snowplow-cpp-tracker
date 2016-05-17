@@ -41,27 +41,27 @@ TEST_CASE("tracker") {
   };
 
   SECTION("Mock emitter stores payloads") {
-    MockEmitter me;
+    MockEmitter e;
 
-    me.start();    
-    REQUIRE(me.is_started() == true);
+    e.start();    
+    REQUIRE(e.is_started() == true);
 
     Payload example;   
-    me.add(example);
-    REQUIRE(me.get_added_payloads().size() == 1);
+    e.add(example);
+    REQUIRE(e.get_added_payloads().size() == 1);
   }
 
   SECTION("Tracker sets appropriate fields to each payload") {
-    MockEmitter me;
-    string track = string("");
-    Tracker t(track, me);
+    MockEmitter e;
+    Tracker t(e, NULL, NULL, NULL, NULL, NULL);
     
-    REQUIRE(me.is_started() == true);
+    REQUIRE(e.is_started() == true);
 
     vector<SelfDescribingJson> v;
     Payload p;
     t.track(p, v);
-    vector<Payload> payloads = me.get_added_payloads();
+    vector<Payload> payloads = e.get_added_payloads();
+
     REQUIRE(payloads.size() == 1);
 
     auto payload = payloads[0].get();
@@ -72,7 +72,34 @@ TEST_CASE("tracker") {
     REQUIRE(payload[SNOWPLOW_SP_NAMESPACE] == "");
   }
 
-  SECTION("StructuredEventa have appropriate defaults") {
+  SECTION("Tracker can alter default fields") {
+    MockEmitter e;
+
+    string plat = "mob";
+    string app_id = "app-id";
+    string name_space = "namespace";
+    bool base64 = false;
+    
+    Tracker t(e, NULL, &plat, &app_id, &name_space, &base64);
+    
+    REQUIRE(e.is_started() == true);
+
+    vector<SelfDescribingJson> v;
+    Payload p;
+    t.track(p, v);
+    vector<Payload> payloads = e.get_added_payloads();
+
+    REQUIRE(payloads.size() == 1);
+
+    auto payload = payloads[0].get();
+
+    REQUIRE(payload[SNOWPLOW_TRACKER_VERSION] == SNOWPLOW_TRACKER_VERSION_LABEL);
+    REQUIRE(payload[SNOWPLOW_PLATFORM] == "mob");
+    REQUIRE(payload[SNOWPLOW_APP_ID] == "app-id");
+    REQUIRE(payload[SNOWPLOW_SP_NAMESPACE] == "namespace");
+  }
+
+  SECTION("StructuredEvents have appropriate defaults") {
     unsigned long long time_now = Utils::get_unix_epoch_ms();
     Tracker::StructuredEvent s("category", "action");
     REQUIRE(s.category == "category");
@@ -129,8 +156,7 @@ TEST_CASE("tracker") {
     bool is_arg_exception_empty_action;
 
     MockEmitter e; 
-    string url = "somewhere";
-    Tracker t(url, e);
+    Tracker t(e, NULL, NULL, NULL, NULL, NULL);
     
     Tracker::StructuredEvent sv("", "hello");
 
@@ -196,8 +222,7 @@ TEST_CASE("tracker") {
 
   SECTION("track_screen_view generates sane event") {
     MockEmitter e;
-    string url = "somewhere";
-    Tracker t(url, e);
+    Tracker t(e, NULL, NULL, NULL, NULL, NULL);
 
     Tracker::ScreenViewEvent se;
     string id = "123";
@@ -259,8 +284,7 @@ TEST_CASE("tracker") {
 
   SECTION("track_timing generates a sane event") {
     MockEmitter e;
-    string url = "url";
-    Tracker t(url, e);
+    Tracker t(e, NULL, NULL, NULL, NULL, NULL);
 
     Tracker::TimingEvent te("category", "variable", 123);
     t.track_timing(te);
@@ -309,8 +333,7 @@ TEST_CASE("tracker") {
 
   SECTION("track_self_describing_event generates a sane event") {
     MockEmitter e;
-    string url = "something";
-    Tracker t(url, e);
+    Tracker t(e, NULL, NULL, NULL, NULL, NULL);
 
     Tracker::SelfDescribingEvent sde(SelfDescribingJson("schema", "{ \"hello\":\"world\" }"_json));
 

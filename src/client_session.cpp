@@ -13,12 +13,15 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "client_session.hpp"
 
-ClientSession::ClientSession(const string & db_name) {
+ClientSession::ClientSession(const string & db_name, unsigned long long foreground_timeout, unsigned long long background_timeout, unsigned long long check_interval) {
   this->m_db_name = db_name;
-  this->m_is_running = false;
-  this->m_is_background = false;
+  this->m_foreground_timeout = foreground_timeout;
+  this->m_background_timeout = background_timeout;
+  this->m_check_interval = check_interval;
 
   this->m_session_storage = "SQLITE";
+  this->m_is_running = false;
+  this->m_is_background = false;
 
   // Check for existing session
   list<json>* session_rows = new list<json>;
@@ -58,17 +61,12 @@ ClientSession::~ClientSession() {
 
 // --- Public
 
-void ClientSession::start(unsigned long long foreground_timeout, unsigned long long background_timeout, unsigned long long check_interval) {
+void ClientSession::start() {
   lock_guard<mutex> guard(this->m_run_check);
   if (this->m_is_running) {
     return;
   }
-
-  this->m_foreground_timeout = foreground_timeout;
-  this->m_background_timeout = background_timeout;
-  this->m_check_interval = check_interval;
   this->m_is_running = true;
-
   this->m_daemon_thread = thread(&ClientSession::run, this);
 }
 

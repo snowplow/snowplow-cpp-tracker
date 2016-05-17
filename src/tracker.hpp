@@ -23,9 +23,8 @@ using namespace std;
 
 class Tracker {
 private:
-  Emitter & m_emitter;
-  Subject m_subject;
-  bool m_has_subject;
+  Emitter &m_emitter;
+  Subject *m_subject;
   string m_namespace;
   string m_app_id;
   string m_platform;
@@ -85,18 +84,20 @@ public:
     TimingEvent(string category, string variable, unsigned long long timing);
   };
 
-  Tracker(string & url, Emitter & e);
+  Tracker(Emitter &emitter, Subject *subject, string *platform, string *app_id, string *name_space, bool *use_base64);
   ~Tracker();
 
   void start();
   void close();
   void flush();
+
+  void set_subject(Subject *subject);
   
-  void track(Payload p, vector<SelfDescribingJson> & contexts);
+  void track(Payload p, vector<SelfDescribingJson> &contexts);
   void track_struct_event(StructuredEvent);
   void track_screen_view(ScreenViewEvent);
   void track_timing(TimingEvent);
-  void track_self_describing_event(SelfDescribingEvent e);
+  void track_self_describing_event(SelfDescribingEvent);
 };
 
 #endif

@@ -24,9 +24,8 @@ string Utils::get_uuid4() {
   if (::UuidToStringA(&uuid, &szUuid) == RPC_S_OK) {
     uid = (char*)szUuid;
     ::RpcStringFreeA(&szUuid);
-  }
-  else {
-    throw runtime_error("couldn't generate UUID!");
+  } else {
+    throw runtime_error("FATAL: Could not generate unique UUID");
   }
 
   return uid;

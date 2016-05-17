@@ -15,8 +15,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../client_session.hpp"
 
 TEST_CASE("client_session") {
-  ClientSession cs("test.db");
-  cs.start(2000, 2000, 500);
+  ClientSession cs("test.db", 2000, 2000, 500);
+  cs.start();
 
   this_thread::sleep_for(chrono::milliseconds(5000));
 

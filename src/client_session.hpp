@@ -28,10 +28,10 @@ using json = nlohmann::json;
 
 class ClientSession {
 public:
-  ClientSession(const string & db_name);
+  ClientSession(const string & db_name, unsigned long long foreground_timeout, unsigned long long background_timeout, unsigned long long check_interval);
   ~ClientSession();
 
-  void start(unsigned long long foreground_timeout, unsigned long long background_timeout, unsigned long long check_interval);
+  void start();
   void stop();
   void set_is_background(bool is_background);
   bool get_is_background();
