@@ -93,12 +93,10 @@ public:
   void flush();
   
   void track(Payload p, vector<SelfDescribingJson> & contexts);
-
   void track_struct_event(StructuredEvent);
   void track_screen_view(ScreenViewEvent);
   void track_timing(TimingEvent);
   void track_self_describing_event(SelfDescribingEvent e);
-
 };
 
 #endif
