@@ -58,4 +58,19 @@ TEST_CASE("cracked_url") {
     REQUIRE(c.get_hostname() == "google.com");
     REQUIRE(c.get_is_https() == false);
   }
+
+  SECTION("url cracks multiple slashes and port") {
+    CrackedUrl c("http://www.google.com:8080/hello/world");
+    REQUIRE(c.get_is_valid() == true);
+    REQUIRE(c.get_port() == 8080);
+    REQUIRE(c.get_hostname() == "www.google.com");
+    REQUIRE(c.get_path() == "/hello/world");
+  }
+
+  SECTION("url with dots") {
+    CrackedUrl c("http://c91c801c.ngrok.io/com.snowplowanalytics.snowplow/tp2");
+    REQUIRE(c.get_is_valid() == true);
+    REQUIRE(c.get_hostname() == "c91c801c.ngrok.io");
+    REQUIRE(c.get_path() == "/com.snowplowanalytics.snowplow/tp2");
+  }
 }
