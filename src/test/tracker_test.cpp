@@ -72,7 +72,7 @@ TEST_CASE("tracker") {
     REQUIRE(payload[SNOWPLOW_SP_NAMESPACE] == "");
   }
 
-  SECTION("structured events have appropriate defaults") {
+  SECTION("StructuredEventa have appropriate defaults") {
     unsigned long long time_now = Utils::get_unix_epoch_ms();
     Tracker::StructuredEvent s("category", "action");
     REQUIRE(s.category == "category");
@@ -95,7 +95,7 @@ TEST_CASE("tracker") {
     REQUIRE(sde.event_id.size() > 5);
     REQUIRE(sde.timestamp > time_now - 1000);
     REQUIRE(sde.timestamp < time_now + 1000);
-    REQUIRE(sde.true_timestamp == 0);
+    REQUIRE(sde.true_timestamp == NULL);
   }
 
   SECTION("ScreenViewEvents have appropriate defaults") {
@@ -124,7 +124,7 @@ TEST_CASE("tracker") {
     REQUIRE(t.event_id.size() > 5);
   }
 
-  SECTION("track structured event tracks a structured event") {
+  SECTION("track_struct_event generates sane event") {
     bool is_arg_exception_empty_category;
     bool is_arg_exception_empty_action;
 

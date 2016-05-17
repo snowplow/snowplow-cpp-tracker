@@ -22,7 +22,6 @@ int main(int argc, char** argv) {
   Tracker::SelfDescribingEvent sde(SelfDescribingJson(my_schema,data));
   t.track_self_describing_event(sde);
 
-  t.close();
-
-  cin.ignore();
-  }
+  t.flush();
+  return 0;
+}

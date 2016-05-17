@@ -89,11 +89,9 @@ void Tracker::track_struct_event(StructuredEvent se) {
   if (se.label != NULL) {
     p.add(SNOWPLOW_SE_LABEL, *se.label);
   }
-
   if (se.property != NULL) {
     p.add(SNOWPLOW_SE_PROPERTY, *se.property);
   }
-
   if (se.value != NULL) {
     p.add(SNOWPLOW_SE_VALUE, to_string(*se.value));
   }

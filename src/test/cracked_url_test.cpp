@@ -16,11 +16,11 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 TEST_CASE("cracked_url") {
   SECTION("URL cracking works for the current build target") {
-    CrackedUrl c("http://google.com/search");
+    CrackedUrl c("http://google.com/search/tp2");
     REQUIRE(c.get_is_valid() == true);
     REQUIRE(c.get_error_code() == 0);
     REQUIRE(c.get_hostname() == "google.com");
-    REQUIRE(c.get_path() == "/search");
+    REQUIRE(c.get_path() == "/search/tp2");
     REQUIRE(c.get_port() == 0);
     REQUIRE(c.get_use_default_port() == true);
     REQUIRE(c.get_is_https() == false);
