@@ -11,11 +11,11 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "../vendored/catch.hpp"
-#include "../payload.hpp"
-#include "../vendored/json.hpp"
 #include <map>
 #include <string>
+#include "../include/catch.hpp"
+#include "../include/json.hpp"
+#include "../src/payload.hpp"
 
 using json = nlohmann::json;
 

@@ -11,8 +11,8 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "../vendored/catch.hpp"
-#include "../http_request_result.hpp"
+#include "../include/catch.hpp"
+#include "../src/http_request_result.hpp"
 
 TEST_CASE("http_request_result") {
   SECTION("is_success should be set only if the error code is zero and the response code is 200") {

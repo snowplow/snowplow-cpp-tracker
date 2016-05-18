@@ -11,8 +11,8 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "../vendored/catch.hpp"
-#include "../subject.hpp"
+#include "../include/catch.hpp"
+#include "../src/subject.hpp"
 
 TEST_CASE("subject") {
   Subject sub;

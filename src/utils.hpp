@@ -23,7 +23,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <iomanip>
 #include <chrono>
 #include "payload.hpp"
-#include "vendored/json.hpp"
+#include "../include/json.hpp"
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 

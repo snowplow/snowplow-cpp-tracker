@@ -1,38 +1,39 @@
 .PHONY: all unit-tests clean dist-clean
 
-name = tracker_test.o
-files := $(shell find src -maxdepth 2 -name "*.cpp")
-objects  := $(patsubst %.cpp, %.o, $(files))
+build-dir = build/
+app-name  = tracker_test.o
 
-CXX := g++
-CXXFLAGS := -std=c++11 -Werror -g
-LDFLAGS = -l sqlite3 -framework CoreFoundation -framework CFNetwork
+src-files     := $(shell find src -maxdepth 1 -name "*.cpp")
+test-files    := $(shell find test -maxdepth 1 -name "*.cpp")
+include-files := $(shell find include -maxdepth 1 -name "*.cpp")
+objects       := $(patsubst %.cpp, %.o, $(src-files) $(test-files) $(include-files))
+
+CXX      := g++
+CXXFLAGS := -std=c++11 -Werror -g -D SNOWPLOW_TEST_SUITE
+LDFLAGS  = -l sqlite3 -framework CoreFoundation -framework CFNetwork
 
 # Building
 
-all: $(name)
+all: $(build-dir)$(app-name)
 
-$(name): $(objects)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(name) $(objects) $(LDLIBS)
+$(build-dir)$(app-name): $(objects)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(build-dir)$(app-name) $(objects) $(LDLIBS)
 
 depend: .depend
 
-.depend: $(files)
+.depend: $(src-files) $(test-files) $(include-files)
 	rm -f ./.depend
 	$(CXX) $(CXXFLAGS) -MM $^>>./.depend;
 
 # Testing
 
 unit-tests: all
-	./$(name)
+	(cd $(build-dir); ./$(app-name))
 
 # Cleanup
 
 clean:
 	rm -f $(objects)
-	rm -f test.db
-	rm -f test.db-shm
-	rm -f test.db-wal
 
 dist-clean: clean
 	rm -f *~ .depend

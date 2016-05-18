@@ -21,7 +21,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "utils.hpp"
 #include "constants.hpp"
 #include "storage.hpp"
-#include "vendored/json.hpp"
+#include "../include/json.hpp"
 
 using namespace std;
 using json = nlohmann::json;

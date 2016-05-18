@@ -11,8 +11,8 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "../vendored/catch.hpp"
-#include "../cracked_url.hpp"
+#include "../include/catch.hpp"
+#include "../src/cracked_url.hpp"
 
 TEST_CASE("cracked_url") {
   SECTION("URL cracking works for the current build target") {

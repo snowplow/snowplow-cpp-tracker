@@ -16,8 +16,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include <map>
 #include <string>
-#include "vendored/json.hpp"
-#include "vendored/base64.hpp"
+#include "../include/json.hpp"
+#include "../include/base64.hpp"
 
 using namespace std;
 using json = nlohmann::json;

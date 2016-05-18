@@ -22,8 +22,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <mutex>
 #include "utils.hpp"
 #include "payload.hpp"
-#include "vendored/sqlite3.h"
-#include "vendored/json.hpp"
+#include "../include/sqlite3.h"
+#include "../include/json.hpp"
 
 using namespace std;
 using json = nlohmann::json;

@@ -11,11 +11,11 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "../vendored/catch.hpp"
-#include "../tracker.hpp"
-#include "../emitter.hpp"
-#include "../vendored/json.hpp"
-#include "../vendored/base64.hpp"
+#include "../include/catch.hpp"
+#include "../include/json.hpp"
+#include "../include/base64.hpp"
+#include "../src/tracker.hpp"
+#include "../src/emitter.hpp"
 
 TEST_CASE("tracker") {
 

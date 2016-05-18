@@ -11,14 +11,22 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "../vendored/catch.hpp"
-#include "../client_session.hpp"
+#include "../include/catch.hpp"
+#include "../src/emitter.hpp"
 
-TEST_CASE("client_session") {
-  ClientSession cs("test.db", 2000, 2000, 500);
-  cs.start();
+TEST_CASE("emitter") {
+  Emitter emitter("ea2673c7.ngrok.io", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 52000, "test.db");
+  emitter.start();
 
-  this_thread::sleep_for(chrono::milliseconds(5000));
+  Payload payload;
+  payload.add("e", "pv");
+  payload.add("tv", "cpp-0.1.0");
+  payload.add("p", "srv");
+  payload.add("dtm", std::to_string(Utils::get_unix_epoch_ms()));
 
-  cs.stop();
+  for (int i = 0; i < 1000; i++) {
+    emitter.add(payload);
+  }
+
+  emitter.flush();
 }

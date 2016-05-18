@@ -23,7 +23,11 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 using namespace std;
 
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+#if defined(SNOWPLOW_TEST_SUITE)
+
+#include <iostream>
+
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 
 #include <windows.h>
 #include <WinInet.h>
@@ -44,14 +48,34 @@ using namespace std;
 #endif
 
 class HttpClient {
-private:
-  enum RequestMethod { POST, GET };
-  static HttpRequestResult http_request(const RequestMethod method, const CrackedUrl url, const string & query_string, const string & post_data, list<int> row_ids, bool oversize);
-
 public:
+  enum RequestMethod { POST, GET };
+  
   static const string TRACKER_AGENT;
   static HttpRequestResult http_post(const CrackedUrl url, const string & post_data, list<int> row_ids, bool oversize);
   static HttpRequestResult http_get(const CrackedUrl url, const string & query_string, list<int> row_ids, bool oversize);
+
+#if defined(SNOWPLOW_TEST_SUITE)
+  struct Request {
+    Request(){};
+    RequestMethod method;
+    string query_string;
+    string post_data;
+    list<int> row_ids;
+    bool oversize;
+  };
+
+  static list<Request> requests_list;
+  static int response_code;
+  static mutex log_read_write;
+
+  static void set_http_response_code(int http_response_code);
+  static list<Request> get_requests_list();
+  static void reset();
+#endif
+
+private:
+  static HttpRequestResult http_request(const RequestMethod method, const CrackedUrl url, const string & query_string, const string & post_data, list<int> row_ids, bool oversize);
 };
 
 #endif

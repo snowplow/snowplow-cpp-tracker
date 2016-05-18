@@ -11,12 +11,14 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "../vendored/catch.hpp"
-#include "../self_describing_json.hpp"
+#include "../include/catch.hpp"
+#include "../src/client_session.hpp"
 
-TEST_CASE("self_describing_json") {
-  json j = "{\"test\":\"event\"}"_json;
-  SelfDescribingJson sdj("iglu:com.acme/test/jsonschema/1-0-0", j);
+TEST_CASE("client_session") {
+  ClientSession cs("test.db", 2000, 2000, 500);
+  cs.start();
 
-  REQUIRE("{\"data\":{\"test\":\"event\"},\"schema\":\"iglu:com.acme/test/jsonschema/1-0-0\"}" == sdj.to_string());
+  this_thread::sleep_for(chrono::milliseconds(5000));
+
+  cs.stop();
 }

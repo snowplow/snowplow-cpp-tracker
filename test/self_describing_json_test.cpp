@@ -11,24 +11,12 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "../vendored/catch.hpp"
-#include "../emitter.hpp"
+#include "../include/catch.hpp"
+#include "../src/self_describing_json.hpp"
 
-TEST_CASE("emitter") {
-  /**
-  Emitter emitter("ea2673c7.ngrok.io", Emitter::Strategy::ASYNC, Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 52000, "test.db");
-  emitter.start();
+TEST_CASE("self_describing_json") {
+  json j = "{\"test\":\"event\"}"_json;
+  SelfDescribingJson sdj("iglu:com.acme/test/jsonschema/1-0-0", j);
 
-  Payload payload;
-  payload.add("e", "pv");
-  payload.add("tv", "cpp-0.1.0");
-  payload.add("p", "srv");
-  payload.add("dtm", std::to_string(Utils::get_unix_epoch_ms()));
-
-  for (int i = 0; i < 1000; i++) {
-    emitter.add(payload);
-  }
-
-  emitter.flush();
-  */
+  REQUIRE("{\"data\":{\"test\":\"event\"},\"schema\":\"iglu:com.acme/test/jsonschema/1-0-0\"}" == sdj.to_string());
 }
