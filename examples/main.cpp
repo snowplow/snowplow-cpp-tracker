@@ -6,15 +6,8 @@
 using namespace std;
 
 int main(int argc, char** argv) {
-  // NB - you can't use _http:// here! The url gets packed out as "//host" which breaks it
-  // also - we don't need two urls do we, which one is right?
-
-  // POST requests are broken?
-  // the tests in http_client_test pass on win
-
   Emitter e("52.30.36.95:8080", Emitter::Method::POST, Emitter::HTTP, 5000, 5000, 5000, "demo.db");
-  string url = "52.30.36.95:8080";
-  Tracker t(url, e);
+  Tracker t(e, NULL, NULL, NULL, NULL, NULL);
 
   string my_schema = "schema";
   json data = "{\"hello\":\"world\"}"_json;

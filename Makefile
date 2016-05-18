@@ -1,7 +1,8 @@
 .PHONY: all unit-tests clean dist-clean
 
 build-dir = build/
-app-name  = tracker_test.o
+test-name = tracker_test
+example-name = tracker_example
 
 # C Files
 
@@ -11,13 +12,13 @@ cc-objects := $(patsubst %.c, %.o, $(cc-include-files))
 # C++ Files
 
 cxx-src-files := $(shell find src -maxdepth 1 -name "*.cpp")
-cxx-test-files := $(shell find test -maxdepth 1 -name "*.cpp")
 cxx-include-files := $(shell find include -maxdepth 1 -name "*.cpp")
-cxx-objects := $(patsubst %.cpp, %.o, $(cxx-src-files) $(cxx-test-files) $(cxx-include-files))
+cxx-test-files := $(shell find test -maxdepth 1 -name "*.cpp")
+cxx-example-files := $(shell find examples -maxdepth 1 -name "*.cpp")
 
-# Combined Objects
-
-objects := $(cxx-objects) $(cc-objects)
+cxx-common-objects := $(patsubst %.cpp, %.o, $(cxx-src-files) $(cxx-include-files))
+cxx-test-objects := $(patsubst %.cpp, %.o, $(cxx-test-files))
+cxx-example-objects := $(patsubst %.cpp, %.o, $(cxx-example-files))
 
 # Arguments
 
@@ -29,13 +30,24 @@ LDFLAGS := -framework CoreFoundation -framework CFNetwork
 
 # Building
 
-all: $(build-dir)$(app-name)
+all: $(build-dir)$(test-name) $(build-dir)$(example-name)
 
-$(build-dir)$(app-name): $(objects)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(build-dir)$(app-name) $(objects) $(LDLIBS)
+$(build-dir)$(test-name): $(cxx-common-objects) $(cxx-test-objects) $(cc-objects)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(build-dir)$(test-name) $(cxx-common-objects) $(cxx-test-objects) $(cc-objects) $(LDLIBS)
+
+## TODO: Compile example without SNOWPLOW_TEST_SUITE
+$(build-dir)$(example-name): $(cxx-common-objects) $(cxx-example-objects) $(cc-objects)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(build-dir)$(example-name) $(cxx-common-objects) $(cxx-example-objects) $(cc-objects) $(LDLIBS)
+
+# Testing
+
+unit-tests: all
+	(cd $(build-dir); ./$(test-name))
+
+# Dependencies
 
 depend-cxx: .depend-cxx
-.depend-cxx: $(cxx-src-files) $(cxx-test-files) $(cxx-include-files)
+.depend-cxx: $(cxx-src-files) $(cxx-test-files) $(cxx-include-files) $(cxx-example-files)
 	rm -f ./.depend-cxx
 	$(CXX) $(CXXFLAGS) -MM $^>>./.depend-cxx;
 
@@ -44,16 +56,13 @@ depend-cc: .depend-cc
 	rm -f ./.depend-cc
 	$(CC) $(CCFLAGS) -MM $^>>./.depend-cc;
 
-# Testing
-
-unit-tests: all
-	(cd $(build-dir); ./$(app-name))
-
 # Cleanup
 
 clean:
-	rm -f $(objects)
-	rm -f $(build-dir)$(app-name)
+	rm -f $(cxx-common-objects)
+	rm -f $(cxx-test-objects)
+	rm -f $(cxx-example-objects)
+	rm -f $(cc-objects)
 
 dist-clean: clean
 	rm -f *~ .depend-cxx
