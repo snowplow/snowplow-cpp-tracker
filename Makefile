@@ -3,14 +3,29 @@
 build-dir = build/
 app-name  = tracker_test.o
 
-src-files     := $(shell find src -maxdepth 1 -name "*.cpp")
-test-files    := $(shell find test -maxdepth 1 -name "*.cpp")
-include-files := $(shell find include -maxdepth 1 -name "*.cpp")
-objects       := $(patsubst %.cpp, %.o, $(src-files) $(test-files) $(include-files))
+# C Files
 
-CXX      := g++
+cc-include-files := $(shell find include -maxdepth 1 -name "*.c")
+cc-objects := $(patsubst %.c, %.o, $(cc-include-files))
+
+# C++ Files
+
+cxx-src-files := $(shell find src -maxdepth 1 -name "*.cpp")
+cxx-test-files := $(shell find test -maxdepth 1 -name "*.cpp")
+cxx-include-files := $(shell find include -maxdepth 1 -name "*.cpp")
+cxx-objects := $(patsubst %.cpp, %.o, $(cxx-src-files) $(cxx-test-files) $(cxx-include-files))
+
+# Combined Objects
+
+objects := $(cxx-objects) $(cc-objects)
+
+# Arguments
+
+CC := gcc
+CXX := g++
+CCFLAGS := -Werror -g
 CXXFLAGS := -std=c++11 -Werror -g -D SNOWPLOW_TEST_SUITE
-LDFLAGS  = -l sqlite3 -framework CoreFoundation -framework CFNetwork
+LDFLAGS := -framework CoreFoundation -framework CFNetwork
 
 # Building
 
@@ -19,11 +34,15 @@ all: $(build-dir)$(app-name)
 $(build-dir)$(app-name): $(objects)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(build-dir)$(app-name) $(objects) $(LDLIBS)
 
-depend: .depend
+depend-cxx: .depend-cxx
+.depend-cxx: $(cxx-src-files) $(cxx-test-files) $(cxx-include-files)
+	rm -f ./.depend-cxx
+	$(CXX) $(CXXFLAGS) -MM $^>>./.depend-cxx;
 
-.depend: $(src-files) $(test-files) $(include-files)
-	rm -f ./.depend
-	$(CXX) $(CXXFLAGS) -MM $^>>./.depend;
+depend-cc: .depend-cc
+.depend-cc: $(cc-include-files)
+	rm -f ./.depend-cc
+	$(CC) $(CCFLAGS) -MM $^>>./.depend-cc;
 
 # Testing
 
@@ -34,8 +53,11 @@ unit-tests: all
 
 clean:
 	rm -f $(objects)
+	rm -f $(build-dir)$(app-name)
 
 dist-clean: clean
-	rm -f *~ .depend
+	rm -f *~ .depend-cxx
+	rm -f *~ .depend-cc
 
-include .depend
+include .depend-cxx
+include .depend-cc

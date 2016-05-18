@@ -28,7 +28,8 @@
 *.app
 
 # Makefile
-.depend
+.depend-cc
+.depend-cxx
 
 # Tests
 *.db*
