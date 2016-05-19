@@ -59,7 +59,7 @@ TEST_CASE("cracked_url") {
     REQUIRE(c.get_is_https() == false);
   }
 
-  SECTION("url cracks multiple slashes and port") {
+  SECTION("URL cracks multiple slashes and port") {
     CrackedUrl c("http://www.google.com:8080/hello/world");
     REQUIRE(c.get_is_valid() == true);
     REQUIRE(c.get_port() == 8080);
@@ -67,7 +67,7 @@ TEST_CASE("cracked_url") {
     REQUIRE(c.get_path() == "/hello/world");
   }
 
-  SECTION("url with dots") {
+  SECTION("URL cracks with dots") {
     CrackedUrl c("http://c91c801c.ngrok.io/com.snowplowanalytics.snowplow/tp2");
     REQUIRE(c.get_is_valid() == true);
     REQUIRE(c.get_hostname() == "c91c801c.ngrok.io");

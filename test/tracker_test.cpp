@@ -21,23 +21,17 @@ TEST_CASE("tracker") {
 
   class MockEmitter : public Emitter {
   private:
-    bool started = false;
-    vector<Payload> p;
+    bool m_started = false;
+    vector<Payload> m_payloads;
 
   public:
-    MockEmitter() : Emitter("abc123.duck", Emitter::Method::POST, Emitter::Protocol::HTTP, 0, 0, 0, "test.db") {}
-    void start() {
-      started = true;
-    }
-    void stop() {
-      started = false;
-    }
-    void add(Payload payload) {
-      p.push_back(payload);
-    }
+    MockEmitter() : Emitter("com.acme", Emitter::Method::POST, Emitter::Protocol::HTTP, 0, 0, 0, "test.db") {}
+    void start() { m_started = true; }
+    void stop() { m_started = false; }
+    void add(Payload payload) { m_payloads.push_back(payload); }
     void flush() {}
-    vector<Payload> get_added_payloads() { return p; }
-    bool is_started() { return started; }
+    vector<Payload> get_added_payloads() { return m_payloads; }
+    bool is_started() { return m_started; }
   };
 
   SECTION("Mock emitter stores payloads") {

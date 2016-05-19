@@ -95,6 +95,14 @@ SelfDescribingJson ClientSession::get_session_context(const string & event_id) {
   return sdj;
 }
 
+void ClientSession::set_is_background(bool is_background) {
+  this->m_is_background = is_background;
+}
+
+bool ClientSession::get_is_background() {
+  return this->m_is_background;
+}
+
 // --- Private
 
 void ClientSession::run() {
@@ -124,6 +132,8 @@ void ClientSession::update_accessed_last() {
 }
 
 void ClientSession::update_session_context_data() {
+  lock_guard<mutex> guard(this->m_safe_get);
+
   json j;
 
   j[SNOWPLOW_SESSION_USER_ID] = this->m_user_id;
