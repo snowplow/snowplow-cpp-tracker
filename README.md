@@ -8,17 +8,33 @@ Snowplow event tracker for C++. Add analytics to your C++ applications, servers 
 
 ## Developer Quickstart
 
-### Building
-
-Assuming git, **[Vagrant] [vagrant-install]** and **[VirtualBox] [virtualbox-install]** installed:
+### Building on Mac OSX
 
 ```bash
- host> git clone https://github.com/snowplow/snowplow-golang-tracker
- host> cd snowplow-golang-tracker
- host> vagrant up && vagrant ssh
-guest> cd /opt/gopath/src/github.com/snowplow/snowplow-golang-tracker
-guest> godep go build ./tracker/
+ host> git clone https://github.com/snowplow/snowplow-cpp-tracker
+ host> cd snowplow-cpp-tracker
+ host> make
 ```
+
+This will create two executables - the first is the test-suite which can be executed with `make unit-tests`.
+
+The other is an example program which will send one of every type of event to an endpoint of your choosing like so:
+
+```bash
+ host> cd build
+ host> ./tracker_example {{ your collector uri }}
+```
+
+If you make changes only to a header file there is a chance it won't be picked up by make in which case you will need to:
+
+```bash
+ host> make clean
+ host> make
+```
+
+### Building on Windows
+
+__ED TO ADD__
 
 ## Find out more
 
@@ -48,9 +64,6 @@ limitations under the License.
 
 [license-image]: http://img.shields.io/badge/license-Apache--2-blue.svg?style=flat
 [license]: http://www.apache.org/licenses/LICENSE-2.0
-
-[vagrant-install]: http://docs.vagrantup.com/v2/installation/index.html
-[virtualbox-install]: https://www.virtualbox.org/wiki/Downloads
 
 [techdocs-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/techdocs.png
 [setup-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/setup.png
