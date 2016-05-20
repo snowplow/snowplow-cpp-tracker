@@ -35,9 +35,8 @@ all: $(build-dir)$(test-name) $(build-dir)$(example-name)
 $(build-dir)$(test-name): $(cxx-common-objects) $(cxx-test-objects) $(cc-objects)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(build-dir)$(test-name) $(cxx-common-objects) $(cxx-test-objects) $(cc-objects) $(LDLIBS)
 
-## TODO: Compile example without SNOWPLOW_TEST_SUITE
 $(build-dir)$(example-name): $(cxx-common-objects) $(cxx-example-objects) $(cc-objects)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(build-dir)$(example-name) $(cxx-common-objects) $(cxx-example-objects) $(cc-objects) $(LDLIBS)
+	$(CXX) -std=c++11 -Werror -g $(cxx-src-files) $(cxx-include-files) $(cxx-example-files) $(LDFLAGS) -o $(build-dir)$(example-name) $(cc-objects) $(LDLIBS)
 
 # Testing
 

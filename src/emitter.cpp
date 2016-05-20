@@ -19,6 +19,8 @@ const int post_stm_bytes = 22;     // "stm":"1443452851000"
 Emitter::Emitter(const string & uri, Method method, Protocol protocol, int send_limit, 
   int byte_limit_post, int byte_limit_get, const string & db_name) : m_url(this->get_collector_url(uri, protocol, method)) {
 
+  Storage::init(db_name);
+
   if (uri == "") {
     throw invalid_argument("FATAL: Emitter URI cannot be empty.");
   }
@@ -32,7 +34,6 @@ Emitter::Emitter(const string & uri, Method method, Protocol protocol, int send_
   this->m_send_limit = send_limit;
   this->m_byte_limit_post = byte_limit_post;
   this->m_byte_limit_get = byte_limit_get;
-  this->m_db_name = db_name;
 }
 
 Emitter::~Emitter() {
@@ -66,7 +67,7 @@ void Emitter::stop() {
 }
 
 void Emitter::add(Payload payload) {
-  Storage::instance(this->m_db_name)->insert_payload(payload);
+  Storage::instance()->insert_payload(payload);
   this->m_check_db.notify_all();
 }
 
@@ -95,7 +96,7 @@ void Emitter::run() {
   list<int>* success_ids = new list<int>;
 
   do {
-    Storage::instance(this->m_db_name)->select_event_row_range(event_rows, this->m_send_limit);
+    Storage::instance()->select_event_row_range(event_rows, this->m_send_limit);
     
     if (event_rows->size() > 0) {
       this->do_send(event_rows, results);
@@ -113,11 +114,10 @@ void Emitter::run() {
         } 
       }
       success_count = success_ids->size();
-      Storage::instance(this->m_db_name)->delete_event_row_ids(success_ids);
+      Storage::instance()->delete_event_row_ids(success_ids);
 
-      // TODO: Add callback function
-      cout << "Success: " << success_count << endl;
-      cout << "Failure: " << failure_count << endl;
+      //cout << "Success: " << success_count << endl;
+      //cout << "Failure: " << failure_count << endl;
 
       // Reset collections
       event_rows->clear();

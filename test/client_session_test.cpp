@@ -11,11 +11,11 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "../include/catch.hpp"
+#include "catch.hpp"
 #include "../src/client_session.hpp"
 
 TEST_CASE("client_session") {
-  Storage::instance("test.db")->delete_all_session_rows();
+  Storage::init("test.db")->delete_all_session_rows();
 
   ClientSession cs("test.db", 100, 100, 50);
   cs.start();

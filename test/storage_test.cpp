@@ -11,11 +11,11 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "../include/catch.hpp"
+#include "catch.hpp"
 #include "../src/storage.hpp"
 
 TEST_CASE("storage") {
-  Storage *storage = Storage::instance("test.db");
+  Storage *storage = Storage::init("test.db");
   REQUIRE("test.db" == storage->get_db_name());
   storage->delete_all_event_rows();
   storage->delete_all_session_rows();

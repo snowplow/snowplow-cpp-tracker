@@ -42,7 +42,6 @@ private:
   unsigned long long m_foreground_timeout;
   unsigned long long m_background_timeout;
   unsigned long long m_check_interval;
-  string m_db_name;
 
   // Context
   string m_user_id;

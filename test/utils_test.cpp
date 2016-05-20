@@ -12,7 +12,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 */
 
 #include <regex>
-#include "../include/catch.hpp"
+#include "catch.hpp"
 #include "../src/utils.hpp"
 
 TEST_CASE("utils") {

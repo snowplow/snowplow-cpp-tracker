@@ -14,7 +14,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "client_session.hpp"
 
 ClientSession::ClientSession(const string & db_name, unsigned long long foreground_timeout, unsigned long long background_timeout, unsigned long long check_interval) {
-  this->m_db_name = db_name;
+  Storage::init(db_name);
   this->m_foreground_timeout = foreground_timeout;
   this->m_background_timeout = background_timeout;
   this->m_check_interval = check_interval;
@@ -25,7 +25,7 @@ ClientSession::ClientSession(const string & db_name, unsigned long long foregrou
 
   // Check for existing session
   list<json>* session_rows = new list<json>;
-  Storage::instance(this->m_db_name)->select_all_session_rows(session_rows);
+  Storage::instance()->select_all_session_rows(session_rows);
 
   if (session_rows->size() == 1) {
     try {
@@ -38,7 +38,7 @@ ClientSession::ClientSession(const string & db_name, unsigned long long foregrou
       this->m_user_id = Utils::get_uuid4();
       this->m_current_session_id = "";
       this->m_session_index = 0;
-      Storage::instance(this->m_db_name)->delete_all_session_rows();
+      Storage::instance()->delete_all_session_rows();
     }
   } else {
     this->m_user_id = Utils::get_uuid4();
@@ -52,7 +52,7 @@ ClientSession::ClientSession(const string & db_name, unsigned long long foregrou
   this->update_session();
   this->update_accessed_last();
   this->update_session_context_data();
-  Storage::instance(this->m_db_name)->insert_update_session(this->m_session_context_data);
+  Storage::instance()->insert_update_session(this->m_session_context_data);
 }
 
 ClientSession::~ClientSession() {
@@ -116,7 +116,7 @@ void ClientSession::run() {
       this->update_session();
       this->update_accessed_last();
       this->update_session_context_data();
-      Storage::instance(this->m_db_name)->insert_update_session(this->m_session_context_data);
+      Storage::instance()->insert_update_session(this->m_session_context_data);
     }
   } while (this->is_running());
 }

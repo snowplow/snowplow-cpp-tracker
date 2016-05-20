@@ -36,7 +36,6 @@ public:
     POST,
     GET
   };
-
   enum Protocol {
     HTTP,
     HTTPS
@@ -45,10 +44,18 @@ public:
   Emitter(const string & uri, Method method, Protocol protocol, int send_limit, 
     int byte_limit_post, int byte_limit_get, const string & db_name);
   ~Emitter();
+
   virtual void start();
   virtual void stop();
   virtual void add(Payload payload);
   virtual void flush();
+
+  CrackedUrl get_cracked_url() { return m_url; }
+  Method get_method() { return m_method; }
+  unsigned int get_send_limit() { return m_send_limit; }
+  unsigned int get_byte_limit_get() { return m_byte_limit_get; }
+  unsigned int get_byte_limit_post() { return m_byte_limit_post; }
+  bool is_running();
 
 private:
   CrackedUrl m_url;
@@ -56,7 +63,6 @@ private:
   unsigned int m_send_limit;
   unsigned int m_byte_limit_get;
   unsigned int m_byte_limit_post;
-  string m_db_name;
 
   thread m_daemon_thread;
   condition_variable m_check_db;
@@ -70,7 +76,6 @@ private:
   void do_send(list<Storage::EventRow>* event_rows, list<HttpRequestResult>* results);
   string build_post_data_json(list<Payload> payload_list);
   string get_collector_url(const string & uri, Protocol protocol, Method method);
-  bool is_running();
 };
 
 #endif

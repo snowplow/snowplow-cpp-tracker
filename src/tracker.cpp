@@ -13,9 +13,42 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "tracker.hpp"
 
+// --- Static Singleton Access
+
+Tracker *Tracker::m_instance = 0;
+mutex Tracker::m_tracker_get;
+
+Tracker *Tracker::init(Emitter &emitter, Subject *subject, ClientSession *client_session, string *platform, string *app_id, 
+  string *name_space, bool *use_base64) {
+
+  lock_guard<mutex> guard(m_tracker_get);
+  if (!m_instance) {
+    m_instance = new Tracker(emitter, subject, client_session, platform, app_id, name_space, use_base64);
+  }
+  return m_instance;
+}
+
+Tracker *Tracker::instance() {
+  lock_guard<mutex> guard(m_tracker_get);
+  if (!m_instance) {
+    throw runtime_error("FATAL: Tracker must be initialized first.");
+  }
+  return m_instance;
+}
+
+void Tracker::close() {
+  lock_guard<mutex> guard(m_tracker_get);
+  if (m_instance) {
+    delete(m_instance);
+  }
+  m_instance = 0;
+}
+
 // --- Constructor & Destructor
 
-Tracker::Tracker(Emitter &emitter, Subject *subject, string *platform, string *app_id, string *name_space, bool *use_base64) : m_emitter(emitter) {
+Tracker::Tracker(Emitter &emitter, Subject *subject, ClientSession *client_session, string *platform, string *app_id, 
+  string *name_space, bool *use_base64) : m_emitter(emitter), m_client_session(client_session) {
+
   this->m_subject = subject;
   this->m_platform = (platform != NULL ? *platform : "srv");
   this->m_app_id = (app_id != NULL ? *app_id : "");
@@ -27,17 +60,23 @@ Tracker::Tracker(Emitter &emitter, Subject *subject, string *platform, string *a
 }
 
 Tracker::~Tracker() {
-  this->close();
+  this->stop();
 }
 
 // --- Controls
 
 void Tracker::start() {
   this->m_emitter.start();
+  if (this->m_client_session) {
+    this->m_client_session->start();
+  }
 }
 
-void Tracker::close() {
+void Tracker::stop() {
   this->m_emitter.stop();
+  if (this->m_client_session) {
+    this->m_client_session->stop();
+  }
 }
 
 void Tracker::flush() {
@@ -52,7 +91,7 @@ void Tracker::set_subject(Subject *subject) {
 
 // --- Event Tracking
 
-void Tracker::track(Payload payload, vector<SelfDescribingJson> & contexts) { 
+void Tracker::track(Payload payload, const string & event_id, vector<SelfDescribingJson> & contexts) { 
   // Add standard KV Pairs
   payload.add(SNOWPLOW_TRACKER_VERSION, SNOWPLOW_TRACKER_VERSION_LABEL);
   payload.add(SNOWPLOW_PLATFORM, this->m_platform);
@@ -62,6 +101,11 @@ void Tracker::track(Payload payload, vector<SelfDescribingJson> & contexts) {
   // Add Subject KV Pairs
   if (this->m_subject != NULL) {
     payload.add_map(this->m_subject->get_map());
+  }
+
+  // Add Client Session if available
+  if (this->m_client_session) {
+    contexts.push_back(this->m_client_session->get_session_context(event_id));
   }
 
   // Build the final context and add it to the payload
@@ -108,7 +152,7 @@ void Tracker::track_struct_event(StructuredEvent se) {
     p.add(SNOWPLOW_TRUE_TIMESTAMP, to_string(*se.true_timestamp));
   }
 
-  track(p, se.contexts);
+  track(p, se.event_id, se.contexts);
 }
 
 void Tracker::track_screen_view(Tracker::ScreenViewEvent sve) {
@@ -175,7 +219,7 @@ void Tracker::track_self_describing_event(SelfDescribingEvent sde) {
     p.add(SNOWPLOW_TRUE_TIMESTAMP, to_string(*sde.true_timestamp));
   }
 
-  track(p, sde.contexts);
+  track(p, sde.event_id, sde.contexts);
 }
 
 // --- Event Builders

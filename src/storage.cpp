@@ -26,7 +26,7 @@ const string db_column_session_data = "data";
 Storage *Storage::m_instance = 0;
 mutex Storage::m_db_get;
 
-Storage *Storage::instance(const string & db_name) {
+Storage *Storage::init(const string & db_name) {
   lock_guard<mutex> guard(m_db_get);
   if (!m_instance) {
     m_instance = new Storage(db_name);
@@ -34,8 +34,19 @@ Storage *Storage::instance(const string & db_name) {
   return m_instance;
 }
 
+Storage *Storage::instance() {
+  lock_guard<mutex> guard(m_db_get);
+  if (!m_instance) {
+    throw runtime_error("FATAL: Storage must be initialized first.");
+  }
+  return m_instance;
+}
+
 void Storage::close() {
-  delete(m_instance);
+  lock_guard<mutex> guard(m_db_get);
+  if (m_instance) {
+    delete(m_instance);
+  }
   m_instance = 0;
 }
 

@@ -17,20 +17,16 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <string>
 #include "emitter.hpp"
 #include "subject.hpp"
+#include "client_session.hpp"
 #include "self_describing_json.hpp"
 
 using namespace std;
 
 class Tracker {
-private:
-  Emitter &m_emitter;
-  Subject *m_subject;
-  string m_namespace;
-  string m_app_id;
-  string m_platform;
-  bool m_use_base64;
-
 public:
+  static Tracker *init(Emitter &emitter, Subject *subject, ClientSession *client_session, string *platform, string *app_id, string *name_space, bool *use_base64);
+  static Tracker *instance();
+  static void close();
 
   class StructuredEvent {
   public:
@@ -43,7 +39,6 @@ public:
     string event_id;
     unsigned long long *true_timestamp;
     vector<SelfDescribingJson> contexts;
-
     StructuredEvent(string category, string action);
   };
 
@@ -54,7 +49,6 @@ public:
     string event_id;
     unsigned long long *true_timestamp;
     vector<SelfDescribingJson> contexts;
-
     SelfDescribingEvent(SelfDescribingJson event);
   };
 
@@ -66,7 +60,6 @@ public:
     string event_id;
     unsigned long long *true_timestamp;
     vector<SelfDescribingJson> contexts;
-
     ScreenViewEvent();
   };
 
@@ -80,24 +73,35 @@ public:
     string event_id;
     unsigned long long *true_timestamp;
     vector<SelfDescribingJson> contexts;
-
     TimingEvent(string category, string variable, unsigned long long timing);
   };
 
-  Tracker(Emitter &emitter, Subject *subject, string *platform, string *app_id, string *name_space, bool *use_base64);
-  ~Tracker();
-
   void start();
-  void close();
+  void stop();
   void flush();
 
   void set_subject(Subject *subject);
-  
-  void track(Payload p, vector<SelfDescribingJson> &contexts);
+
+  void track(Payload p, const string & event_id, vector<SelfDescribingJson> &contexts);
   void track_struct_event(StructuredEvent);
   void track_screen_view(ScreenViewEvent);
   void track_timing(TimingEvent);
   void track_self_describing_event(SelfDescribingEvent);
+
+private:
+  static Tracker *m_instance;
+  static mutex m_tracker_get;
+
+  Tracker(Emitter &emitter, Subject *subject, ClientSession *client_session, string *platform, string *app_id, string *name_space, bool *use_base64);
+  ~Tracker();
+
+  Emitter &m_emitter;
+  Subject *m_subject;
+  ClientSession *m_client_session;
+  string m_namespace;
+  string m_app_id;
+  string m_platform;
+  bool m_use_base64;
 };
 
 #endif

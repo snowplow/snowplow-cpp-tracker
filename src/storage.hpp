@@ -36,12 +36,13 @@ private:
   Storage(const string & db_name);
   ~Storage();
   string m_db_name;
+  mutex m_db_access;
   sqlite3 *m_db;
   sqlite3_stmt *m_add_stmt;
-  mutex m_db_access;
 
 public:
-  static Storage *instance(const string & db_name);
+  static Storage *init(const string & db_name);
+  static Storage *instance();
   static void close();
 
   struct EventRow {
