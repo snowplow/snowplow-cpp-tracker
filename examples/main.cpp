@@ -34,18 +34,22 @@ int main(int argc, char** argv) {
   // Create Tracker
   Tracker *t = Tracker::init(emitter, &subject, &client_session, &platform, &app_id, &name_space, &base64);
 
-  // Add some custom contexts
-  vector<SelfDescribingJson> contexts;
-  SelfDescribingJson custom_context("iglu:com.acme/some_event/jsonschema/1-0-0", "{\"event\":\"data\"}"_json);
-  contexts.push_back(custom_context);
-
   // Track some events
-  Tracker::TimingEvent timing_event("timing-cat", "timing-var", 123);
-  timing_event.contexts = contexts;
+  Tracker::TimingEvent te("timing-cat", "timing-var", 123);
 
-  for (int i = 0; i < 100; i++) {
-    t->track_timing(timing_event);
-  }
+  Tracker::ScreenViewEvent sve;
+  string name = "Screen ID - 5asd56";
+  sve.name = &name;
+
+  Tracker::StructuredEvent se("shop", "add-to-basket");
+  string property = "pcs";
+  double value = 25.6;
+  se.property = &property;
+  se.value = &value;
+
+  t->track_timing(te);
+  t->track_screen_view(sve);
+  t->track_struct_event(se);
 
   // Flush and close
   t->flush();

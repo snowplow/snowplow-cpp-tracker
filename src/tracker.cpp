@@ -213,7 +213,9 @@ void Tracker::track_self_describing_event(SelfDescribingEvent sde) {
   p.add(SNOWPLOW_EVENT, SNOWPLOW_EVENT_UNSTRUCTURED);
   p.add(SNOWPLOW_TIMESTAMP, to_string(sde.timestamp));
   p.add(SNOWPLOW_EID, sde.event_id);
-  p.add_json(sde.event.get(), this->m_use_base64, SNOWPLOW_UNSTRUCTURED_ENCODED, SNOWPLOW_UNSTRUCTURED);
+
+  SelfDescribingJson sdj(SNOWPLOW_SCHEMA_UNSTRUCT_EVENT, sde.event.get());
+  p.add_json(sdj.get(), this->m_use_base64, SNOWPLOW_UNSTRUCTURED_ENCODED, SNOWPLOW_UNSTRUCTURED);
 
   if (sde.true_timestamp != NULL) {
     p.add(SNOWPLOW_TRUE_TIMESTAMP, to_string(*sde.true_timestamp));

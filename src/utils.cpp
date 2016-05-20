@@ -38,6 +38,7 @@ string Utils::get_uuid4() {
   CFStringRef cf_uuid_str_ref = CFUUIDCreateString(kCFAllocatorDefault, cf_uuid_ref);
 
   string uuid(CFStringGetCStringPtr(cf_uuid_str_ref, kCFStringEncodingUTF8));
+  transform(uuid.begin(), uuid.end(), uuid.begin(), ::tolower);
 
   CFRelease(cf_uuid_ref);
   CFRelease(cf_uuid_str_ref);

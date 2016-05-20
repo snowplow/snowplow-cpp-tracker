@@ -244,8 +244,9 @@ TEST_CASE("tracker") {
     nlohmann::json expected;
     expected[SNOWPLOW_SV_ID] = "123";
     SelfDescribingJson sdj(SNOWPLOW_SCHEMA_SCREEN_VIEW, expected);
+    SelfDescribingJson uej(SNOWPLOW_SCHEMA_UNSTRUCT_EVENT, sdj.get());
 
-    string json = sdj.to_string();
+    string json = uej.to_string();
     const unsigned char* c_json = (const unsigned char*)json.c_str();
 
     REQUIRE(payload[SNOWPLOW_UNSTRUCTURED_ENCODED] == base64_encode(c_json, json.length()));
@@ -264,7 +265,9 @@ TEST_CASE("tracker") {
     nlohmann::json new_expected;
     new_expected[SNOWPLOW_SV_NAME] = "name";
     SelfDescribingJson sdj_1(SNOWPLOW_SCHEMA_SCREEN_VIEW, new_expected);
-    string json_1 = sdj_1.to_string();
+    SelfDescribingJson uej_1(SNOWPLOW_SCHEMA_UNSTRUCT_EVENT, sdj_1.get());
+
+    string json_1 = uej_1.to_string();
     const unsigned char* c_json_1 = (const unsigned char*) json_1.c_str();
 
     REQUIRE(new_payload[SNOWPLOW_UNSTRUCTURED_ENCODED] == base64_encode(c_json_1, json_1.length()));
@@ -307,8 +310,9 @@ TEST_CASE("tracker") {
     expected[SNOWPLOW_UT_CATEGORY] = "category";
     expected[SNOWPLOW_UT_VARIABLE] = "variable";
     SelfDescribingJson sdj(SNOWPLOW_SCHEMA_USER_TIMINGS, expected);
+    SelfDescribingJson uej(SNOWPLOW_SCHEMA_UNSTRUCT_EVENT, sdj.get());
 
-    string json = sdj.to_string();
+    string json = uej.to_string();
     const unsigned char* c_json = (const unsigned char*)json.c_str();
 
     REQUIRE(payload[SNOWPLOW_UNSTRUCTURED_ENCODED] == base64_encode(c_json, json.length()));
@@ -326,7 +330,8 @@ TEST_CASE("tracker") {
     REQUIRE(new_payload[SNOWPLOW_TRUE_TIMESTAMP] == to_string(ts));
    
     SelfDescribingJson sde_w_label(SNOWPLOW_SCHEMA_USER_TIMINGS, expected);
-    string json_w_label = sde_w_label.to_string();
+    SelfDescribingJson uej_w_label(SNOWPLOW_SCHEMA_UNSTRUCT_EVENT, sde_w_label.get());
+    string json_w_label = uej_w_label.to_string();
 
     REQUIRE(base64_decode(new_payload[SNOWPLOW_UNSTRUCTURED_ENCODED]) == json_w_label);
 
@@ -337,7 +342,8 @@ TEST_CASE("tracker") {
     MockEmitter e;
     Tracker *t = Tracker::init(e, NULL, NULL, NULL, NULL, NULL, NULL);
 
-    Tracker::SelfDescribingEvent sde(SelfDescribingJson("schema", "{ \"hello\":\"world\" }"_json));
+    SelfDescribingJson sdj("schema", "{ \"hello\":\"world\" }"_json);
+    Tracker::SelfDescribingEvent sde(sdj);
     t->track_self_describing_event(sde);
 
     REQUIRE(e.get_added_payloads().size() == 1);
@@ -353,7 +359,9 @@ TEST_CASE("tracker") {
     REQUIRE(payload[SNOWPLOW_EID].size() > 5);
     REQUIRE(payload.count(SNOWPLOW_TRUE_TIMESTAMP) == 0);
 
-    string json = sde.event.to_string();
+    SelfDescribingJson uej(SNOWPLOW_SCHEMA_UNSTRUCT_EVENT, sdj.get());
+
+    string json = uej.to_string();
     const unsigned char* str = (const unsigned char*)json.c_str();
 
     REQUIRE(payload[SNOWPLOW_UNSTRUCTURED_ENCODED] == base64_encode(str, json.length()));
