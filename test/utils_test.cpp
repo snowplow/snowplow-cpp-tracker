@@ -11,6 +11,7 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
+#include <algorithm>
 #include <regex>
 #include "catch.hpp"
 #include "../src/utils.hpp"
@@ -25,6 +26,13 @@ TEST_CASE("utils") {
     string first = Utils::get_uuid4();
     string second = Utils::get_uuid4();
     REQUIRE(first != second);
+  }
+
+  SECTION("get_uuid4 should return lowercase values") {
+    string uuid = Utils::get_uuid4();
+    string uuid_lower = uuid;
+    std::transform(uuid_lower.begin(), uuid_lower.end(), uuid_lower.begin(), ::tolower);
+    REQUIRE(uuid_lower == uuid);
   }
 
   SECTION("int_list_to_string will successfully convert a list of integers to a string") {
