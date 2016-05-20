@@ -34,7 +34,16 @@ If you make changes only to a header file there is a chance it won't be picked u
 
 ### Building on Windows
 
-__ED TO ADD__
+ ```git clone https://github.com/snowplow/snowplow-cpp-tracker```
+
+In the cloned directory two [Visual Studio 2015](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx) project files are available:
+
+* `snowplow-cpp-tracker.sln`
+    This is required to compile the tracker and run the tests (you'll need this one to edit the tracker itself)
+* `snowplow-cpp-tracker-example.sln`
+    This is a demo project showing use of this tracker
+
+To run the tests under windows, you need to open the `snowplow-cpp-tracker.sln` solution, build it for your target platform *and run the resulting executable*.    
 
 ## Find out more
 
