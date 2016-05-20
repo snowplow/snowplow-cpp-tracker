@@ -5,9 +5,14 @@
 
 using namespace std;
 
+void usage(char *program_name) {
+  cout << "Usage: " << program_name << " [COLLECTOR_URL]" << endl;
+}
+
 int main(int argc, char** argv) {
   if (argc != 2) {
-    throw invalid_argument("Requires 2 argument got " + to_string(argc));
+    usage(argv[0]);
+    return 1;
   }
 
   // Create Tracker Variables
