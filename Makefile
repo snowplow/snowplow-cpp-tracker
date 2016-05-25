@@ -1,8 +1,9 @@
-.PHONY: all unit-tests clean dist-clean
+.PHONY: all unit-tests lcov-genhtml clean test-clean dist-clean
 
 build-dir = build/
 test-name = tracker_test
 example-name = tracker_example
+coverage-name = coverage.info
 
 # C Files
 
@@ -40,8 +41,14 @@ $(build-dir)$(example-name): $(cxx-common-objects) $(cxx-example-objects) $(cc-o
 
 # Testing
 
-unit-tests: all
+unit-tests: test-clean all
 	(cd $(build-dir); ./$(test-name))
+
+# Coverage
+
+lcov-genhtml: unit-tests
+	lcov --capture --directory src --output-file $(build-dir)$(coverage-name)
+	genhtml $(build-dir)$(coverage-name) --output-directory $(build-dir)
 
 # Dependencies
 
@@ -62,11 +69,13 @@ clean:
 	rm -f $(cxx-test-objects)
 	rm -f $(cxx-example-objects)
 	rm -f $(cc-objects)
-	rm -f $(shell find . -maxdepth 3 -name "*.gcov")
 	rm -f $(shell find . -maxdepth 3 -name "*.gcno")
+
+test-clean:
+	rm -f $(shell find . -maxdepth 3 -name "*.gcov")
 	rm -f $(shell find . -maxdepth 3 -name "*.gcda")
 
-dist-clean: clean
+dist-clean: test-clean clean
 	rm -f *~ .depend-cxx
 	rm -f *~ .depend-cc
 
