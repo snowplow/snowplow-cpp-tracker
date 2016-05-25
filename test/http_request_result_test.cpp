@@ -36,4 +36,10 @@ TEST_CASE("http_request_result") {
     REQUIRE(httpRequestResult.get_http_response_code() == 200);
     REQUIRE(httpRequestResult.is_success() == true);
   }
+
+  SECTION("the default constructor should return nothing for getter functions") {
+    HttpRequestResult httpRequestResult;
+    REQUIRE(httpRequestResult.get_http_response_code() == 0);
+    REQUIRE(httpRequestResult.is_success() == false);
+  }
 }
