@@ -65,6 +65,7 @@ TEST_CASE("cracked_url") {
     REQUIRE(c.get_port() == 8080);
     REQUIRE(c.get_hostname() == "www.google.com");
     REQUIRE(c.get_path() == "/hello/world");
+    REQUIRE(c.to_string() == "http://www.google.com:8080/hello/world")
   }
 
   SECTION("URL cracks with dots") {
@@ -72,6 +73,7 @@ TEST_CASE("cracked_url") {
     REQUIRE(c.get_is_valid() == true);
     REQUIRE(c.get_hostname() == "c91c801c.ngrok.io");
     REQUIRE(c.get_path() == "/com.snowplowanalytics.snowplow/tp2");
+    REQUIRE(c.to_string() == "http://c91c801c.ngrok.io/com.snowplowanalytics.snowplow/tp2")
   }
 
   SECTION("Invalid URL will be flagged as non-valid during cracking") {
