@@ -1,6 +1,10 @@
 .PHONY: all unit-tests lcov-genhtml clean test-clean dist-clean
 
 build-dir = build/
+test-dir = $(build-dir)test/
+example-dir = $(build-dir)example/
+coverage-dir = $(build-dir)coverage/
+
 test-name = tracker_test
 example-name = tracker_example
 coverage-name = coverage.info
@@ -31,24 +35,27 @@ LDFLAGS := -framework CoreFoundation -framework CFNetwork
 
 # Building
 
-all: $(build-dir)$(test-name) $(build-dir)$(example-name)
+all: $(test-dir)$(test-name) $(example-dir)$(example-name)
 
-$(build-dir)$(test-name): $(cxx-common-objects) $(cxx-test-objects) $(cc-objects)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(build-dir)$(test-name) $(cxx-common-objects) $(cxx-test-objects) $(cc-objects) $(LDLIBS)
+$(test-dir)$(test-name): $(cxx-common-objects) $(cxx-test-objects) $(cc-objects)
+	mkdir -p $(test-dir)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(test-dir)$(test-name) $(cxx-common-objects) $(cxx-test-objects) $(cc-objects) $(LDLIBS)
 
-$(build-dir)$(example-name): $(cxx-common-objects) $(cxx-example-objects) $(cc-objects)
-	$(CXX) -std=c++11 -Werror -g $(cxx-src-files) $(cxx-include-files) $(cxx-example-files) $(LDFLAGS) -o $(build-dir)$(example-name) $(cc-objects) $(LDLIBS)
+$(example-dir)$(example-name): $(cxx-common-objects) $(cxx-example-objects) $(cc-objects)
+	mkdir -p $(example-dir)
+	$(CXX) -std=c++11 -Werror -g $(cxx-src-files) $(cxx-include-files) $(cxx-example-files) $(LDFLAGS) -o $(example-dir)$(example-name) $(cc-objects) $(LDLIBS)
 
 # Testing
 
 unit-tests: test-clean all
-	(cd $(build-dir); ./$(test-name))
+	(cd $(test-dir); ./$(test-name))
 
 # Coverage
 
 lcov-genhtml: unit-tests
-	lcov --capture --directory src --output-file $(build-dir)$(coverage-name)
-	genhtml $(build-dir)$(coverage-name) --output-directory $(build-dir)
+	mkdir -p $(coverage-dir)
+	lcov --capture --directory src --output-file $(coverage-dir)$(coverage-name)
+	genhtml $(coverage-dir)$(coverage-name) --output-directory $(coverage-dir) --demangle-cpp
 
 # Dependencies
 
