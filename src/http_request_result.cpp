@@ -27,7 +27,7 @@ HttpRequestResult::HttpRequestResult(int internal_error_code, int http_response_
   } else {
     this->m_internal_error_code = 0;
     this->m_http_response_code = http_response_code;
-    this->m_is_successful = this->m_http_response_code == 200;
+    this->m_is_successful = (this->m_http_response_code == 200);
   }
 
   this->m_row_ids = row_ids;

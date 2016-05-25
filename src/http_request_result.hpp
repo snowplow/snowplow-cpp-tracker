@@ -15,6 +15,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #define HTTP_REQUEST_RESULT_H
 
 #include <list>
+#include <iostream>
 
 using namespace std;
 

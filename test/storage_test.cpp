@@ -20,6 +20,42 @@ TEST_CASE("storage") {
   storage->delete_all_event_rows();
   storage->delete_all_session_rows();
 
+  SECTION("singleton controls should work as expected") {
+    Storage::close();
+
+    bool runtime_error_not_init = false;
+    try {
+        Storage::instance();
+    } catch (runtime_error) {
+        runtime_error_not_init = true;
+    }
+    REQUIRE(runtime_error_not_init == true);
+
+    Storage::init("test.db");
+
+    runtime_error_not_init = false;
+    try {
+        Storage::instance();
+    } catch (runtime_error) {
+        runtime_error_not_init = true;
+    }
+    REQUIRE(runtime_error_not_init == false);
+  }
+
+  SECTION("database should throw exceptions for unmanageable errors") {
+    Storage::close();
+
+    bool runtime_error_bad_db_name = false;
+    try {
+        Storage::init("~/");
+    } catch (runtime_error) {
+        runtime_error_bad_db_name = true;
+    }
+    REQUIRE(runtime_error_bad_db_name == true);
+
+    Storage::init("test.db");
+  }
+
   SECTION("should be able to insert,select and delete Payload objects to and from the database") {
     Payload p;
     p.add("e", "pv");

@@ -44,7 +44,7 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUr
   r.oversize = oversize;
   requests_list.push_back(r);
 
-  return HttpRequestResult(0, response_code, row_ids, false);
+  return HttpRequestResult(0, response_code, row_ids, oversize);
 }
 
 void HttpClient::set_http_response_code(int http_response_code) {
@@ -58,6 +58,7 @@ list<HttpClient::Request> HttpClient::get_requests_list() {
 }
 
 void HttpClient::reset() {
+  lock_guard<mutex> guard(log_read_write);
   requests_list.clear();
   response_code = 200;
 }
