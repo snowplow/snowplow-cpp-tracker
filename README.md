@@ -1,6 +1,6 @@
 # C++ web analytics for Snowplow
 
-[![Build Status][travis-image]][travis] [![Release][release-image]][releases] [![Coverage Status][coverage-image]][coverage] [![License][license-image]][license]
+[![Build Status][travis-image]][travis] [![Coverage Status][coverage-image]][coverage] [![Release][release-image]][releases] [![License][license-image]][license]
 
 ## Overview
 
