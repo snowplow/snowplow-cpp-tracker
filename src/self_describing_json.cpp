@@ -26,5 +26,6 @@ json SelfDescribingJson::get() {
 }
 
 string SelfDescribingJson::to_string() {
-  return this->get().dump();
+  string j_str = this->get().dump();
+  return j_str;
 }

@@ -16,11 +16,13 @@ See the Apache License Version 2.0 for the specific language governing permissio
 // --- Common
 
 HttpRequestResult HttpClient::http_post(const CrackedUrl url, const string & post_data, list<int> row_ids, bool oversize) {
-  return HttpClient::http_request(POST, url, "", post_data, row_ids, oversize);
+  HttpRequestResult res = HttpClient::http_request(POST, url, "", post_data, row_ids, oversize);
+  return res;
 }
 
 HttpRequestResult HttpClient::http_get(const CrackedUrl url, const string & query_string, list<int> row_ids, bool oversize) {
-  return HttpClient::http_request(GET, url, query_string, "", row_ids, oversize);
+  HttpRequestResult res = HttpClient::http_request(GET, url, query_string, "", row_ids, oversize);
+  return res;
 }
 
 // --- Testing
