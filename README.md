@@ -1,6 +1,6 @@
 # C++ web analytics for Snowplow
 
-[![Build Status][travis-image]][travis] [![Release][release-image]][releases] [![License][license-image]][license]
+[![Build Status][travis-image]][travis] [![Release][release-image]][releases] [![Coverage Status][coverage-image]][coverage] [![License][license-image]][license]
 
 ## Overview
 
@@ -73,6 +73,9 @@ limitations under the License.
 
 [license-image]: http://img.shields.io/badge/license-Apache--2-blue.svg?style=flat
 [license]: http://www.apache.org/licenses/LICENSE-2.0
+
+[coverage-image]: https://coveralls.io/repos/github/snowplow/snowplow-cpp-tracker/badge.svg?branch=master
+[coverage]: https://coveralls.io/github/snowplow/snowplow-cpp-tracker?branch=master
 
 [techdocs-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/techdocs.png
 [setup-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/setup.png
