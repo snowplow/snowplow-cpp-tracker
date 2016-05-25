@@ -31,12 +31,10 @@ TEST_CASE("tracker") {
     void start() { m_started = true; }
     void stop() { m_started = false; }
     void add(Payload payload) { m_payloads.push_back(payload); }
-    void flush() {}
+    void flush() { m_payloads.clear(); }
     vector<Payload> get_added_payloads() { return m_payloads; }
     bool is_started() { return m_started; }
   };
-
-  // --- Tests
 
   SECTION("Mock emitter stores payloads") {
     MockEmitter e;
@@ -49,7 +47,50 @@ TEST_CASE("tracker") {
     REQUIRE(e.get_added_payloads().size() == 1);
   }
 
-  SECTION("Tracker sets appropriate fields to each payload") {
+  // --- Tracker Controls
+
+  SECTION("Tracker singleton controls provide expected behaviour") {
+    bool runtime_exception_on_not_init = false;
+    try {
+        Tracker *t = Tracker::instance();
+    } catch (runtime_error) {
+        runtime_exception_on_not_init = true;
+    }
+    REQUIRE(runtime_exception_on_not_init == true);
+
+    MockEmitter e;
+    Tracker *t = Tracker::init(e, NULL, NULL, NULL, NULL, NULL, NULL);
+
+    runtime_exception_on_not_init = false;
+    try {
+        Tracker *t = Tracker::instance();
+    } catch (runtime_error) {
+        runtime_exception_on_not_init = true;
+    }
+    REQUIRE(runtime_exception_on_not_init == false);
+
+    Tracker::close();
+  }
+
+  SECTION("Tracker controls should provide expected behaviour") {
+    MockEmitter e;
+    Tracker *t = Tracker::init(e, NULL, NULL, NULL, NULL, NULL, NULL);
+
+    Tracker::StructuredEvent sv("hello", "world");
+    t->track_struct_event(sv);
+
+    REQUIRE(e.get_added_payloads().size() == 1);
+
+    Tracker::instance()->flush();
+
+    REQUIRE(e.get_added_payloads().size() == 0);
+
+    Tracker::close();
+  }
+
+  // --- Tracker Defaults
+
+  SECTION("Tracker adds default fields to each payload") {
     MockEmitter e;
     Tracker *t = Tracker::init(e, NULL, NULL, NULL, NULL, NULL, NULL);
     
@@ -73,7 +114,7 @@ TEST_CASE("tracker") {
     Tracker::close();
   }
 
-  SECTION("Tracker can alter default fields") {
+  SECTION("Tracker can change default fields") {
     MockEmitter e;
 
     string plat = "mob";
@@ -101,6 +142,8 @@ TEST_CASE("tracker") {
 
     Tracker::close();
   }
+
+  // --- Event Builders
 
   SECTION("StructuredEvents have appropriate defaults") {
     unsigned long long time_now = Utils::get_unix_epoch_ms();
@@ -153,6 +196,8 @@ TEST_CASE("tracker") {
     REQUIRE(t.contexts.size() == 0);
     REQUIRE(t.event_id.size() > 5);
   }
+
+  // --- Event Tracker Functions
 
   SECTION("track_struct_event generates sane event") {
     bool is_arg_exception_empty_category;
@@ -334,6 +379,20 @@ TEST_CASE("tracker") {
     string json_w_label = uej_w_label.to_string();
 
     REQUIRE(base64_decode(new_payload[SNOWPLOW_UNSTRUCTURED_ENCODED]) == json_w_label);
+
+    Tracker::TimingEvent te1("", "", 123);
+    bool arg_exception_on_no_category = false;
+    try { t->track_timing(te1); } 
+    catch (invalid_argument) { arg_exception_on_no_category = true; }
+
+    REQUIRE(arg_exception_on_no_category == true);
+
+    Tracker::TimingEvent te2("category", "", 123);
+    bool arg_exception_on_no_variable = false;
+    try { t->track_timing(te2); } 
+    catch (invalid_argument) { arg_exception_on_no_variable = true; }
+
+    REQUIRE(arg_exception_on_no_variable == true);
 
     Tracker::close();
   }
