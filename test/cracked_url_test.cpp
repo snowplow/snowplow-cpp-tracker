@@ -73,4 +73,9 @@ TEST_CASE("cracked_url") {
     REQUIRE(c.get_hostname() == "c91c801c.ngrok.io");
     REQUIRE(c.get_path() == "/com.snowplowanalytics.snowplow/tp2");
   }
+
+  SECTION("Invalid URL will be flagged as non-valid during cracking") {
+    CrackedUrl c("helloworld");
+    REQUIRE(c.get_is_valid() == false);
+  }
 }

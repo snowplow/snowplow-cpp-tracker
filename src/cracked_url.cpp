@@ -34,8 +34,7 @@ CrackedUrl::CrackedUrl(const string & url) {
       string port = host_match.str(2);
       this->port = stoi(port);
       this->use_default_port = false;
-    }
-    else {
+    } else {
       this->hostname = hostname_port; // it's just a hostname
       this->port = 0;
       this->use_default_port = true;
@@ -44,8 +43,7 @@ CrackedUrl::CrackedUrl(const string & url) {
     this->is_https = protocol == "https";
     this->error_code = 0;
     this->is_valid = true;
-  }
-  else {
+  } else {
     this->error_code = -1;
     this->is_valid = false;
   }
