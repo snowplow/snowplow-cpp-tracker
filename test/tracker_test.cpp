@@ -74,15 +74,65 @@ TEST_CASE("tracker") {
 
   SECTION("Tracker controls should provide expected behaviour") {
     MockEmitter e;
-    Tracker *t = Tracker::init(e, NULL, NULL, NULL, NULL, NULL, NULL);
+    ClientSession cs("test.db", 5000, 5000, 500);
+    string platform = "pc";
+    string app_id = "snowplow-test-suite";
+    string name_space = "snowplow-testing";
+    bool base64 = false;
+
+    Tracker *t = Tracker::init(e, NULL, &cs, &platform, &app_id, &name_space, &base64);
 
     Tracker::StructuredEvent sv("hello", "world");
     t->track_struct_event(sv);
 
-    REQUIRE(e.get_added_payloads().size() == 1);
+    vector<Payload> payloads = e.get_added_payloads();
+    REQUIRE(payloads.size() == 1);
+
+    auto payload = payloads[0].get();
+    REQUIRE(payload[SNOWPLOW_TRACKER_VERSION] == SNOWPLOW_TRACKER_VERSION_LABEL);
+    REQUIRE(payload[SNOWPLOW_PLATFORM] == "pc");
+    REQUIRE(payload[SNOWPLOW_APP_ID] == "snowplow-test-suite");
+    REQUIRE(payload[SNOWPLOW_SP_NAMESPACE] == "snowplow-testing");
+    REQUIRE(payload[SNOWPLOW_EVENT] == SNOWPLOW_EVENT_STRUCTURED);
+    REQUIRE(payload[SNOWPLOW_SE_ACTION] == "world");
+    REQUIRE(payload[SNOWPLOW_SE_CATEGORY] == "hello");
+
+    Subject s;
+    s.set_screen_resolution(1920, 1080);
+    Tracker::instance()->set_subject(&s);
+    t->track_struct_event(sv);
+
+    payloads = e.get_added_payloads();
+    REQUIRE(payloads.size() == 2);
+
+    payload = payloads[1].get();
+    REQUIRE(payload[SNOWPLOW_TRACKER_VERSION] == SNOWPLOW_TRACKER_VERSION_LABEL);
+    REQUIRE(payload[SNOWPLOW_PLATFORM] == "pc");
+    REQUIRE(payload[SNOWPLOW_APP_ID] == "snowplow-test-suite");
+    REQUIRE(payload[SNOWPLOW_SP_NAMESPACE] == "snowplow-testing");
+    REQUIRE(payload[SNOWPLOW_EVENT] == SNOWPLOW_EVENT_STRUCTURED);
+    REQUIRE(payload[SNOWPLOW_SE_ACTION] == "world");
+    REQUIRE(payload[SNOWPLOW_SE_CATEGORY] == "hello");
+    REQUIRE(payload[SNOWPLOW_RESOLUTION] == "1920x1080");
+
+    s.set_screen_resolution(1080, 1920);
+    Tracker::instance()->set_subject(&s);
+    t->track_struct_event(sv);
+
+    payloads = e.get_added_payloads();
+    REQUIRE(payloads.size() == 3);
+
+    payload = payloads[2].get();
+    REQUIRE(payload[SNOWPLOW_TRACKER_VERSION] == SNOWPLOW_TRACKER_VERSION_LABEL);
+    REQUIRE(payload[SNOWPLOW_PLATFORM] == "pc");
+    REQUIRE(payload[SNOWPLOW_APP_ID] == "snowplow-test-suite");
+    REQUIRE(payload[SNOWPLOW_SP_NAMESPACE] == "snowplow-testing");
+    REQUIRE(payload[SNOWPLOW_EVENT] == SNOWPLOW_EVENT_STRUCTURED);
+    REQUIRE(payload[SNOWPLOW_SE_ACTION] == "world");
+    REQUIRE(payload[SNOWPLOW_SE_CATEGORY] == "hello");
+    REQUIRE(payload[SNOWPLOW_RESOLUTION] == "1080x1920");
 
     Tracker::instance()->flush();
-
     REQUIRE(e.get_added_payloads().size() == 0);
 
     Tracker::close();
@@ -101,11 +151,9 @@ TEST_CASE("tracker") {
     t->track(p, "eid", v);
 
     vector<Payload> payloads = e.get_added_payloads();
-
     REQUIRE(payloads.size() == 1);
 
     auto payload = payloads[0].get();
-
     REQUIRE(payload[SNOWPLOW_TRACKER_VERSION] == SNOWPLOW_TRACKER_VERSION_LABEL);
     REQUIRE(payload[SNOWPLOW_PLATFORM] == "srv");
     REQUIRE(payload[SNOWPLOW_APP_ID] == "");

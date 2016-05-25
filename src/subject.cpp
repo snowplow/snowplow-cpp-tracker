@@ -39,10 +39,6 @@ void Subject::set_language(const string & language) {
   this->m_payload.add(SNOWPLOW_LANGUAGE, language);
 }
 
-Payload Subject::get() {
-  return this->m_payload;
-}
-
 map<string, string> Subject::get_map() {
-  return this->get().get();
+  return this->m_payload.get();
 }

@@ -32,7 +32,6 @@ public:
   void set_color_depth(int depth);
   void set_timezone(const string & timezone);
   void set_language(const string & language);
-  Payload get();
   map<string, string> get_map();
 };
 

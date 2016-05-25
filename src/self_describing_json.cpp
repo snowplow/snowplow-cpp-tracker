@@ -26,5 +26,8 @@ json SelfDescribingJson::get() {
 }
 
 string SelfDescribingJson::to_string() {
-  return this->get().dump();
+  json j;
+  j[SNOWPLOW_SCHEMA] = this->m_schema;
+  j[SNOWPLOW_DATA] = this->m_data;
+  return j.dump();
 }
