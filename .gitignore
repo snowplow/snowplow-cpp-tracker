@@ -33,3 +33,6 @@
 
 # Tests
 *.db*
+*.gcov
+*.gcno
+*.gcda

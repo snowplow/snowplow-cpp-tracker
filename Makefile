@@ -25,7 +25,7 @@ cxx-example-objects := $(patsubst %.cpp, %.o, $(cxx-example-files))
 CC := gcc
 CXX := g++
 CCFLAGS := -Werror -g
-CXXFLAGS := -std=c++11 -Werror -g -D SNOWPLOW_TEST_SUITE
+CXXFLAGS := -std=c++11 -Werror -g -D SNOWPLOW_TEST_SUITE --coverage -O0
 LDFLAGS := -framework CoreFoundation -framework CFNetwork
 
 # Building
@@ -62,6 +62,9 @@ clean:
 	rm -f $(cxx-test-objects)
 	rm -f $(cxx-example-objects)
 	rm -f $(cc-objects)
+	rm -f $(shell find . -maxdepth 3 -name "*.gcov")
+	rm -f $(shell find . -maxdepth 3 -name "*.gcno")
+	rm -f $(shell find . -maxdepth 3 -name "*.gcda")
 
 dist-clean: clean
 	rm -f *~ .depend-cxx
