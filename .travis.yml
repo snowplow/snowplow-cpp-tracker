@@ -6,4 +6,4 @@ before_install:
 script: 
   - make unit-tests
 after_success:
-  - coveralls --include src
+  - coveralls --include src --gcov-options '\-lp'
