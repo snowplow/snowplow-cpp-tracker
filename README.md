@@ -32,6 +32,26 @@ If you make changes only to a header file there is a chance it won't be picked u
  host> make
 ```
 
+To run the test suite:
+
+```bash
+ host> make unit-tests
+```
+
+If you wish to generate a local code coverage report you will first need to install [lcov](http://ltp.sourceforge.net/coverage/lcov.php) on your host machine.  The easiest way to do this is using [brew](http://brew.sh/):
+
+```bash
+ host> brew install lcov 
+```
+
+Then run the following:
+
+```bash
+ host> make lcov-genhtml
+```
+
+The above runs the test suite and then generates a full code coverage report which can be accessed by opening the `index.html` in the `build` directory.
+
 ### Building on Windows
 
  ```git clone https://github.com/snowplow/snowplow-cpp-tracker```
