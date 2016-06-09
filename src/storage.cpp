@@ -200,7 +200,7 @@ void Storage::insert_update_session(json session_data) {
 // --- SELECT
 
 static int select_event_callback(void *data, int argc, char **argv, char **az_col_name) {
-   int i, id;
+   int i, id = 0;
    list<Storage::EventRow>* data_list = (list<Storage::EventRow>*)data;
    Payload event;
 
