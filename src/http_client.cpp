@@ -212,7 +212,11 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUr
     cf_http_req = CFHTTPMessageCreateRequest(kCFAllocatorDefault, CFSTR("GET"), cf_url, kCFHTTPVersion1_1);
   } else {
     cf_http_req = CFHTTPMessageCreateRequest(kCFAllocatorDefault, CFSTR("POST"), cf_url, kCFHTTPVersion1_1);
-    CFHTTPMessageSetBody(cf_http_req, CFDataCreate(kCFAllocatorDefault, (const UInt8*) post_data.data(), post_data.size()));
+	CFDataRef cf_post_data = CFDataCreate(kCFAllocatorDefault, (const UInt8*) post_data.data(), post_data.size());
+    CFHTTPMessageSetBody(cf_http_req, cf_post_data);
+	if (cf_post_data) {
+	  CFRelease(cf_post_data);
+	}
     CFHTTPMessageSetHeaderFieldValue(cf_http_req, CFSTR("Content-Type"), cf_content_type_str);
   }
   CFHTTPMessageSetHeaderFieldValue(cf_http_req, CFSTR("User-Agent"), cf_user_agent_str);
