@@ -102,7 +102,6 @@ void Emitter::run() {
       this->do_send(event_rows, results);
 
       // Process results
-      int success_count = 0;
       int failure_count = 0;
       
       for (list<HttpRequestResult>::iterator it = results->begin(); it != results->end(); ++it) {
@@ -113,7 +112,8 @@ void Emitter::run() {
           failure_count += res_row_ids.size();
         } 
       }
-      success_count = success_ids->size();
+      //int success_count = 0;
+      //success_count = success_ids->size();
       Storage::instance()->delete_event_row_ids(success_ids);
 
       //cout << "Success: " << success_count << endl;
