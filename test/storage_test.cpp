@@ -15,8 +15,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../src/storage.hpp"
 
 TEST_CASE("storage") {
-  Storage *storage = Storage::init("test.db");
-  REQUIRE("test.db" == storage->get_db_name());
+  Storage *storage = Storage::init("test1.db");
+  REQUIRE("test1.db" == storage->get_db_name());
   storage->delete_all_event_rows();
   storage->delete_all_session_rows();
 
@@ -31,7 +31,7 @@ TEST_CASE("storage") {
     }
     REQUIRE(runtime_error_not_init == true);
 
-    Storage::init("test.db");
+    Storage::init("test1.db");
 
     runtime_error_not_init = false;
     try {
@@ -53,7 +53,7 @@ TEST_CASE("storage") {
     }
     REQUIRE(runtime_error_bad_db_name == true);
 
-    Storage::init("test.db");
+    Storage::init("test1.db");
   }
 
   SECTION("should be able to insert,select and delete Payload objects to and from the database") {
