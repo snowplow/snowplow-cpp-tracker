@@ -27,7 +27,7 @@ TEST_CASE("tracker") {
     vector<Payload> m_payloads;
 
   public:
-    MockEmitter() : Emitter("com.acme", Emitter::Method::POST, Emitter::Protocol::HTTP, 0, 0, 0, "test.db") {}
+    MockEmitter() : Emitter("com.acme", Emitter::Method::POST, Emitter::Protocol::HTTP, 0, 0, 0, "test-tracker.db") {}
     void start() { m_started = true; }
     void stop() { m_started = false; }
     void add(Payload payload) { m_payloads.push_back(payload); }
@@ -74,7 +74,7 @@ TEST_CASE("tracker") {
 
   SECTION("Tracker controls should provide expected behaviour") {
     MockEmitter e;
-    ClientSession cs("test.db", 5000, 5000, 500);
+    ClientSession cs("test-tracker.db", 5000, 5000, 500);
     string platform = "pc";
     string app_id = "snowplow-test-suite";
     string name_space = "snowplow-testing";
