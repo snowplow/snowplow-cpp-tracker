@@ -58,6 +58,7 @@ private:
 
   // Daemon
   thread m_daemon_thread;
+  condition_variable m_monitor;
   mutex m_run_check;
   mutex m_safe_get;
   bool m_is_running;

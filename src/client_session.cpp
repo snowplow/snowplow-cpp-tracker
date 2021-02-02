@@ -74,6 +74,7 @@ void ClientSession::stop() {
   unique_lock<mutex> locker(this->m_run_check);
   if (this->m_is_running == true) {
     this->m_is_running = false;
+    m_monitor.notify_one();
     locker.unlock();
     this->m_daemon_thread.join();
   } else {
@@ -107,7 +108,13 @@ bool ClientSession::get_is_background() {
 
 void ClientSession::run() {
   do {
-    this_thread::sleep_for(chrono::milliseconds(this->m_check_interval));
+    {
+      unique_lock<mutex> guard(this->m_run_check);
+
+      m_monitor.wait_for(guard, chrono::milliseconds(this->m_check_interval), [&] {
+        return !this->m_is_running;
+      });
+    }
 
     unsigned long long check_time = Utils::get_unix_epoch_ms();
     unsigned long long range = this->m_is_background ? this->m_background_timeout : this->m_foreground_timeout;
