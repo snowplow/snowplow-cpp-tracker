@@ -32,6 +32,7 @@ public:
   void set_color_depth(int depth);
   void set_timezone(const string & timezone);
   void set_language(const string & language);
+  void set_useragent(const string & user_agent);
   map<string, string> get_map();
 };
 
