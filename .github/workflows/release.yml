@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  push:
+    tags:
+    - '*.*.*'
+
+jobs:
+  test:
+      runs-on: macos-latest
+      steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Make
+        run: make
+
+      - name: Run tests
+        run: make unit-tests
+
+  release:
+    needs: ["test"]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Get tag version
+      id: version
+      run: echo ::set-output name=TAG_VERSION::${GITHUB_REF#refs/*/}
+
+    - name: Release
+      uses: softprops/action-gh-release@v0.1.7
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        name: Version ${{ steps.version.outputs.TAG_VERSION }}
+        draft: false
+        prerelease: ${{ contains(steps.version.outputs.TAG_VERSION, '-') }}
