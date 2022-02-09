@@ -74,7 +74,7 @@ To run the tests under windows, you need to open the `snowplow-cpp-tracker.sln` 
 
 ## Copyright and license
 
-The Snowplow C++ Tracker is copyright 2016 Snowplow Analytics Ltd.
+The Snowplow C++ Tracker is copyright 2022 Snowplow Analytics Ltd.
 
 Licensed under the **[Apache License, Version 2.0][license]** (the "License");
 you may not use this software except in compliance with the License.
