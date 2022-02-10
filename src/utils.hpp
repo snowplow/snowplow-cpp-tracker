@@ -39,7 +39,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include <sys/sysctl.h>
 #include <CoreFoundation/CoreFoundation.h>
-#include "utils_osx_interface.h"
+#include "utils_macos_interface.h"
 
 #endif
 

@@ -11,13 +11,20 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#ifndef UTILS_OSX_INTERFACE_H
-#define UTILS_OSX_INTERFACE_H
+#ifndef UTILS_MACOS_H
+#define UTILS_MACOS_H
 
-#include <string>
+#if defined(__APPLE__)
 
-using namespace std;
+#import <Foundation/Foundation.h>
+#import <CoreServices/CoreServices.h>
+#import "utils_macos_interface.h"
 
-string get_os_version_objc();
+@interface UtilsMacOS : NSObject
 
++ (NSString *) getOSVersion;
+
+@end
+
+#endif
 #endif

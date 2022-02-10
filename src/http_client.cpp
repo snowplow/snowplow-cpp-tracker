@@ -186,11 +186,11 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUr
   return HttpRequestResult(0, http_status_code, row_ids, oversize);
 }
 
-// --- Mac OSX
+// --- macOS
 
 #elif defined(__APPLE__)
 
-const string HttpClient::TRACKER_AGENT = string("Snowplow C++ Tracker (MacOSX)");
+const string HttpClient::TRACKER_AGENT = string("Snowplow C++ Tracker (macOS)");
 
 HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUrl url, const string & query_string, const string & post_data, list<int> row_ids, bool oversize) {
 

@@ -11,14 +11,14 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#import "utils_osx.h"
+#import "utils_macos.h"
 
 #if defined(__APPLE__)
 
-@implementation UtilsOSX
+@implementation UtilsMacOS
 
 string get_os_version_objc() {
-    return ([[UtilsOSX getOSVersion] UTF8String]);
+    return ([[UtilsMacOS getOSVersion] UTF8String]);
 }
 
 + (NSString *) getOSVersion {
