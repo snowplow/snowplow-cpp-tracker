@@ -1,0 +1,33 @@
+name: build
+
+on:
+  push:
+
+jobs:
+  test-mac:
+    runs-on: macos-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Make
+      run: make
+
+    - name: Run tests
+      run: make unit-tests
+
+  test-windows:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup MSBuild and add to PATH
+      uses: microsoft/setup-msbuild@v1.1
+
+    - name: Run MSBuild
+      run: msbuild .\snowplow-cpp-tracker.sln
+
+    - name: Run tests
+      run: .\x64\Debug\snowplow-cpp-tracker.exe
