@@ -67,6 +67,7 @@ const string SNOWPLOW_VIEWPORT = "vp";
 const string SNOWPLOW_COLOR_DEPTH = "cd";
 const string SNOWPLOW_TIMEZONE = "tz";
 const string SNOWPLOW_LANGUAGE = "lang";
+const string SNOWPLOW_USERAGENT = "ua";
 
 // structured event
 const string SNOWPLOW_SE_CATEGORY = "se_ca";

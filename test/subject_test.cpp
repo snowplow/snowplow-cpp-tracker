@@ -47,4 +47,10 @@ TEST_CASE("subject") {
     sub.set_language("EN");
     REQUIRE(sub.get_map()["lang"] == "EN");
   }
+
+  SECTION("set_useragent adds a value for key ua") {
+    string useragent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_4) AppleWebKit/537.78.2 (KHTML, like Gecko) Version/7.0.6 Safari/537.78.2";
+    sub.set_useragent(useragent);
+    REQUIRE(sub.get_map()["ua"] == useragent);
+  }
 }

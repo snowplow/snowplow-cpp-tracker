@@ -39,6 +39,10 @@ void Subject::set_language(const string & language) {
   this->m_payload.add(SNOWPLOW_LANGUAGE, language);
 }
 
+void Subject::set_useragent(const string & useragent) {
+  this->m_payload.add(SNOWPLOW_USERAGENT, useragent);
+}
+
 map<string, string> Subject::get_map() {
   return this->m_payload.get();
 }
