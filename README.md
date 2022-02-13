@@ -8,7 +8,7 @@ Snowplow event tracker for C++. Add analytics to your C++ applications, servers 
 
 ## Developer Quickstart
 
-### Building on Mac OSX
+### Building on macOS
 
 ```bash
  host> git clone https://github.com/snowplow/snowplow-cpp-tracker

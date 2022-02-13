@@ -65,8 +65,8 @@ lcov-genhtml: unit-tests
 
 # Dependencies
 
-src/utils_osx.o: src/utils_osx.mm
-	$(OBJCXX) $(CXXFLAGS) src/utils_osx.mm -c -o src/utils_osx.o
+src/utils_macos.o: src/utils_macos.mm
+	$(OBJCXX) $(CXXFLAGS) src/utils_macos.mm -c -o src/utils_macos.o
 
 depend-cxx: .depend-cxx
 .depend-cxx: $(cxx-src-files) $(cxx-test-files) $(cxx-include-files) $(cxx-example-files)
