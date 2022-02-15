@@ -12,21 +12,21 @@ See the Apache License Version 2.0 for the specific language governing permissio
 */
 
 #include "client_session.hpp"
+#include "utils.hpp"
+#include "constants.hpp"
+#include "storage.hpp"
 
-using std::this_thread::sleep_for;
-using std::chrono::milliseconds;
 using std::lock_guard;
 using std::unique_lock;
 
-ClientSession::ClientSession(const string & db_name, unsigned long long foreground_timeout, unsigned long long background_timeout, unsigned long long check_interval) {
+ClientSession::ClientSession(const string & db_name, unsigned long long foreground_timeout, unsigned long long background_timeout) {
   Storage::init(db_name);
   this->m_foreground_timeout = foreground_timeout;
   this->m_background_timeout = background_timeout;
-  this->m_check_interval = check_interval;
 
   this->m_session_storage = "SQLITE";
-  this->m_is_running = false;
   this->m_is_background = false;
+  this->m_is_new_session = true;
 
   // Check for existing session
   list<json>* session_rows = new list<json>;
@@ -50,95 +50,74 @@ ClientSession::ClientSession(const string & db_name, unsigned long long foregrou
     this->m_current_session_id = "";
     this->m_session_index = 0;
   }
+  this->update_last_session_check_at();
 
   session_rows->clear();
   delete(session_rows);
-
-  this->update_session();
-  this->update_accessed_last();
-  this->update_session_context_data();
-  Storage::instance()->insert_update_session(this->m_session_context_data);
-}
-
-ClientSession::~ClientSession() {
-  this->stop();
 }
 
 // --- Public
 
-void ClientSession::start() {
-  lock_guard<mutex> guard(this->m_run_check);
-  if (this->m_is_running) {
-    return;
-  }
-  this->m_is_running = true;
-  this->m_daemon_thread = thread(&ClientSession::run, this);
+void ClientSession::start_new_session() {
+  this->m_is_new_session = true;
 }
 
-void ClientSession::stop() {
-  unique_lock<mutex> locker(this->m_run_check);
-  if (this->m_is_running == true) {
-    this->m_is_running = false;
-    locker.unlock();
-    this->m_daemon_thread.join();
-  } else {
-    locker.unlock();
-  }
-}
+SelfDescribingJson ClientSession::update_and_get_session_context(const string & event_id) {
+  json session_context_data;
+  bool save_to_storage = false;
 
-SelfDescribingJson ClientSession::get_session_context(const string & event_id) {
-  lock_guard<mutex> guard(this->m_safe_get);
+  {
+    lock_guard<mutex> guard(this->m_safe_get);
 
-  this->update_accessed_last();
-
-  if (this->m_first_event_id == "") {
-    this->m_first_event_id = event_id;
-    this->m_session_context_data[SNOWPLOW_SESSION_FIRST_ID] = this->m_first_event_id;
+    if (this->should_update_session()) {
+      this->update_session(event_id);
+      save_to_storage = true;
+    }
+    this->update_last_session_check_at();
+    session_context_data = this->m_session_context_data;
   }
 
-  SelfDescribingJson sdj(SNOWPLOW_SCHEMA_CLIENT_SESSION, this->m_session_context_data);
+  if (save_to_storage) {
+    Storage::instance()->insert_update_session(this->m_session_context_data);
+  }
+  SelfDescribingJson sdj(SNOWPLOW_SCHEMA_CLIENT_SESSION, session_context_data);
   return sdj;
 }
 
 void ClientSession::set_is_background(bool is_background) {
+  lock_guard<mutex> guard(this->m_safe_get);
+
   this->m_is_background = is_background;
 }
 
 bool ClientSession::get_is_background() {
+  lock_guard<mutex> guard(this->m_safe_get);
+
   return this->m_is_background;
 }
 
 // --- Private
 
-void ClientSession::run() {
-  do {
-    sleep_for(milliseconds(this->m_check_interval));
-
-    unsigned long long check_time = Utils::get_unix_epoch_ms();
-    unsigned long long range = this->m_is_background ? this->m_background_timeout : this->m_foreground_timeout;
-
-    if (!this->is_time_in_range(this->m_accessed_last, check_time, range)) {
-      this->update_session();
-      this->update_accessed_last();
-      this->update_session_context_data();
-      Storage::instance()->insert_update_session(this->m_session_context_data);
-    }
-  } while (this->is_running());
+bool ClientSession::should_update_session() {
+  if (m_is_new_session) {
+    return true;
+  }
+  unsigned long long now = Utils::get_unix_epoch_ms();
+  return now < this->m_last_session_check_at || now - this->m_last_session_check_at > this->get_timeout();
 }
 
-void ClientSession::update_session() {
+void ClientSession::update_last_session_check_at() {
+  this->m_last_session_check_at = Utils::get_unix_epoch_ms();
+}
+
+void ClientSession::update_session(const string &event_id) {
+  this->m_is_new_session = false;
+  this->m_first_event_id = event_id;
   this->m_previous_session_id = this->m_current_session_id;
   this->m_current_session_id = Utils::get_uuid4();
   this->m_session_index += 1;
-}
 
-void ClientSession::update_accessed_last() {
-  this->m_accessed_last = Utils::get_unix_epoch_ms();
-}
-
-void ClientSession::update_session_context_data() {
-  lock_guard<mutex> guard(this->m_safe_get);
-
+  // update session context data
   json j;
 
   j[SNOWPLOW_SESSION_USER_ID] = this->m_user_id;
@@ -159,11 +138,6 @@ void ClientSession::update_session_context_data() {
   this->m_session_context_data = j;
 }
 
-bool ClientSession::is_time_in_range(unsigned long long start, unsigned long long check, unsigned long long range) {
-  return start > (check - range);
-}
-
-bool ClientSession::is_running() {
-  lock_guard<mutex> guard(this->m_run_check);
-  return this->m_is_running;
+unsigned long long ClientSession::get_timeout() {
+  return this->m_is_background ? this->m_background_timeout : this->m_foreground_timeout;
 }
