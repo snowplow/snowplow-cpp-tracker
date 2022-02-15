@@ -18,18 +18,33 @@ metrics = [
   'mute_emitter_and_real_session'
 ]
 
-print()
-print(''.join([to_cell('Metric', 40), to_cell('Max'), to_cell('Min'), to_cell('Mean'), to_cell('Last')]))
-print(''.join(['-'] * 80))
+groups = {
+    (m['desktop_context']['data']['deviceModel'], m['results']['num_threads'], m['results']['num_operations'])
+    for m in measurements
+}
 
-for metric in metrics:
-    values = [m['results'][metric] for m in measurements]
-    print(''.join([
-        to_cell(metric.replace('_', ' '), 40),
-        to_cell(max(values)),
-        to_cell(min(values)),
-        to_cell(sum(values) / len(values)),
-        to_cell(values[-1])
-    ]))
+for device_model, num_threads, num_operations in groups:
+    group_measurements = [
+        m for m in measurements
+        if m['desktop_context']['data']['deviceModel'] == device_model
+        and m['results']['num_threads'] == num_threads
+        and m['results']['num_operations'] == num_operations
+    ]
+    print(f'Device: {device_model}')
+    print(f'Number of threads: {num_threads}')
+    print(f'Number of operations: {num_operations}')
+    print()
+    print(''.join([to_cell('Metric', 40), to_cell('Max'), to_cell('Min'), to_cell('Mean'), to_cell('Last')]))
+    print(''.join(['-'] * 80))
 
-print()
+    for metric in metrics:
+        values = [m['results'][metric] for m in group_measurements]
+        print(''.join([
+            to_cell(metric.replace('_', ' '), 40),
+            to_cell(max(values)),
+            to_cell(min(values)),
+            to_cell(sum(values) / len(values)),
+            to_cell(values[-1])
+        ]))
+
+    print()
