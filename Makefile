@@ -3,10 +3,12 @@
 build-dir = build/
 test-dir = $(build-dir)test/
 example-dir = $(build-dir)example/
+performance-dir = $(build-dir)performance/
 coverage-dir = $(build-dir)coverage/
 
 test-name = tracker_test
 example-name = tracker_example
+performance-name = tracker_performance
 coverage-name = coverage.info
 
 # C Files
@@ -20,10 +22,12 @@ cxx-src-files := $(shell find src -maxdepth 1 -name "*.cpp")
 cxx-include-files := $(shell find include -maxdepth 1 -name "*.cpp")
 cxx-test-files := $(shell find test -maxdepth 1 -name "*.cpp")
 cxx-example-files := $(shell find examples -maxdepth 1 -name "*.cpp")
+cxx-performance-files := $(shell find performance -maxdepth 1 -name "*.cpp")
 
 cxx-common-objects := $(patsubst %.cpp, %.o, $(cxx-src-files) $(cxx-include-files))
 cxx-test-objects := $(patsubst %.cpp, %.o, $(cxx-test-files))
 cxx-example-objects := $(patsubst %.cpp, %.o, $(cxx-example-files))
+cxx-performance-objects := $(patsubst %.cpp, %.o, $(cxx-performance-files))
 
 # Objective-C++ Files
 
@@ -41,7 +45,7 @@ LDFLAGS := -framework CoreFoundation -framework CFNetwork -framework Foundation 
 
 # Building
 
-all: $(test-dir)$(test-name) $(example-dir)$(example-name)
+all: $(test-dir)$(test-name) $(example-dir)$(example-name) $(performance-dir)$(performance-name)
 
 $(test-dir)$(test-name): $(objcxx-objects) $(cxx-common-objects) $(cxx-test-objects) $(cc-objects)
 	mkdir -p $(test-dir)
@@ -50,6 +54,10 @@ $(test-dir)$(test-name): $(objcxx-objects) $(cxx-common-objects) $(cxx-test-obje
 $(example-dir)$(example-name): $(objcxx-objects) $(cxx-common-objects) $(cxx-example-objects) $(cc-objects)
 	mkdir -p $(example-dir)
 	$(CXX) -std=c++11 -Werror -g $(objcxx-src-files) $(cxx-src-files) $(cxx-include-files) $(cxx-example-files) $(LDFLAGS) -o $(example-dir)$(example-name) $(cc-objects) $(LDLIBS)
+
+$(performance-dir)$(performance-name): $(objcxx-objects) $(cxx-common-objects) $(cxx-performance-objects) $(cc-objects)
+	mkdir -p $(performance-dir)
+	$(CXX) -std=c++11 -Werror -g $(objcxx-src-files) $(cxx-src-files) $(cxx-include-files) $(cxx-performance-files) $(LDFLAGS) -o $(performance-dir)$(performance-name) $(cc-objects) $(LDLIBS)
 
 # Testing
 
@@ -69,7 +77,7 @@ src/utils_macos.o: src/utils_macos.mm
 	$(OBJCXX) $(CXXFLAGS) src/utils_macos.mm -c -o src/utils_macos.o
 
 depend-cxx: .depend-cxx
-.depend-cxx: $(cxx-src-files) $(cxx-test-files) $(cxx-include-files) $(cxx-example-files)
+.depend-cxx: $(cxx-src-files) $(cxx-test-files) $(cxx-include-files) $(cxx-example-files) $(cxx-performance-files)
 	rm -f ./.depend-cxx
 	$(CXX) $(CXXFLAGS) -MM $^ >> ./.depend-cxx;
 
@@ -85,6 +93,7 @@ clean:
 	rm -f $(cxx-common-objects)
 	rm -f $(cxx-test-objects)
 	rm -f $(cxx-example-objects)
+	rm -f $(cxx-performance-objects)
 	rm -f $(cc-objects)
 	rm -f $(shell find . -maxdepth 3 -name "*.gcno")
 
@@ -97,6 +106,7 @@ dist-clean: test-clean clean
 	rm -f *~ .depend-cc
 	rm -rf build/coverage
 	rm -rf build/example
+	rm -rf build/performance
 	rm -rf build/test
 
 include .depend-cxx

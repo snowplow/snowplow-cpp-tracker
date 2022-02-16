@@ -52,6 +52,29 @@ Then run the following:
 
 The above runs the test suite and then generates a full code coverage report which can be accessed by opening the `index.html` in the `build` directory.
 
+#### Performance testing
+
+The project also provides performance tests to measure changes in performance of the tracker. The tests measure performance under a few scenarios in which they vary the emitter and session.
+
+To run performance tests on your machine:
+
+```bash
+ host> ./build/performance/tracker_performance
+```
+
+To compare with historical performance measurements (logged in the `performance/logs.txt` file), run the following Python script that will output a table with the performance comparison:
+
+```bash
+ host> ./performance/stats.py                                       
+
+ Metric                                | Max     | Min     | Mean    | Last    |
+--------------------------------------------------------------------------------
+ mocked emitter and mocked session     | 5.27s   | 5.08s   | 5.18s   | 5.27s   |
+ mocked emitter and real session       | 5.08s   | 5.04s   | 5.06s   | 5.07s   |
+ mute emitter and mocked session       | 18.77s  | 17.29s  | 18.08s  | 18.77s  |
+ mute emitter and real session         | 28.02s  | 22.61s  | 25.06s  | 22.61s  |
+```
+
 ### Building on Windows
 
  ```git clone https://github.com/snowplow/snowplow-cpp-tracker```
