@@ -3,15 +3,17 @@
 
 #include "run.hpp"
 #include "../src/utils.hpp"
+#include "../src/storage.hpp"
 
 using namespace std;
 
 int main(int argc, char **argv) {
   // run and measure performance
-  double mocked_emitter_and_mocked_session = run_mocked_emitter_and_mocked_session("demo0.db");
-  double mocked_emitter_and_real_session = run_mocked_emitter_and_real_session("demo1.db");
-  double mute_emitter_and_mocked_session = run_mute_emitter_and_mocked_session("demo2.db");
-  double mute_emitter_and_real_session = run_mute_emitter_and_real_session("demo3.db");
+  string db_name = "performance.db";
+  double mocked_emitter_and_mocked_session = run_mocked_emitter_and_mocked_session(db_name);
+  double mocked_emitter_and_real_session = run_mocked_emitter_and_real_session(db_name);
+  double mute_emitter_and_mocked_session = run_mute_emitter_and_mocked_session(db_name);
+  double mute_emitter_and_real_session = run_mute_emitter_and_real_session(db_name);
 
   // print results
   cout << endl << "RESULTS (" << NUM_OPERATIONS << " operations x " << NUM_THREADS << " threads)" << endl << endl;
