@@ -19,6 +19,9 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 using std::list;
 
+/**
+ * @brief Response from HTTP requests to collector. To be used internally within tracker only.
+ */
 class HttpRequestResult {
 private:
   int m_http_response_code;

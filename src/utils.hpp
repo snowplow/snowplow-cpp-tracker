@@ -47,6 +47,9 @@ using std::list;
 using std::string;
 using json = nlohmann::json;
 
+/**
+ * @brief Tracker internal utility functions.
+ */
 class Utils {
 public:
   static string get_uuid4();

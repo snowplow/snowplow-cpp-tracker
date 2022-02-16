@@ -30,6 +30,10 @@ using std::string;
 using std::list;
 using json = nlohmann::json;
 
+/**
+ * @brief Tracker internal SQLite storage for events and session information. To be used internally within tracker only.
+ * 
+ */
 class Storage {
 private:
   static Storage *m_instance;
