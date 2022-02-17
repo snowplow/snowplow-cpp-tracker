@@ -13,8 +13,6 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "utils.hpp"
 
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-
 using std::runtime_error;
 using std::stringstream;
 using std::ostringstream;
@@ -26,6 +24,8 @@ using std::setw;
 using std::chrono::duration_cast;
 using std::chrono::system_clock;
 using std::chrono::milliseconds;
+
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 
 string Utils::get_uuid4() {
   UUID uuid = { 0 };

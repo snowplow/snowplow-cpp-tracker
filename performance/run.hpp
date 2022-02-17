@@ -16,7 +16,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include <string>
 
-using namespace std;
+using std::string;
 
 const int NUM_OPERATIONS = 10000;
 const int NUM_THREADS = 5;

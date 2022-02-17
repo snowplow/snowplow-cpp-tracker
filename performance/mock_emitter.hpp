@@ -16,7 +16,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "../src/emitter.hpp"
 
-using namespace std;
+using std::string;
 
 class MockEmitter : public Emitter {
 public:

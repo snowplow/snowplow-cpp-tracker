@@ -16,7 +16,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include <string>
 
-using namespace std;
+using std::string;
 
 string get_os_version_objc();
 
