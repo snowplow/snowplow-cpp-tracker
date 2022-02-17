@@ -29,7 +29,10 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "http_request_result.hpp"
 #include "cracked_url.hpp"
 
-using namespace std;
+using std::string;
+using std::thread;
+using std::condition_variable;
+using std::mutex;
 
 class Emitter {
 public:

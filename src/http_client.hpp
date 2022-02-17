@@ -21,8 +21,6 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "cracked_url.hpp"
 #include "http_request_result.hpp"
 
-using namespace std;
-
 #if defined(SNOWPLOW_TEST_SUITE)
 
 #include <iostream>
@@ -48,6 +46,10 @@ using namespace std;
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 #endif
+
+using std::string;
+using std::list;
+using std::mutex;
 
 class HttpClient {
 public:

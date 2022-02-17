@@ -18,7 +18,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "constants.hpp"
 #include "../include/json.hpp"
 
-using namespace std;
+using std::string;
 using json = nlohmann::json;
 
 class SelfDescribingJson {

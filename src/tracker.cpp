@@ -13,6 +13,11 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "tracker.hpp"
 
+using std::to_string;
+using std::lock_guard;
+using std::invalid_argument;
+using std::runtime_error;
+
 // --- Static Singleton Access
 
 Tracker *Tracker::m_instance = 0;

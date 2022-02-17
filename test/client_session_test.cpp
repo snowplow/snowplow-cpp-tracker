@@ -14,6 +14,9 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "catch.hpp"
 #include "../src/client_session.hpp"
 
+using std::this_thread::sleep_for;
+using std::chrono::milliseconds;
+
 TEST_CASE("client_session") {
   SECTION("The Session must persist and update in the background") {
     Storage::init("test1.db")->delete_all_session_rows();
@@ -41,7 +44,7 @@ TEST_CASE("client_session") {
     string user_id = data[SNOWPLOW_SESSION_USER_ID].get<std::string>();
     string current_id = data[SNOWPLOW_SESSION_ID].get<std::string>();
 
-    this_thread::sleep_for(chrono::milliseconds(875));
+    sleep_for(milliseconds(875));
     session_json = cs.get_session_context("event-id");
     data = session_json.get()[SNOWPLOW_DATA];
 
@@ -81,7 +84,7 @@ TEST_CASE("client_session") {
     string user_id1 = data1[SNOWPLOW_SESSION_USER_ID].get<std::string>();
     string current_id1 = data1[SNOWPLOW_SESSION_ID].get<std::string>();
 
-    this_thread::sleep_for(chrono::milliseconds(850));
+    sleep_for(milliseconds(850));
     session_json1 = cs1.get_session_context("event-id2");
     data1 = session_json1.get()[SNOWPLOW_DATA];
 
@@ -113,7 +116,7 @@ TEST_CASE("client_session") {
     string user_id = data[SNOWPLOW_SESSION_USER_ID].get<std::string>();
     string current_id = data[SNOWPLOW_SESSION_ID].get<std::string>();
 
-    this_thread::sleep_for(chrono::milliseconds(850));
+    sleep_for(milliseconds(850));
     session_json = cs.get_session_context("event-id3");
     data = session_json.get()[SNOWPLOW_DATA];
 

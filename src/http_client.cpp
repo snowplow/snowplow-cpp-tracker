@@ -13,6 +13,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "http_client.hpp"
 
+using std::lock_guard;
+
 // --- Common
 
 HttpRequestResult HttpClient::http_post(const CrackedUrl url, const string & post_data, list<int> row_ids, bool oversize) {

@@ -14,6 +14,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "catch.hpp"
 #include "../src/emitter.hpp"
 
+using std::invalid_argument;
+
 TEST_CASE("emitter") {
   SECTION("Emitter rejects urls (starting with http:// or https://)") {
     bool inv_arg_http = false;

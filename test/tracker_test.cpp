@@ -17,6 +17,10 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../src/tracker.hpp"
 #include "../src/emitter.hpp"
 
+using std::to_string;
+using std::invalid_argument;
+using std::runtime_error;
+
 TEST_CASE("tracker") {
 
   // --- Emitter Mock
