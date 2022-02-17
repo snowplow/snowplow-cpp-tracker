@@ -23,12 +23,20 @@ using std::string;
 using std::mutex;
 using json = nlohmann::json;
 
+/**
+ * @brief Keeps track of users sessions and can be configured to timeout after a certain amount of inactivity.
+ * 
+ * Activity is determined by how often events are sent with the Tracker. Sessions are updated on on each tracked event.
+ * 
+ * Tracker automatically appends session information as a context entity to each tracked event.
+ * Schema for the context entity: iglu:com.snowplowanalytics.snowplow/client_session/jsonschema/1-0-1
+ */
 class ClientSession {
 public:
   /**
    * @brief Construct a new Client Session object
    * 
-   * @param db_name Path to the SQLite database where session data will be read and stored
+   * @param db_name Path to the SQLite database where session data will be read and stored (must be the same as for Emitter)
    * @param foreground_timeout Timeout in ms for updating the session when the app is in background
    * @param background_timeout Timeout in ms for updating the session when the app is in foreground
    */
