@@ -23,7 +23,7 @@ using std::map;
 using std::string;
 
 /**
- * @brief Defines additional information about your application’s environment, current user and so on, to be sent to with each tracked event.
+ * @brief Defines additional information about your application's environment, current user and so on, to be sent to with each tracked event.
  */
 class Subject {
 private:

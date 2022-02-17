@@ -2,11 +2,63 @@
 
 [![early-release]][tracker-classificiation] [![Build Status][travis-image]][travis] [![Coverage Status][coverage-image]][coverage] [![Release][release-image]][releases] [![License][license-image]][license]
 
-## Overview
+Snowplow is a scalable open-source platform for rich, high quality, low-latency data collection. It is designed to collect high quality, complete behavioral data for enterprise business.
 
-Snowplow event tracker for C++. Add analytics to your C++ applications, servers and games
+**To find out more, please check out the [Snowplow website][website] and our [documentation][docs].**
 
-## Developer Quickstart
+## Snowplow C++ Tracker Overview
+
+Snowplow C++ tracker enables you to add analytics to your C++ applications, servers and games when using a [Snowplow][snowplow] pipeline.
+
+## Quick Start
+
+The tracker currently supports macOS and Windows.
+
+### Installation
+
+Download the most recent release from the [releases section](https://github.com/snowplow/snowplow-cpp-tracker/releases). Everything in both the `src` and `include` folders will need to be included in your application. It is important to keep the same folder structure as references to the included headers have been done like so: `../include/json.hpp`.
+
+### Using the tracker
+
+Import and initialize the tracker with your Snowplow collector endpoint and tracker configuration:
+
+```cpp
+#include "tracker.hpp"
+
+// Emitter is responsible for sending events to a Snowplow Collector
+Emitter emitter("com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 52000, "sp.db");
+// Subject defines additional information about your application's environment and user
+Subject subject;
+subject.set_user_id("a-user-id");
+// Client session keeps track of user sessions
+ClientSession client_session("sp.db", 5000, 5000);
+
+string platform = "pc"; // platform the tracker is running on
+string app_id = "openage"; // application ID
+string name_space = "sp-pc"; // the name of the tracker instance
+bool base64 = false; // whether to enable base 64 encoding
+bool desktop_context = true; // add a context entity to events with information about the device
+
+Tracker *tracker = Tracker::init(emitter, &subject, &client_session, &platform, &app_id, &name_space, &base64, &desktop_context);
+```
+
+Track custom events (see the documentation for the full list of supported event types):
+
+```cpp
+// structured event
+Tracker::StructuredEvent se("category", "action");
+tracker->track_struct_event(se);
+
+// screen view event
+Tracker::ScreenViewEvent sve;
+string name = "Screen ID - 5asd56";
+sve.name = &name;
+tracker->track_screen_view(sve);
+```
+
+Check the tracked events in a [Snowplow Micro](https://docs.snowplowanalytics.com/docs/understanding-your-pipeline/what-is-snowplow-micro/) or [Snowplow Mini](https://docs.snowplowanalytics.com/docs/understanding-your-pipeline/what-is-snowplow-mini/) instance.
+
+## Developer Quick Start
 
 ### Building on macOS
 
@@ -107,6 +159,10 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+[website]: https://snowplowanalytics.com
+[snowplow]: https://github.com/snowplow/snowplow
+[docs]: https://docs.snowplowanalytics.com/
 
 [travis-image]: https://travis-ci.org/snowplow/snowplow-cpp-tracker.png?branch=master
 [travis]: https://travis-ci.org/snowplow/snowplow-cpp-tracker
