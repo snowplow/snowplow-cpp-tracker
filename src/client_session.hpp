@@ -20,7 +20,6 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../include/json.hpp"
 
 using std::string;
-using std::thread;
 using std::mutex;
 using json = nlohmann::json;
 
