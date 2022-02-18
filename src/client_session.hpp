@@ -50,6 +50,13 @@ public:
   /**
    * @brief Set the background state.
    * 
+   * In addition to setting the background state, the function checks for timeouts in the current session.
+   * It checks using timeouts belonging to the state before this transition, i.e., if the app is in
+   * foreground, and the `set_is_background` function is called with `true`, the timeouts are checked
+   * using the `foreground_timeout`.
+   * In case the session timed out, a new session is scheduled to be started and will be started
+   * when next event is tracked.
+   * 
    * @param is_background New background state
    */
   void set_is_background(bool is_background);

@@ -87,6 +87,11 @@ SelfDescribingJson ClientSession::update_and_get_session_context(const string & 
 void ClientSession::set_is_background(bool is_background) {
   lock_guard<mutex> guard(this->m_safe_get);
 
+  if (this->should_update_session()) {
+    this->start_new_session();
+  }
+  this->update_last_session_check_at();
+
   this->m_is_background = is_background;
 }
 

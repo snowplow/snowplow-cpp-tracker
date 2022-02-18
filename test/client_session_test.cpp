@@ -159,4 +159,21 @@ TEST_CASE("client_session") {
 
     REQUIRE(data_3[SNOWPLOW_SESSION_INDEX].get<unsigned long long>() == data_4[SNOWPLOW_SESSION_INDEX].get<unsigned long long>());
   }
+
+  SECTION("The Session updates using background timeout after transition to foreground") {
+    Storage::init("test1.db")->delete_all_session_rows();
+
+    ClientSession cs("test1.db", 500, 1);
+
+    SelfDescribingJson session_json_1 = cs.update_and_get_session_context("event-id-1");
+    cs.set_is_background(true);
+    this_thread::sleep_for(chrono::milliseconds(5));
+    cs.set_is_background(false);
+    SelfDescribingJson session_json_2 = cs.update_and_get_session_context("event-id-2");
+
+    json data_1 = session_json_1.get()[SNOWPLOW_DATA];
+    json data_2 = session_json_2.get()[SNOWPLOW_DATA];
+
+    REQUIRE(data_1[SNOWPLOW_SESSION_INDEX].get<unsigned long long>() < data_2[SNOWPLOW_SESSION_INDEX].get<unsigned long long>());
+  }
 }
