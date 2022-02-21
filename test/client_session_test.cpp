@@ -167,7 +167,7 @@ TEST_CASE("client_session") {
 
     SelfDescribingJson session_json_1 = cs.update_and_get_session_context("event-id-1");
     cs.set_is_background(true);
-    this_thread::sleep_for(chrono::milliseconds(5));
+    sleep_for(milliseconds(5));
     cs.set_is_background(false);
     SelfDescribingJson session_json_2 = cs.update_and_get_session_context("event-id-2");
 
