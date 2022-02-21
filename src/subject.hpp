@@ -19,7 +19,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "payload.hpp"
 #include "constants.hpp"
 
-using namespace std;
+using std::map;
+using std::string;
 
 class Subject {
 private:

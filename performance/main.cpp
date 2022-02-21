@@ -18,7 +18,10 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../src/utils.hpp"
 #include "../src/storage.hpp"
 
-using namespace std;
+using std::string;
+using std::endl;
+using std::cout;
+using std::ofstream;
 
 int main(int argc, char **argv) {
   // run and measure performance

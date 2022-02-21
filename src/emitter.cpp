@@ -13,6 +13,11 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "emitter.hpp"
 
+using std::lock_guard;
+using std::stringstream;
+using std::invalid_argument;
+using std::unique_lock;
+
 const int post_wrapper_bytes = 88; // "schema":"iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-4","data":[]
 const int post_stm_bytes = 22;     // "stm":"1443452851000"
 

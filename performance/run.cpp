@@ -22,6 +22,10 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "mute_emitter.hpp"
 #include "mock_client_session.hpp"
 
+using std::chrono::high_resolution_clock;
+using std::chrono::duration;
+using std::vector;
+
 void clear_storage(const string &db_name);
 
 void track_events() {
@@ -63,9 +67,9 @@ double run(Emitter &emitter, ClientSession &client_session) {
 
   Tracker::init(emitter, &subject, &client_session, &platform, &app_id, &name_space, &base64, &desktop_context);
 
-  chrono::high_resolution_clock::time_point t0 = chrono::high_resolution_clock::now();
+  high_resolution_clock::time_point t0 = high_resolution_clock::now();
 
-  std::vector<thread> threads(NUM_THREADS);
+  vector<thread> threads(NUM_THREADS);
   for (int i = 0; i < NUM_THREADS; i++) {
     threads[i] = thread(track_events);
   }
@@ -73,8 +77,8 @@ double run(Emitter &emitter, ClientSession &client_session) {
     threads[i].join();
   }
 
-  chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
-  std::chrono::duration<double> diff = t1 - t0;
+  high_resolution_clock::time_point t1 = high_resolution_clock::now();
+  duration<double> diff = t1 - t0;
   return diff.count();
 }
 

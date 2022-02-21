@@ -43,7 +43,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #endif
 
-using namespace std;
+using std::list;
+using std::string;
 using json = nlohmann::json;
 
 class Utils {

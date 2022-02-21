@@ -20,7 +20,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "client_session.hpp"
 #include "self_describing_json.hpp"
 
-using namespace std;
+using std::string;
+using std::vector;
 
 class Tracker {
 public:

@@ -25,7 +25,9 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../include/sqlite3.h"
 #include "../include/json.hpp"
 
-using namespace std;
+using std::mutex;
+using std::string;
+using std::list;
 using json = nlohmann::json;
 
 class Storage {

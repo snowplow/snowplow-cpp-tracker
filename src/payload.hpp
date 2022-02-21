@@ -19,7 +19,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../include/json.hpp"
 #include "../include/base64.hpp"
 
-using namespace std;
+using std::string;
+using std::map;
 using json = nlohmann::json;
 
 class Payload {

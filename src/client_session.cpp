@@ -13,6 +13,11 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "client_session.hpp"
 
+using std::this_thread::sleep_for;
+using std::chrono::milliseconds;
+using std::lock_guard;
+using std::unique_lock;
+
 ClientSession::ClientSession(const string & db_name, unsigned long long foreground_timeout, unsigned long long background_timeout, unsigned long long check_interval) {
   Storage::init(db_name);
   this->m_foreground_timeout = foreground_timeout;
@@ -107,7 +112,7 @@ bool ClientSession::get_is_background() {
 
 void ClientSession::run() {
   do {
-    this_thread::sleep_for(chrono::milliseconds(this->m_check_interval));
+    sleep_for(milliseconds(this->m_check_interval));
 
     unsigned long long check_time = Utils::get_unix_epoch_ms();
     unsigned long long range = this->m_is_background ? this->m_background_timeout : this->m_foreground_timeout;

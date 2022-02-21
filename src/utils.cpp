@@ -13,6 +13,18 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "utils.hpp"
 
+using std::runtime_error;
+using std::stringstream;
+using std::ostringstream;
+using std::hex;
+using std::uppercase;
+using std::nouppercase;
+using std::to_string;
+using std::setw;
+using std::chrono::duration_cast;
+using std::chrono::system_clock;
+using std::chrono::milliseconds;
+
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 
 string Utils::get_uuid4() {
@@ -118,7 +130,7 @@ Payload Utils::deserialize_json_str(const string & json_str) {
 }
 
 unsigned long long Utils::get_unix_epoch_ms() {
-  return chrono::duration_cast<chrono::milliseconds> (chrono::system_clock::now().time_since_epoch()).count();
+  return duration_cast<milliseconds> (system_clock::now().time_since_epoch()).count();
 }
 
 // --- Desktop Context

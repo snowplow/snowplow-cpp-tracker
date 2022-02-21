@@ -4,7 +4,9 @@
 
 #include "../src/tracker.hpp"
 
-using namespace std;
+using std::string;
+using std::cout;
+using std::endl;
 
 void usage(char *program_name) {
   cout << "Usage: " << program_name << " [COLLECTOR_URI]" << endl;

@@ -16,6 +16,9 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "catch.hpp"
 #include "../src/utils.hpp"
 
+using std::regex;
+using std::to_string;
+
 TEST_CASE("utils") {
   SECTION("get_uuid4 should return valid uuid up to the spefication") {
     regex r_uuid4("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}");

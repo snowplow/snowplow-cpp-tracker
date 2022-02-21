@@ -13,6 +13,13 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "storage.hpp"
 
+using std::string;
+using std::lock_guard;
+using std::mutex;
+using std::endl;
+using std::cerr;
+using std::runtime_error;
+
 const string db_table_events = "events";
 const string db_column_events_id = "id";
 const string db_column_events_data = "data";

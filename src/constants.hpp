@@ -16,7 +16,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include <string>
 
-using namespace std;
+using std::string;
 
 const string SNOWPLOW_TRACKER_VERSION_LABEL = "cpp-0.1.0";
 

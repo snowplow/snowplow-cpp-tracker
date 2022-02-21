@@ -13,6 +13,11 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "cracked_url.hpp"
 
+using std::regex;
+using std::regex_match;
+using std::smatch;
+using std::stringstream;
+
 CrackedUrl::CrackedUrl(const string & url) {
   string cleaned_url = url;
   if (regex_match(cleaned_url, regex("^https?://.+")) == false) {
