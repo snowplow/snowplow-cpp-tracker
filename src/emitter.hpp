@@ -142,8 +142,7 @@ public:
   /**
    * @brief Check if the Emitter is started.
    * 
-   * @return true Emitter is running
-   * @return false Emitter is not running
+   * @return true if Emitter is running
    */
   bool is_running();
 

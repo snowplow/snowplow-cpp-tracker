@@ -96,11 +96,13 @@ public:
 
     /**
      * @brief Unix timestamp (in ms) when the event was created. Assigned automatically.
+     * @deprecated Use the `true_timestamp` instead.
      */
     unsigned long long timestamp;
 
     /**
      * @brief ID of the event (UUID v4) that is assigned automatically.
+     * @deprecated The ability to set custom event ID will be removed in the future
      */
     string event_id;
 
@@ -146,11 +148,13 @@ public:
 
     /**
      * @brief Unix timestamp (in ms) when the event was created. Assigned automatically.
+     * @deprecated Use the `true_timestamp` instead.
      */
     unsigned long long timestamp;
 
     /**
      * @brief ID of the event (UUID v4) that is assigned automatically.
+     * @deprecated The ability to set custom event ID will be removed in the future
      */
     string event_id;
 
@@ -191,11 +195,13 @@ public:
 
     /**
      * @brief Unix timestamp (in ms) when the event was created. Assigned automatically.
+     * @deprecated Use the `true_timestamp` instead.
      */
     unsigned long long timestamp;
 
     /**
      * @brief ID of the event (UUID v4) that is assigned automatically.
+     * @deprecated The ability to set custom event ID will be removed in the future
      */
     string event_id;
 
@@ -244,11 +250,13 @@ public:
 
     /**
      * @brief Unix timestamp (in ms) when the event was created. Assigned automatically.
+     * @deprecated Use the `true_timestamp` instead.
      */
     unsigned long long timestamp;
 
     /**
      * @brief ID of the event (UUID v4) that is assigned automatically.
+     * @deprecated The ability to set custom event ID will be removed in the future
      */
     string event_id;
 

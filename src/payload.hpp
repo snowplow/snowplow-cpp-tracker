@@ -68,7 +68,7 @@ public:
   /**
    * @brief Get the payload key-value pairs.
    * 
-   * @return map<string, string> Payload as key-value pairs
+   * @return Payload as key-value pairs
    */
   map<string, string> get();
 };
