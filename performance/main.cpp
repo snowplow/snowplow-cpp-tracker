@@ -18,6 +18,9 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../src/utils.hpp"
 #include "../src/storage.hpp"
 
+using snowplow::SelfDescribingJson;
+using snowplow::SNOWPLOW_TRACKER_VERSION_LABEL;
+using snowplow::Utils;
 using std::string;
 using std::endl;
 using std::cout;

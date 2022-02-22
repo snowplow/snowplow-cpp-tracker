@@ -51,6 +51,7 @@ using std::string;
 using std::list;
 using std::mutex;
 
+namespace snowplow {
 /**
  * @brief HTTP client for making requests to Snowplow Collector. To be used internally within tracker only.
  */
@@ -84,5 +85,6 @@ public:
 private:
   static HttpRequestResult http_request(const RequestMethod method, const CrackedUrl url, const string & query_string, const string & post_data, list<int> row_ids, bool oversize);
 };
+}
 
 #endif

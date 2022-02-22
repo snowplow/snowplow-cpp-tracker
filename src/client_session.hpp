@@ -23,6 +23,7 @@ using std::string;
 using std::mutex;
 using json = nlohmann::json;
 
+namespace snowplow {
 /**
  * @brief Keeps track of users sessions and can be configured to timeout after a certain amount of inactivity.
  * 
@@ -107,5 +108,6 @@ private:
   bool should_update_session();
   unsigned long long get_timeout();
 };
+}
 
 #endif

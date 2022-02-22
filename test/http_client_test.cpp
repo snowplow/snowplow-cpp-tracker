@@ -14,6 +14,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "catch.hpp"
 #include "../src/http_client.hpp"
 
+using namespace snowplow;
+
 #if defined(SNOWPLOW_TEST_SUITE)
 
 #define HTTP_TEST_URL_GET "http://com.acme.collector/i"

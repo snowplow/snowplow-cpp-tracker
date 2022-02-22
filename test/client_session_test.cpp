@@ -16,6 +16,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../src/storage.hpp"
 #include <thread>
 
+using namespace snowplow;
 using std::this_thread::sleep_for;
 using std::chrono::milliseconds;
 

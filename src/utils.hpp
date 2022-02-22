@@ -47,6 +47,7 @@ using std::list;
 using std::string;
 using json = nlohmann::json;
 
+namespace snowplow {
 /**
  * @brief Tracker internal utility functions.
  */
@@ -70,5 +71,6 @@ public:
 private:
   static SelfDescribingJson *m_desktop_context;
 };
+}
 
 #endif

@@ -13,6 +13,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "subject.hpp"
 
+using namespace snowplow;
+
 void Subject::set_user_id(const string & user_id) {
   this->m_payload.add(SNOWPLOW_UID, user_id);
 }

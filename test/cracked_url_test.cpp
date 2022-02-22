@@ -14,6 +14,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "catch.hpp"
 #include "../src/cracked_url.hpp"
 
+using namespace snowplow;
+
 TEST_CASE("cracked_url") {
   SECTION("URL cracking works for the current build target") {
     CrackedUrl c("http://google.com/search/tp2");

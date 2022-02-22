@@ -13,6 +13,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "http_client.hpp"
 
+using namespace snowplow;
 using std::lock_guard;
 using std::cerr;
 using std::endl;

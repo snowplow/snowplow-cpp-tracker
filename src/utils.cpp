@@ -13,6 +13,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "utils.hpp"
 
+using namespace snowplow;
 using std::runtime_error;
 using std::stringstream;
 using std::ostringstream;

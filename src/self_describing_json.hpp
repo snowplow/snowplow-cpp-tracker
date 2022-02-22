@@ -21,6 +21,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 using std::string;
 using json = nlohmann::json;
 
+namespace snowplow {
 /**
  * @brief Self-describing JSON object used for defining self-describing events or custom context entities.
  */
@@ -56,5 +57,6 @@ public:
    */
   string to_string();
 };
+}
 
 #endif

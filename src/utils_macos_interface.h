@@ -18,6 +18,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 using std::string;
 
+namespace snowplow {
 string get_os_version_objc();
+}
 
 #endif

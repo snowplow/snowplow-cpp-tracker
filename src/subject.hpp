@@ -22,6 +22,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 using std::map;
 using std::string;
 
+namespace snowplow {
 /**
  * @brief Defines additional information about your application's environment, current user and so on, to be sent to with each tracked event.
  */
@@ -88,5 +89,6 @@ public:
    */
   map<string, string> get_map();
 };
+}
 
 #endif

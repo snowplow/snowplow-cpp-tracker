@@ -23,6 +23,7 @@ using std::string;
 using std::map;
 using json = nlohmann::json;
 
+namespace snowplow {
 /**
  * @brief Snowplow event payload with event properties.
  */
@@ -72,5 +73,6 @@ public:
    */
   map<string, string> get();
 };
+}
 
 #endif

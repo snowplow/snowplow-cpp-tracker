@@ -14,6 +14,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "catch.hpp"
 #include "../src/self_describing_json.hpp"
 
+using namespace snowplow;
+
 TEST_CASE("self_describing_json") {
   json j = "{\"test\":\"event\"}"_json;
   SelfDescribingJson sdj("iglu:com.acme/test/jsonschema/1-0-0", j);

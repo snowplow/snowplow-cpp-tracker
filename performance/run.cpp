@@ -22,6 +22,11 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "mute_emitter.hpp"
 #include "mock_client_session.hpp"
 
+using snowplow::ClientSession;
+using snowplow::Emitter;
+using snowplow::Storage;
+using snowplow::Subject;
+using snowplow::Tracker;
 using std::chrono::high_resolution_clock;
 using std::chrono::duration;
 using std::vector;
