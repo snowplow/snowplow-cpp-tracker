@@ -78,7 +78,7 @@ SelfDescribingJson ClientSession::update_and_get_session_context(const string & 
   }
 
   if (save_to_storage) {
-    Storage::instance()->insert_update_session(this->m_session_context_data);
+    Storage::instance()->insert_update_session(session_context_data);
   }
   SelfDescribingJson sdj(SNOWPLOW_SCHEMA_CLIENT_SESSION, session_context_data);
   return sdj;
