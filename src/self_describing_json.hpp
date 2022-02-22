@@ -21,14 +21,39 @@ See the Apache License Version 2.0 for the specific language governing permissio
 using std::string;
 using json = nlohmann::json;
 
+/**
+ * @brief Self-describing JSON object used for defining self-describing events or custom context entities.
+ */
 class SelfDescribingJson {
 private:
   json m_json;
 
 public:
+  /**
+   * @brief Construct a new Self Describing Json object
+   * 
+   * @param schema Iglu schema (e.g., "iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0")
+   * @param data Data payload with unstructured set of properties
+   */
   SelfDescribingJson(const string & schema, const json & data);
+
+  /**
+   * @brief Destroy the Self Describing Json object
+   */
   ~SelfDescribingJson();
+
+  /**
+   * @brief Return the content of the self-describing JSON.
+   * 
+   * @return json Content as a JSON object
+   */
   json get();
+
+  /**
+   * @brief Return the content of the self-describing JSON as string.
+   * 
+   * @return string Content as a JSON string
+   */
   string to_string();
 };
 

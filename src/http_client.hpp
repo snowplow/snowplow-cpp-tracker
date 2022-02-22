@@ -51,6 +51,9 @@ using std::string;
 using std::list;
 using std::mutex;
 
+/**
+ * @brief HTTP client for making requests to Snowplow Collector. To be used internally within tracker only.
+ */
 class HttpClient {
 public:
   enum RequestMethod { POST, GET };

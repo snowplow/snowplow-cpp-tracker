@@ -20,6 +20,9 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 using std::string;
 
+/**
+ * @brief Parser for collector URLs. To be used internally within tracker only.
+ */
 class CrackedUrl {
 public:
   CrackedUrl(const string & url);
