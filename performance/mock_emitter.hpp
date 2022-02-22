@@ -16,6 +16,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "../src/emitter.hpp"
 
+using snowplow::Emitter;
+using snowplow::Payload;
 using std::string;
 
 class MockEmitter : public Emitter {

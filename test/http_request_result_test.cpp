@@ -14,6 +14,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "catch.hpp"
 #include "../src/http_request_result.hpp"
 
+using namespace snowplow;
+
 TEST_CASE("http_request_result") {
   SECTION("is_success should be set only if the error code is zero and the response code is 200") {
     HttpRequestResult httpRequestResult(0, 200, list<int>(), false);

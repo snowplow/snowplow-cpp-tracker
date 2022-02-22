@@ -14,6 +14,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "catch.hpp"
 #include "../src/subject.hpp"
 
+using namespace snowplow;
+
 TEST_CASE("subject") {
   Subject sub;
   REQUIRE(sub.get_map().size() == 0);

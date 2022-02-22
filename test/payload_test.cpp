@@ -17,6 +17,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../include/json.hpp"
 #include "../src/payload.hpp"
 
+using namespace snowplow;
 using json = nlohmann::json;
 
 TEST_CASE("payload") {

@@ -13,6 +13,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "http_request_result.hpp"
 
+using namespace snowplow;
+
 HttpRequestResult::HttpRequestResult() {
   this->m_http_response_code = 0;
   this->m_internal_error_code = 0;

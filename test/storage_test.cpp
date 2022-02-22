@@ -14,6 +14,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "catch.hpp"
 #include "../src/storage.hpp"
 
+using namespace snowplow;
 using std::runtime_error;
 
 TEST_CASE("storage") {

@@ -18,6 +18,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 using std::string;
 
+namespace snowplow {
 const string SNOWPLOW_TRACKER_VERSION_LABEL = "cpp-0.1.0";
 
 // post requests
@@ -107,5 +108,6 @@ const string SNOWPLOW_DESKTOP_OS_IS_64_BIT = "osIs64Bit";
 const string SNOWPLOW_DESKTOP_DEVICE_MANU = "deviceManufacturer";
 const string SNOWPLOW_DESKTOP_DEVICE_MODEL = "deviceModel";
 const string SNOWPLOW_DESKTOP_DEVICE_PROC_COUNT = "deviceProcessorCount";
+}
 
 #endif

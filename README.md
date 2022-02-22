@@ -25,6 +25,8 @@ Import and initialize the tracker with your Snowplow collector endpoint and trac
 ```cpp
 #include "tracker.hpp"
 
+using namespace snowplow;
+
 // Emitter is responsible for sending events to a Snowplow Collector
 Emitter emitter("com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 52000, "sp.db");
 // Subject defines additional information about your application's environment and user

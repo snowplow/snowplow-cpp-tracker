@@ -4,6 +4,10 @@
 
 #include "../src/tracker.hpp"
 
+using snowplow::ClientSession;
+using snowplow::Emitter;
+using snowplow::Subject;
+using snowplow::Tracker;
 using std::string;
 using std::cout;
 using std::endl;

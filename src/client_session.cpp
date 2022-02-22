@@ -16,6 +16,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "constants.hpp"
 #include "storage.hpp"
 
+using namespace snowplow;
 using std::lock_guard;
 using std::unique_lock;
 

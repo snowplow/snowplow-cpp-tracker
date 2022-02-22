@@ -16,6 +16,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "../src/client_session.hpp"
 
+using snowplow::ClientSession;
+using snowplow::SelfDescribingJson;
 using std::string;
 
 class MockClientSession : public ClientSession {

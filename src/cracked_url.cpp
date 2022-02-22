@@ -13,6 +13,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "cracked_url.hpp"
 
+using namespace snowplow;
 using std::regex;
 using std::regex_match;
 using std::smatch;

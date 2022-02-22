@@ -20,6 +20,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 using std::string;
 
+namespace snowplow {
 /**
  * @brief Parser for collector URLs. To be used internally within tracker only.
  */
@@ -44,5 +45,6 @@ private:
   unsigned int port;
   bool use_default_port;
 };
+}
 
 #endif

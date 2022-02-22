@@ -34,6 +34,7 @@ using std::thread;
 using std::condition_variable;
 using std::mutex;
 
+namespace snowplow {
 /**
  * @brief Emitter is responsible for sending events to a Snowplow Collector.
  * 
@@ -166,5 +167,6 @@ private:
   string build_post_data_json(list<Payload> payload_list);
   string get_collector_url(const string & uri, Protocol protocol, Method method);
 };
+}
 
 #endif

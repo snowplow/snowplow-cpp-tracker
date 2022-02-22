@@ -30,6 +30,7 @@ using std::string;
 using std::list;
 using json = nlohmann::json;
 
+namespace snowplow {
 /**
  * @brief Tracker internal SQLite storage for events and session information. To be used internally within tracker only.
  * 
@@ -66,5 +67,6 @@ public:
   void delete_all_session_rows();
   string get_db_name();
 };
+}
 
 #endif

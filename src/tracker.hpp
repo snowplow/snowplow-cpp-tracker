@@ -23,6 +23,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 using std::string;
 using std::vector;
 
+namespace snowplow {
 /**
  * @brief Singleton object that provides an interface to track Snowplow events.
  */
@@ -344,5 +345,6 @@ private:
   bool m_use_base64;
   bool m_desktop_context;
 };
+}
 
 #endif
