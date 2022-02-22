@@ -73,16 +73,10 @@ Tracker::~Tracker() {
 
 void Tracker::start() {
   this->m_emitter.start();
-  if (this->m_client_session) {
-    this->m_client_session->start();
-  }
 }
 
 void Tracker::stop() {
   this->m_emitter.stop();
-  if (this->m_client_session) {
-    this->m_client_session->stop();
-  }
 }
 
 void Tracker::flush() {
@@ -111,7 +105,7 @@ void Tracker::track(Payload payload, const string & event_id, vector<SelfDescrib
 
   // Add Client Session if available
   if (this->m_client_session) {
-    contexts.push_back(this->m_client_session->get_session_context(event_id));
+    contexts.push_back(this->m_client_session->update_and_get_session_context(event_id));
   }
 
   // Add Desktop Context if available

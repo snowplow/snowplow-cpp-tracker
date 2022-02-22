@@ -20,13 +20,11 @@ using std::string;
 
 class MockClientSession : public ClientSession {
 public:
-   MockClientSession(const string &db_name) : ClientSession(db_name, 5000, 5000, 2500) {}
+   MockClientSession(const string &db_name) : ClientSession(db_name, 5000, 5000) {}
 
-   void start() {}
-   void stop() {}
    void set_is_background(bool is_background) {}
    bool get_is_background() { return false; }
-   SelfDescribingJson get_session_context(const string &event_id) { return SelfDescribingJson("schema", json()); }
+   SelfDescribingJson update_and_get_session_context(const string &event_id) { return SelfDescribingJson("schema", json()); }
 };
 
 #endif

@@ -78,7 +78,7 @@ TEST_CASE("tracker") {
 
   SECTION("Tracker controls should provide expected behaviour") {
     MockEmitter e;
-    ClientSession cs("test-tracker.db", 5000, 5000, 500);
+    ClientSession cs("test-tracker.db", 5000, 5000);
     string platform = "pc";
     string app_id = "snowplow-test-suite";
     string name_space = "snowplow-testing";

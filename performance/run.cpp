@@ -92,7 +92,7 @@ double run_mocked_emitter_and_mocked_session(const string &db_name) {
 
 double run_mocked_emitter_and_real_session(const string &db_name) {
   MockEmitter emitter(db_name);
-  ClientSession client_session(db_name, 5000, 5000, 2500);
+  ClientSession client_session(db_name, 5000, 5000);
   clear_storage(db_name);
   double time = run(emitter, client_session);
   Storage::close();
@@ -110,7 +110,7 @@ double run_mute_emitter_and_mocked_session(const string &db_name) {
 
 double run_mute_emitter_and_real_session(const string &db_name) {
   MuteEmitter emitter(db_name);
-  ClientSession client_session(db_name, 5000, 5000, 2500);
+  ClientSession client_session(db_name, 5000, 5000);
   clear_storage(db_name);
   double time = run(emitter, client_session);
   Storage::close();

@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
   subject.set_language("EN");
   subject.set_useragent("Mozilla/5.0");
 
-  ClientSession client_session(db_name, 5000, 5000, 2500);
+  ClientSession client_session(db_name, 5000, 5000);
 
   string platform = "mob";
   string app_id = "app-id";
