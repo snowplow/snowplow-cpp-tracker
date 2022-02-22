@@ -14,8 +14,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #ifndef HTTP_REQUEST_RESULT_H
 #define HTTP_REQUEST_RESULT_H
 
-#include <list>
 #include <iostream>
+#include <list>
 
 using std::list;
 
@@ -37,6 +37,6 @@ public:
   list<int> get_row_ids();
   bool is_success();
 };
-}
+} // namespace snowplow
 
 #endif

@@ -11,25 +11,24 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include <string>
 #include <chrono>
+#include <string>
 
-#include "run.hpp"
-#include "../src/tracker.hpp"
 #include "../src/subject.hpp"
+#include "../src/tracker.hpp"
+#include "mock_client_session.hpp"
 #include "mock_emitter.hpp"
-#include "mock_client_session.hpp"
 #include "mute_emitter.hpp"
-#include "mock_client_session.hpp"
+#include "run.hpp"
 
 using snowplow::ClientSession;
 using snowplow::Emitter;
 using snowplow::Storage;
 using snowplow::Subject;
 using snowplow::Tracker;
-using std::chrono::high_resolution_clock;
-using std::chrono::duration;
 using std::vector;
+using std::chrono::duration;
+using std::chrono::high_resolution_clock;
 
 void clear_storage(const string &db_name);
 

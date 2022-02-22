@@ -19,7 +19,7 @@ using std::regex_match;
 using std::smatch;
 using std::stringstream;
 
-CrackedUrl::CrackedUrl(const string & url) {
+CrackedUrl::CrackedUrl(const string &url) {
   string cleaned_url = url;
   if (regex_match(cleaned_url, regex("^https?://.+")) == false) {
     cleaned_url = string("http://") + url;

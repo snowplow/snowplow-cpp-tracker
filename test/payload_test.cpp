@@ -11,11 +11,11 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include <map>
-#include <string>
-#include "catch.hpp"
 #include "../include/json.hpp"
 #include "../src/payload.hpp"
+#include "catch.hpp"
+#include <map>
+#include <string>
 
 using namespace snowplow;
 using json = nlohmann::json;
@@ -35,7 +35,7 @@ TEST_CASE("payload") {
   }
 
   SECTION("add_map should add all valid non-empty kv pairs") {
-    map<string, string> test_map = { { "hello", "world" }, { "e", "pv" } };
+    map<string, string> test_map = {{"hello", "world"}, {"e", "pv"}};
     pl.add_map(test_map);
     REQUIRE(pl.get().size() == 2);
     REQUIRE(pl.get()["hello"] == "world");

@@ -14,13 +14,13 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #ifndef PAYLOAD_H
 #define PAYLOAD_H
 
+#include "../include/base64.hpp"
+#include "../include/json.hpp"
 #include <map>
 #include <string>
-#include "../include/json.hpp"
-#include "../include/base64.hpp"
 
-using std::string;
 using std::map;
+using std::string;
 using json = nlohmann::json;
 
 namespace snowplow {
@@ -36,43 +36,43 @@ public:
 
   /**
    * @brief Add a property to the payload.
-   * 
+   *
    * @param key Property key
    * @param value Property value
    */
-  void add(const string & key, const string & value);
+  void add(const string &key, const string &value);
 
   /**
    * @brief Add a map of properties to the payload.
-   * 
+   *
    * @param pairs Key-value pairs
    */
   void add_map(map<string, string> pairs);
 
   /**
    * @brief Add properties from another payload.
-   * 
+   *
    * @param p Payload to add values from
    */
   void add_payload(Payload p);
 
   /**
    * @brief Add self-describing JSON data to the payload.
-   * 
+   *
    * @param j Self-describing JSON
    * @param base64Encode Should the data be base64 encoded
    * @param encoded Key for encoded data
    * @param not_encoded Key for not-encoded data
    */
-  void add_json(json j, bool base64Encode, const string & encoded, const string & not_encoded);
+  void add_json(json j, bool base64Encode, const string &encoded, const string &not_encoded);
 
   /**
    * @brief Get the payload key-value pairs.
-   * 
+   *
    * @return Payload as key-value pairs
    */
   map<string, string> get();
 };
-}
+} // namespace snowplow
 
 #endif

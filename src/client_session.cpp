@@ -12,15 +12,15 @@ See the Apache License Version 2.0 for the specific language governing permissio
 */
 
 #include "client_session.hpp"
-#include "utils.hpp"
 #include "constants.hpp"
 #include "storage.hpp"
+#include "utils.hpp"
 
 using namespace snowplow;
 using std::lock_guard;
 using std::unique_lock;
 
-ClientSession::ClientSession(const string & db_name, unsigned long long foreground_timeout, unsigned long long background_timeout) {
+ClientSession::ClientSession(const string &db_name, unsigned long long foreground_timeout, unsigned long long background_timeout) {
   Storage::init(db_name);
   this->m_foreground_timeout = foreground_timeout;
   this->m_background_timeout = background_timeout;
@@ -30,7 +30,7 @@ ClientSession::ClientSession(const string & db_name, unsigned long long foregrou
   this->m_is_new_session = true;
 
   // Check for existing session
-  list<json>* session_rows = new list<json>;
+  list<json> *session_rows = new list<json>;
   Storage::instance()->select_all_session_rows(session_rows);
 
   if (session_rows->size() == 1) {
@@ -39,7 +39,7 @@ ClientSession::ClientSession(const string & db_name, unsigned long long foregrou
 
       this->m_user_id = session_context[SNOWPLOW_SESSION_USER_ID].get<std::string>();
       this->m_current_session_id = session_context[SNOWPLOW_SESSION_ID].get<std::string>();
-      this->m_session_index = session_context[SNOWPLOW_SESSION_INDEX].get<unsigned long long>();  
+      this->m_session_index = session_context[SNOWPLOW_SESSION_INDEX].get<unsigned long long>();
     } catch (...) {
       this->m_user_id = Utils::get_uuid4();
       this->m_current_session_id = "";
@@ -54,7 +54,7 @@ ClientSession::ClientSession(const string & db_name, unsigned long long foregrou
   this->update_last_session_check_at();
 
   session_rows->clear();
-  delete(session_rows);
+  delete (session_rows);
 }
 
 // --- Public
@@ -63,7 +63,7 @@ void ClientSession::start_new_session() {
   this->m_is_new_session = true;
 }
 
-SelfDescribingJson ClientSession::update_and_get_session_context(const string & event_id) {
+SelfDescribingJson ClientSession::update_and_get_session_context(const string &event_id) {
   json session_context_data;
   bool save_to_storage = false;
 
@@ -130,7 +130,7 @@ void ClientSession::update_session(const string &event_id) {
   j[SNOWPLOW_SESSION_ID] = this->m_current_session_id;
   j[SNOWPLOW_SESSION_INDEX] = this->m_session_index;
   j[SNOWPLOW_SESSION_STORAGE] = this->m_session_storage;
-  
+
   if (this->m_previous_session_id == "") {
     j[SNOWPLOW_SESSION_PREVIOUS_ID] = nullptr;
   } else {

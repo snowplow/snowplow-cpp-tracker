@@ -11,14 +11,14 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "catch.hpp"
 #include "../src/client_session.hpp"
 #include "../src/storage.hpp"
+#include "catch.hpp"
 #include <thread>
 
 using namespace snowplow;
-using std::this_thread::sleep_for;
 using std::chrono::milliseconds;
+using std::this_thread::sleep_for;
 
 TEST_CASE("client_session") {
   SECTION("The Session doesn't change for subsequent tracked events") {
@@ -48,7 +48,7 @@ TEST_CASE("client_session") {
 
     SelfDescribingJson session_json = cs.update_and_get_session_context("event-id");
     REQUIRE("iglu:com.snowplowanalytics.snowplow/client_session/jsonschema/1-0-1" == session_json.get()[SNOWPLOW_SCHEMA].get<std::string>());
-    
+
     json data = session_json.get()[SNOWPLOW_DATA];
 
     REQUIRE("event-id" == data[SNOWPLOW_SESSION_FIRST_ID].get<std::string>());
@@ -83,7 +83,7 @@ TEST_CASE("client_session") {
 
     SelfDescribingJson session_json1 = cs1.update_and_get_session_context("event-id2");
     REQUIRE("iglu:com.snowplowanalytics.snowplow/client_session/jsonschema/1-0-1" == session_json1.get()[SNOWPLOW_SCHEMA].get<std::string>());
-    
+
     json data1 = session_json1.get()[SNOWPLOW_DATA];
 
     REQUIRE("event-id2" == data1[SNOWPLOW_SESSION_FIRST_ID].get<std::string>());
@@ -112,7 +112,7 @@ TEST_CASE("client_session") {
 
     SelfDescribingJson session_json = cs.update_and_get_session_context("event-id3");
     REQUIRE("iglu:com.snowplowanalytics.snowplow/client_session/jsonschema/1-0-1" == session_json.get()[SNOWPLOW_SCHEMA].get<std::string>());
-    
+
     json data = session_json.get()[SNOWPLOW_DATA];
 
     REQUIRE("event-id3" == data[SNOWPLOW_SESSION_FIRST_ID].get<std::string>());
