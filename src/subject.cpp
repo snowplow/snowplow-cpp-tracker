@@ -15,7 +15,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 using namespace snowplow;
 
-void Subject::set_user_id(const string & user_id) {
+void Subject::set_user_id(const string &user_id) {
   this->m_payload.add(SNOWPLOW_UID, user_id);
 }
 
@@ -33,15 +33,15 @@ void Subject::set_color_depth(int depth) {
   this->m_payload.add(SNOWPLOW_COLOR_DEPTH, std::to_string(depth));
 }
 
-void Subject::set_timezone(const string & timezone) {
+void Subject::set_timezone(const string &timezone) {
   this->m_payload.add(SNOWPLOW_TIMEZONE, timezone);
 }
 
-void Subject::set_language(const string & language) {
+void Subject::set_language(const string &language) {
   this->m_payload.add(SNOWPLOW_LANGUAGE, language);
 }
 
-void Subject::set_useragent(const string & useragent) {
+void Subject::set_useragent(const string &useragent) {
   this->m_payload.add(SNOWPLOW_USERAGENT, useragent);
 }
 

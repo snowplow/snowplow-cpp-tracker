@@ -14,18 +14,18 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "tracker.hpp"
 
 using namespace snowplow;
-using std::to_string;
-using std::lock_guard;
 using std::invalid_argument;
+using std::lock_guard;
 using std::runtime_error;
+using std::to_string;
 
 // --- Static Singleton Access
 
 Tracker *Tracker::m_instance = 0;
 mutex Tracker::m_tracker_get;
 
-Tracker *Tracker::init(Emitter &emitter, Subject *subject, ClientSession *client_session, string *platform, string *app_id, 
-  string *name_space, bool *use_base64, bool *desktop_context) {
+Tracker *Tracker::init(Emitter &emitter, Subject *subject, ClientSession *client_session, string *platform, string *app_id,
+                       string *name_space, bool *use_base64, bool *desktop_context) {
 
   lock_guard<mutex> guard(m_tracker_get);
   if (!m_instance) {
@@ -45,15 +45,15 @@ Tracker *Tracker::instance() {
 void Tracker::close() {
   lock_guard<mutex> guard(m_tracker_get);
   if (m_instance) {
-    delete(m_instance);
+    delete (m_instance);
   }
   m_instance = 0;
 }
 
 // --- Constructor & Destructor
 
-Tracker::Tracker(Emitter &emitter, Subject *subject, ClientSession *client_session, string *platform, string *app_id, 
-  string *name_space, bool *use_base64, bool *desktop_context) : m_emitter(emitter), m_client_session(client_session) {
+Tracker::Tracker(Emitter &emitter, Subject *subject, ClientSession *client_session, string *platform, string *app_id,
+                 string *name_space, bool *use_base64, bool *desktop_context) : m_emitter(emitter), m_client_session(client_session) {
 
   this->m_subject = subject;
   this->m_platform = (platform != NULL ? *platform : "srv");
@@ -92,7 +92,7 @@ void Tracker::set_subject(Subject *subject) {
 
 // --- Event Tracking
 
-void Tracker::track(Payload payload, const string & event_id, vector<SelfDescribingJson> & contexts) { 
+void Tracker::track(Payload payload, const string &event_id, vector<SelfDescribingJson> &contexts) {
   // Add standard KV Pairs
   payload.add(SNOWPLOW_TRACKER_VERSION, SNOWPLOW_TRACKER_VERSION_LABEL);
   payload.add(SNOWPLOW_PLATFORM, this->m_platform);
@@ -130,10 +130,10 @@ void Tracker::track(Payload payload, const string & event_id, vector<SelfDescrib
 
 void Tracker::track_struct_event(StructuredEvent se) {
   if (se.action == "") {
-    throw invalid_argument("Action is required"); 
+    throw invalid_argument("Action is required");
   }
-  if (se.category == "") { 
-    throw invalid_argument("Category is required"); 
+  if (se.category == "") {
+    throw invalid_argument("Category is required");
   }
 
   Payload p;
@@ -188,10 +188,10 @@ void Tracker::track_screen_view(Tracker::ScreenViewEvent sve) {
 
 void Tracker::track_timing(TimingEvent te) {
   if (te.category == "") {
-    throw invalid_argument("Category is required"); 
+    throw invalid_argument("Category is required");
   }
-  if (te.variable == "") { 
-    throw invalid_argument("Variable is required"); 
+  if (te.variable == "") {
+    throw invalid_argument("Variable is required");
   }
 
   json data;
@@ -244,7 +244,7 @@ Tracker::StructuredEvent::StructuredEvent(string category, string action) {
   this->value = NULL;
 }
 
-Tracker::SelfDescribingEvent::SelfDescribingEvent(SelfDescribingJson event): event(event) {
+Tracker::SelfDescribingEvent::SelfDescribingEvent(SelfDescribingJson event) : event(event) {
   this->event_id = Utils::get_uuid4();
   this->timestamp = Utils::get_unix_epoch_ms();
   this->true_timestamp = NULL;

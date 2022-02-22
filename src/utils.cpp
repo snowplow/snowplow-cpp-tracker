@@ -14,28 +14,28 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "utils.hpp"
 
 using namespace snowplow;
-using std::runtime_error;
-using std::stringstream;
-using std::ostringstream;
 using std::hex;
-using std::uppercase;
 using std::nouppercase;
-using std::to_string;
+using std::ostringstream;
+using std::runtime_error;
 using std::setw;
+using std::stringstream;
+using std::to_string;
+using std::uppercase;
 using std::chrono::duration_cast;
-using std::chrono::system_clock;
 using std::chrono::milliseconds;
+using std::chrono::system_clock;
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 
 string Utils::get_uuid4() {
-  UUID uuid = { 0 };
+  UUID uuid = {0};
   string uid;
 
   ::UuidCreate(&uuid);
   RPC_CSTR szUuid = NULL;
   if (::UuidToStringA(&uuid, &szUuid) == RPC_S_OK) {
-    uid = (char*)szUuid;
+    uid = (char *)szUuid;
     ::RpcStringFreeA(&szUuid);
   } else {
     throw runtime_error("FATAL: Could not generate unique UUID");
@@ -61,7 +61,7 @@ string Utils::get_uuid4() {
 
 #endif
 
-string Utils::int_list_to_string(list<int>* int_list, const string & delimiter) {
+string Utils::int_list_to_string(list<int> *int_list, const string &delimiter) {
   stringstream s;
   int i;
   list<int>::iterator it;
@@ -107,7 +107,7 @@ string Utils::url_encode(string value) {
       continue;
     }
     escaped << uppercase;
-    escaped << '%' << uppercase << setw(2) << int((unsigned char) c);
+    escaped << '%' << uppercase << setw(2) << int((unsigned char)c);
     escaped << nouppercase;
   }
 
@@ -119,10 +119,10 @@ string Utils::serialize_payload(Payload payload) {
   return j_map.dump();
 }
 
-Payload Utils::deserialize_json_str(const string & json_str) {
+Payload Utils::deserialize_json_str(const string &json_str) {
   Payload p;
   json j = json::parse(json_str);
-  
+
   for (json::iterator it = j.begin(); it != j.end(); ++it) {
     p.add(it.key(), it.value());
   }
@@ -131,7 +131,7 @@ Payload Utils::deserialize_json_str(const string & json_str) {
 }
 
 unsigned long long Utils::get_unix_epoch_ms() {
-  return duration_cast<milliseconds> (system_clock::now().time_since_epoch()).count();
+  return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
 
 // --- Desktop Context
@@ -191,7 +191,7 @@ bool Utils::get_os_is_64bit() {
 #elif defined(_WIN32)
   BOOL f64 = FALSE;
   return IsWow64Process(GetCurrentProcess(), &f64) && f64;
-#else 
+#else
   return false;
 #endif
 }

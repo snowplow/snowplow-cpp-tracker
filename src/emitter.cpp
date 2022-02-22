@@ -14,16 +14,16 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "emitter.hpp"
 
 using namespace snowplow;
+using std::invalid_argument;
 using std::lock_guard;
 using std::stringstream;
-using std::invalid_argument;
 using std::unique_lock;
 
 const int post_wrapper_bytes = 88; // "schema":"iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-4","data":[]
 const int post_stm_bytes = 22;     // "stm":"1443452851000"
 
-Emitter::Emitter(const string & uri, Method method, Protocol protocol, int send_limit, 
-  int byte_limit_post, int byte_limit_get, const string & db_name) : m_url(this->get_collector_url(uri, protocol, method)) {
+Emitter::Emitter(const string &uri, Method method, Protocol protocol, int send_limit,
+                 int byte_limit_post, int byte_limit_get, const string &db_name) : m_url(this->get_collector_url(uri, protocol, method)) {
 
   Storage::init(db_name);
 
@@ -35,9 +35,9 @@ Emitter::Emitter(const string & uri, Method method, Protocol protocol, int send_
   string expected_https = "https://";
   string actual_uri_lower = uri;
   std::transform(actual_uri_lower.begin(), actual_uri_lower.end(), actual_uri_lower.begin(), ::tolower);
-  
+
   if ((expected_http.size() <= actual_uri_lower.size() && std::equal(expected_http.begin(), expected_http.end(), actual_uri_lower.begin())) ||
-      (expected_https.size() <= actual_uri_lower.size() && std::equal(expected_https.begin(), expected_https.end(), actual_uri_lower.begin())) ) {
+      (expected_https.size() <= actual_uri_lower.size() && std::equal(expected_https.begin(), expected_https.end(), actual_uri_lower.begin()))) {
     throw invalid_argument("FATAL: Emitter URI (" + uri + ") must not start with http:// or https://");
   }
 
@@ -107,16 +107,16 @@ void Emitter::flush() {
 // --- Private
 
 void Emitter::run() {
-  list<Storage::EventRow>* event_rows = new list<Storage::EventRow>;
-  list<HttpRequestResult>* results = new list<HttpRequestResult>;
-  list<int>* success_ids = new list<int>;
+  list<Storage::EventRow> *event_rows = new list<Storage::EventRow>;
+  list<HttpRequestResult> *results = new list<HttpRequestResult>;
+  list<int> *success_ids = new list<int>;
 
   do {
     Storage::instance()->select_event_row_range(event_rows, this->m_send_limit);
-    
+
     if (event_rows->size() > 0) {
       this->do_send(event_rows, results);
-      
+
       for (list<HttpRequestResult>::iterator it = results->begin(); it != results->end(); ++it) {
         list<int> res_row_ids = it->get_row_ids();
         if (it->is_success()) {
@@ -138,12 +138,12 @@ void Emitter::run() {
     }
   } while (this->is_running());
 
-  delete(event_rows);
-  delete(results);
-  delete(success_ids);
+  delete (event_rows);
+  delete (results);
+  delete (success_ids);
 }
 
-void Emitter::do_send(list<Storage::EventRow>* event_rows, list<HttpRequestResult>* results) {
+void Emitter::do_send(list<Storage::EventRow> *event_rows, list<HttpRequestResult> *results) {
   list<std::future<HttpRequestResult>> request_futures;
 
   // Send each request in its own thread
@@ -172,7 +172,7 @@ void Emitter::do_send(list<Storage::EventRow>* event_rows, list<HttpRequestResul
 
         single_row_id.clear();
         single_payload.clear();
-      } else if ((total_byte_size + byte_size + post_wrapper_bytes + (payloads.size() -1)) > this->m_byte_limit_post) {
+      } else if ((total_byte_size + byte_size + post_wrapper_bytes + (payloads.size() - 1)) > this->m_byte_limit_post) {
         // Byte limit reached
         request_futures.push_back(std::async(HttpClient::http_post, this->m_url, this->build_post_data_json(payloads), row_ids, false));
 
@@ -218,7 +218,7 @@ string Emitter::build_post_data_json(list<Payload> payload_list) {
   return post_envelope.to_string();
 }
 
-string Emitter::get_collector_url(const string & uri, Protocol protocol, Method method) {
+string Emitter::get_collector_url(const string &uri, Protocol protocol, Method method) {
   stringstream url;
   url << (protocol == HTTP ? "http" : "https") << "://" << uri;
   url << "/" << (method == GET ? SNOWPLOW_GET_PROTOCOL_PATH : SNOWPLOW_POST_PROTOCOL_VENDOR + "/" + SNOWPLOW_POST_PROTOCOL_VERSION);

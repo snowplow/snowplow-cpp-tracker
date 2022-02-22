@@ -14,17 +14,17 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <fstream>
 #include <string>
 
-#include "run.hpp"
-#include "../src/utils.hpp"
 #include "../src/storage.hpp"
+#include "../src/utils.hpp"
+#include "run.hpp"
 
 using snowplow::SelfDescribingJson;
 using snowplow::SNOWPLOW_TRACKER_VERSION_LABEL;
 using snowplow::Utils;
-using std::string;
-using std::endl;
 using std::cout;
+using std::endl;
 using std::ofstream;
+using std::string;
 
 int main(int argc, char **argv) {
   // run and measure performance
@@ -35,7 +35,9 @@ int main(int argc, char **argv) {
   double mute_emitter_and_real_session = run_mute_emitter_and_real_session(db_name);
 
   // print results
-  cout << endl << "RESULTS (" << NUM_OPERATIONS << " operations x " << NUM_THREADS << " threads)" << endl << endl;
+  cout << endl
+       << "RESULTS (" << NUM_OPERATIONS << " operations x " << NUM_THREADS << " threads)" << endl
+       << endl;
   cout << "Mocked emitter and mocked session: " << mocked_emitter_and_mocked_session << " seconds" << endl;
   cout << "Mocked emitter and real session: " << mocked_emitter_and_real_session << " seconds" << endl;
   cout << "Mute emitter and mocked session: " << mute_emitter_and_mocked_session << " seconds" << endl;
@@ -60,7 +62,7 @@ int main(int argc, char **argv) {
 
   ofstream outfile;
   outfile.open("performance/logs.txt", std::ios_base::app);
-  outfile << output.dump() << endl; 
+  outfile << output.dump() << endl;
   outfile.close();
 
   return 0;

@@ -19,7 +19,7 @@ Payload::~Payload() {
   this->m_pairs.clear();
 }
 
-void Payload::add(const string & key, const string & value) {
+void Payload::add(const string &key, const string &value) {
   if (!key.empty() && !value.empty()) {
     this->m_pairs[key] = value;
   }
@@ -36,10 +36,10 @@ void Payload::add_payload(Payload p) {
   this->add_map(p.get());
 }
 
-void Payload::add_json(json j, bool base64Encode, const string & encoded, const string & not_encoded) {
+void Payload::add_json(json j, bool base64Encode, const string &encoded, const string &not_encoded) {
   if (base64Encode) {
     string json_str = j.dump();
-    this->add(encoded, base64_encode((const unsigned char *) json_str.c_str(), json_str.length()));
+    this->add(encoded, base64_encode((const unsigned char *)json_str.c_str(), json_str.length()));
   } else {
     this->add(not_encoded, j.dump());
   }

@@ -14,18 +14,18 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "http_client.hpp"
 
 using namespace snowplow;
-using std::lock_guard;
 using std::cerr;
 using std::endl;
+using std::lock_guard;
 
 // --- Common
 
-HttpRequestResult HttpClient::http_post(const CrackedUrl url, const string & post_data, list<int> row_ids, bool oversize) {
+HttpRequestResult HttpClient::http_post(const CrackedUrl url, const string &post_data, list<int> row_ids, bool oversize) {
   HttpRequestResult res = HttpClient::http_request(POST, url, "", post_data, row_ids, oversize);
   return res;
 }
 
-HttpRequestResult HttpClient::http_get(const CrackedUrl url, const string & query_string, list<int> row_ids, bool oversize) {
+HttpRequestResult HttpClient::http_get(const CrackedUrl url, const string &query_string, list<int> row_ids, bool oversize) {
   HttpRequestResult res = HttpClient::http_request(GET, url, query_string, "", row_ids, oversize);
   return res;
 }
@@ -40,9 +40,9 @@ list<HttpClient::Request> HttpClient::requests_list;
 mutex HttpClient::log_read_write;
 int HttpClient::response_code = 200;
 
-HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUrl url, const string & query_string, const string & post_data, list<int> row_ids, bool oversize) {
+HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUrl url, const string &query_string, const string &post_data, list<int> row_ids, bool oversize) {
   lock_guard<mutex> guard(log_read_write);
-  
+
   HttpClient::Request r;
   r.method = method;
   r.query_string = query_string;
@@ -76,15 +76,14 @@ void HttpClient::reset() {
 
 const string HttpClient::TRACKER_AGENT = string("Snowplow C++ Tracker (Win32)");
 
-HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUrl url, const string & query_string, const string & post_data, list<int> row_ids, bool oversize) {
+HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUrl url, const string &query_string, const string &post_data, list<int> row_ids, bool oversize) {
 
   HINTERNET h_internet = InternetOpen(
-    TEXT(HttpClient::TRACKER_AGENT.c_str()),
-    INTERNET_OPEN_TYPE_DIRECT,
-    NULL,
-    NULL,
-    0
-  );
+      TEXT(HttpClient::TRACKER_AGENT.c_str()),
+      INTERNET_OPEN_TYPE_DIRECT,
+      NULL,
+      NULL,
+      0);
 
   if (h_internet == NULL) {
     return HttpRequestResult(GetLastError(), 0, row_ids, oversize);
@@ -100,15 +99,14 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUr
   }
 
   HINTERNET h_connect = InternetConnect(
-    h_internet,
-    TEXT(url.get_hostname().c_str()),
-    use_port,
-    NULL,
-    NULL,
-    INTERNET_SERVICE_HTTP,
-    0,
-    NULL
-  );
+      h_internet,
+      TEXT(url.get_hostname().c_str()),
+      use_port,
+      NULL,
+      NULL,
+      INTERNET_SERVICE_HTTP,
+      0,
+      NULL);
 
   if (h_connect == NULL) {
     InternetCloseHandle(h_internet);
@@ -136,15 +134,14 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUr
   }
 
   HINTERNET h_request = HttpOpenRequest(
-    h_connect,
-    TEXT(request_method_string.c_str()),
-    TEXT(final_path.c_str()),
-    NULL,
-    NULL,
-    NULL,
-    flags,
-    0
-  );
+      h_connect,
+      TEXT(request_method_string.c_str()),
+      TEXT(final_path.c_str()),
+      NULL,
+      NULL,
+      NULL,
+      flags,
+      0);
 
   if (h_request == NULL) {
     InternetCloseHandle(h_internet);
@@ -152,7 +149,7 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUr
     return HttpRequestResult(GetLastError(), 0, row_ids, oversize);
   }
 
-  LPCSTR hdrs = TEXT("Content-Type: application/json; charset=utf-8");  
+  LPCSTR hdrs = TEXT("Content-Type: application/json; charset=utf-8");
   BOOL is_sent = HttpSendRequest(h_request, hdrs, strlen(hdrs), post_buf, post_buf_len);
 
   if (!is_sent) {
@@ -177,12 +174,11 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUr
   DWORD http_status_code = 0;
   DWORD length = sizeof(DWORD);
   HttpQueryInfo(
-    h_request,
-    HTTP_QUERY_STATUS_CODE | HTTP_QUERY_FLAG_NUMBER,
-    &http_status_code,
-    &length,
-    NULL
-  );
+      h_request,
+      HTTP_QUERY_STATUS_CODE | HTTP_QUERY_FLAG_NUMBER,
+      &http_status_code,
+      &length,
+      NULL);
 
   InternetCloseHandle(h_request);
   InternetCloseHandle(h_connect);
@@ -197,7 +193,7 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUr
 
 const string HttpClient::TRACKER_AGENT = string("Snowplow C++ Tracker (macOS)");
 
-HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUrl url, const string & query_string, const string & post_data, list<int> row_ids, bool oversize) {
+HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUrl url, const string &query_string, const string &post_data, list<int> row_ids, bool oversize) {
 
   // Get final url
   string final_url = url.to_string();
@@ -206,9 +202,9 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUr
   }
 
   // Create request
-  CFStringRef cf_url_str = CFStringCreateWithBytes(kCFAllocatorDefault, (const unsigned char *) final_url.c_str(), final_url.length(), kCFStringEncodingUTF8, false);
-  CFStringRef cf_content_type_str = CFStringCreateWithBytes(kCFAllocatorDefault, (const unsigned char *) SNOWPLOW_POST_CONTENT_TYPE.c_str(), SNOWPLOW_POST_CONTENT_TYPE.length(), kCFStringEncodingUTF8, false);
-  CFStringRef cf_user_agent_str = CFStringCreateWithBytes(kCFAllocatorDefault, (const unsigned char *) HttpClient::TRACKER_AGENT.c_str(), HttpClient::TRACKER_AGENT.length(), kCFStringEncodingUTF8, false);
+  CFStringRef cf_url_str = CFStringCreateWithBytes(kCFAllocatorDefault, (const unsigned char *)final_url.c_str(), final_url.length(), kCFStringEncodingUTF8, false);
+  CFStringRef cf_content_type_str = CFStringCreateWithBytes(kCFAllocatorDefault, (const unsigned char *)SNOWPLOW_POST_CONTENT_TYPE.c_str(), SNOWPLOW_POST_CONTENT_TYPE.length(), kCFStringEncodingUTF8, false);
+  CFStringRef cf_user_agent_str = CFStringCreateWithBytes(kCFAllocatorDefault, (const unsigned char *)HttpClient::TRACKER_AGENT.c_str(), HttpClient::TRACKER_AGENT.length(), kCFStringEncodingUTF8, false);
 
   CFURLRef cf_url = CFURLCreateWithString(kCFAllocatorDefault, cf_url_str, NULL);
   CFHTTPMessageRef cf_http_req;
@@ -217,7 +213,7 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUr
     cf_http_req = CFHTTPMessageCreateRequest(kCFAllocatorDefault, CFSTR("GET"), cf_url, kCFHTTPVersion1_1);
   } else {
     cf_http_req = CFHTTPMessageCreateRequest(kCFAllocatorDefault, CFSTR("POST"), cf_url, kCFHTTPVersion1_1);
-    CFDataRef cf_post_data = CFDataCreate(kCFAllocatorDefault, (const UInt8*) post_data.data(), post_data.size());
+    CFDataRef cf_post_data = CFDataCreate(kCFAllocatorDefault, (const UInt8 *)post_data.data(), post_data.size());
     CFHTTPMessageSetBody(cf_http_req, cf_post_data);
     if (cf_post_data) {
       CFRelease(cf_post_data);
@@ -237,7 +233,7 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUr
     const int buff_size = 1024;
     UInt8 buff[buff_size];
     num_bytes_read = CFReadStreamRead(cf_read_stream, buff, buff_size);
- 
+
     if (num_bytes_read > 0) {
       CFDataAppendBytes(cf_data_resp, buff, num_bytes_read);
     } else if (num_bytes_read < 0) {
@@ -247,9 +243,9 @@ HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUr
   } while (num_bytes_read > 0);
 
   // Process result
-  CFHTTPMessageRef cf_http_resp = (CFHTTPMessageRef) CFReadStreamCopyProperty(cf_read_stream, kCFStreamPropertyHTTPResponseHeader);
+  CFHTTPMessageRef cf_http_resp = (CFHTTPMessageRef)CFReadStreamCopyProperty(cf_read_stream, kCFStreamPropertyHTTPResponseHeader);
   int cf_status_code = CFHTTPMessageGetResponseStatusCode(cf_http_resp);
-  
+
   // Release resources
   CFReadStreamClose(cf_read_stream);
   CFRelease(cf_url_str);

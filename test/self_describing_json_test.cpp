@@ -11,8 +11,8 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "catch.hpp"
 #include "../src/self_describing_json.hpp"
+#include "catch.hpp"
 
 using namespace snowplow;
 
