@@ -1,3 +1,18 @@
+Version 0.2.0 (2022-02-24)
+--------------------------
+Update session when events are tracked (#35)
+Allow custom User Agent strings (#23)
+Use snowplow namespace (#13)
+Add support for C++17 (#36)
+Update sqlite3 to latest version due to use of deprecated APIs (#24)
+Add API documentation (#40)
+Update copyright notices (#26)
+Fix links to documentation in README (#25)
+Build and release using Github actions (#27)
+Add performance testing setup (#37)
+Follow a code style guide (#44)
+Change all OS-X references to macOS (#11)
+
 Version 0.1.0 (2016-06-23)
 --------------------------
 Initial release

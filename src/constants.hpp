@@ -19,7 +19,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 using std::string;
 
 namespace snowplow {
-const string SNOWPLOW_TRACKER_VERSION_LABEL = "cpp-0.1.0";
+const string SNOWPLOW_TRACKER_VERSION_LABEL = "cpp-0.2.0";
 
 // post requests
 const string SNOWPLOW_POST_PROTOCOL_VENDOR = "com.snowplowanalytics.snowplow";
