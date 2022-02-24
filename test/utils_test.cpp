@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2016 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -11,10 +11,14 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
+#include "../src/utils.hpp"
+#include "catch.hpp"
 #include <algorithm>
 #include <regex>
-#include "catch.hpp"
-#include "../src/utils.hpp"
+
+using namespace snowplow;
+using std::regex;
+using std::to_string;
 
 TEST_CASE("utils") {
   SECTION("get_uuid4 should return valid uuid up to the spefication") {
@@ -36,7 +40,7 @@ TEST_CASE("utils") {
   }
 
   SECTION("int_list_to_string will successfully convert a list of integers to a string") {
-    list<int>* int_list = new list<int>;
+    list<int> *int_list = new list<int>;
     int_list->push_back(1);
     int_list->push_back(2);
     int_list->push_back(3);
@@ -46,11 +50,11 @@ TEST_CASE("utils") {
     REQUIRE("1,2,3,4,5" == Utils::int_list_to_string(int_list, ","));
 
     int_list->clear();
-    delete(int_list);
+    delete (int_list);
   }
 
   SECTION("map_to_query_string should correctly convert a map<string,string> to a query string") {
-    map<string,string> queryPairs;
+    map<string, string> queryPairs;
     queryPairs["e"] = "pv";
     queryPairs["k2"] = "s p a c e";
     queryPairs["k3"] = "s+p+a+c+e";
@@ -60,8 +64,8 @@ TEST_CASE("utils") {
 
   SECTION("url_encode should correctly encode a string for sending as part of a url") {
     REQUIRE("e%20pv" == Utils::url_encode("e pv"));
-    REQUIRE("%3C%20%3E%20%23%20%25%20%7B%20%7D%20%7C%20%5C%20%5E%20%7E%20%5B%20%5D%20%60%20%3B%20%2F%20%3F%20%3A%20%40%20%3D%20%26%20%24%20%2B%20%22" == 
-      Utils::url_encode("< > # % { } | \\ ^ ~ [ ] ` ; / ? : @ = & $ + \""));
+    REQUIRE("%3C%20%3E%20%23%20%25%20%7B%20%7D%20%7C%20%5C%20%5E%20%7E%20%5B%20%5D%20%60%20%3B%20%2F%20%3F%20%3A%20%40%20%3D%20%26%20%24%20%2B%20%22" ==
+            Utils::url_encode("< > # % { } | \\ ^ ~ [ ] ` ; / ? : @ = & $ + \""));
   }
 
   SECTION("serialize_payload will successfully convert a Payload into a JSON string") {
@@ -106,7 +110,7 @@ TEST_CASE("utils") {
 #elif defined(_WIN32)
     BOOL f64 = FALSE;
     is_64_bit_os = IsWow64Process(GetCurrentProcess(), &f64) && f64;
-#else 
+#else
     is_64_bit_os = false;
 #endif
     REQUIRE("Windows" == Utils::get_os_type());

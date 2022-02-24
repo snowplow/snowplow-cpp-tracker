@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2016 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -11,8 +11,11 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "catch.hpp"
 #include "../src/storage.hpp"
+#include "catch.hpp"
+
+using namespace snowplow;
+using std::runtime_error;
 
 TEST_CASE("storage") {
   Storage *storage = Storage::init("test1.db");
@@ -25,9 +28,9 @@ TEST_CASE("storage") {
 
     bool runtime_error_not_init = false;
     try {
-        Storage::instance();
+      Storage::instance();
     } catch (runtime_error) {
-        runtime_error_not_init = true;
+      runtime_error_not_init = true;
     }
     REQUIRE(runtime_error_not_init == true);
 
@@ -35,9 +38,9 @@ TEST_CASE("storage") {
 
     runtime_error_not_init = false;
     try {
-        Storage::instance();
+      Storage::instance();
     } catch (runtime_error) {
-        runtime_error_not_init = true;
+      runtime_error_not_init = true;
     }
     REQUIRE(runtime_error_not_init == false);
   }
@@ -47,9 +50,9 @@ TEST_CASE("storage") {
 
     bool runtime_error_bad_db_name = false;
     try {
-        Storage::init("~/");
+      Storage::init("~/");
     } catch (runtime_error) {
-        runtime_error_bad_db_name = true;
+      runtime_error_bad_db_name = true;
     }
     REQUIRE(runtime_error_bad_db_name == true);
 
@@ -68,7 +71,7 @@ TEST_CASE("storage") {
     }
 
     // SELECT one row
-    list<Storage::EventRow>* event_list = new list<Storage::EventRow>;
+    list<Storage::EventRow> *event_list = new list<Storage::EventRow>;
     storage->select_all_event_rows(event_list);
     REQUIRE(50 == event_list->size());
 
@@ -84,16 +87,16 @@ TEST_CASE("storage") {
     event_list->clear();
     storage->select_event_row_range(event_list, 5);
     REQUIRE(5 == event_list->size());
-    
+
     // DELETE rows by id
-    list<int>* id_list = new list<int>;
+    list<int> *id_list = new list<int>;
     for (list<Storage::EventRow>::iterator it = event_list->begin(); it != event_list->end(); ++it) {
       id_list->push_back(it->id);
     }
     storage->delete_event_row_ids(id_list);
     event_list->clear();
     id_list->clear();
-    delete(id_list);
+    delete (id_list);
 
     storage->select_event_row_range(event_list, 100);
     REQUIRE(45 == event_list->size());
@@ -106,13 +109,13 @@ TEST_CASE("storage") {
     event_list->clear();
 
     // Delete memory for list
-    delete(event_list);
+    delete (event_list);
     storage->delete_all_event_rows();
     Storage::close();
   }
 
   SECTION("should be able to insert only one session object into the database") {
-    list<json>* session_rows = new list<json>;
+    list<json> *session_rows = new list<json>;
 
     // Insert and check row
     json j = "{\"storage\":\"SQLITE\",\"previousSessionId\":null}"_json;
@@ -143,7 +146,7 @@ TEST_CASE("storage") {
     session_rows->clear();
 
     // Delete memory for list
-    delete(session_rows);
+    delete (session_rows);
     storage->delete_all_session_rows();
     Storage::close();
   }

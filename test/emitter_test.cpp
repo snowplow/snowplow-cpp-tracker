@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2016 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -11,8 +11,11 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "catch.hpp"
 #include "../src/emitter.hpp"
+#include "catch.hpp"
+
+using namespace snowplow;
+using std::invalid_argument;
 
 TEST_CASE("emitter") {
   SECTION("Emitter rejects urls (starting with http:// or https://)") {
@@ -23,29 +26,25 @@ TEST_CASE("emitter") {
 
     try {
       Emitter emitter("http://com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 51000, "test-emitter.db");
-    }
-    catch (invalid_argument) {
+    } catch (invalid_argument) {
       inv_arg_http = true;
     }
 
     try {
       Emitter emitter("https://com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 51000, "test-emitter.db");
-    }
-    catch (invalid_argument) {
+    } catch (invalid_argument) {
       inv_arg_https = true;
     }
 
     try {
       Emitter emitter("HTTP://com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 51000, "test-emitter.db");
-    }
-    catch (invalid_argument) {
+    } catch (invalid_argument) {
       inv_arg_http_case = true;
     }
 
     try {
       Emitter emitter("HTTPS://com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 51000, "test-emitter.db");
-    }
-    catch (invalid_argument) {
+    } catch (invalid_argument) {
       inv_arg_https_case = true;
     }
 
@@ -92,7 +91,7 @@ TEST_CASE("emitter") {
 
     bool inv_argument_empty_uri = false;
     try {
-      Emitter emitter_2("", Emitter::Method::GET, Emitter::Protocol::HTTPS, 500, 52000, 51000, "test-emitter.db"); 
+      Emitter emitter_2("", Emitter::Method::GET, Emitter::Protocol::HTTPS, 500, 52000, 51000, "test-emitter.db");
     } catch (invalid_argument) {
       inv_argument_empty_uri = true;
     }
@@ -100,7 +99,7 @@ TEST_CASE("emitter") {
 
     bool inv_argument_bad_url = false;
     try {
-      Emitter emitter_3("../:random../gibber", Emitter::Method::GET, Emitter::Protocol::HTTPS, 500, 52000, 51000, "test-emitter.db"); 
+      Emitter emitter_3("../:random../gibber", Emitter::Method::GET, Emitter::Protocol::HTTPS, 500, 52000, 51000, "test-emitter.db");
     } catch (invalid_argument) {
       inv_argument_bad_url = true;
     }
@@ -124,7 +123,7 @@ TEST_CASE("emitter") {
     list<HttpClient::Request> requests = HttpClient::get_requests_list();
     REQUIRE(0 != requests.size());
 
-    list<Storage::EventRow>* event_list = new list<Storage::EventRow>;
+    list<Storage::EventRow> *event_list = new list<Storage::EventRow>;
     Storage::instance()->select_all_event_rows(event_list);
     REQUIRE(0 == event_list->size());
     event_list->clear();
@@ -143,7 +142,7 @@ TEST_CASE("emitter") {
 
     e.stop();
     HttpClient::reset();
-    delete(event_list);
+    delete (event_list);
   }
 
   SECTION("Emitter should track and remove only successful events from the database for POST requests") {
@@ -161,7 +160,7 @@ TEST_CASE("emitter") {
     list<HttpClient::Request> requests = HttpClient::get_requests_list();
     REQUIRE(0 != requests.size());
 
-    list<Storage::EventRow>* event_list = new list<Storage::EventRow>;
+    list<Storage::EventRow> *event_list = new list<Storage::EventRow>;
     Storage::instance()->select_all_event_rows(event_list);
     REQUIRE(0 == event_list->size());
     event_list->clear();
@@ -208,9 +207,8 @@ TEST_CASE("emitter") {
     event_list->clear();
 
     HttpClient::reset();
-    delete(event_list);
+    delete (event_list);
   }
 
 #endif
-
 }

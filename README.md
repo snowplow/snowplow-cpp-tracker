@@ -2,13 +2,67 @@
 
 [![early-release]][tracker-classificiation] [![Build Status][travis-image]][travis] [![Coverage Status][coverage-image]][coverage] [![Release][release-image]][releases] [![License][license-image]][license]
 
-## Overview
+Snowplow is a scalable open-source platform for rich, high quality, low-latency data collection. It is designed to collect high quality, complete behavioral data for enterprise business.
 
-Snowplow event tracker for C++. Add analytics to your C++ applications, servers and games
+**To find out more, please check out the [Snowplow website][website] and our [documentation][docs].**
 
-## Developer Quickstart
+## Snowplow C++ Tracker Overview
 
-### Building on Mac OSX
+Snowplow C++ tracker enables you to add analytics to your C++ applications, servers and games when using a [Snowplow][snowplow] pipeline.
+
+## Quick Start
+
+The tracker currently supports macOS and Windows.
+
+### Installation
+
+Download the most recent release from the [releases section](https://github.com/snowplow/snowplow-cpp-tracker/releases). Everything in both the `src` and `include` folders will need to be included in your application. It is important to keep the same folder structure as references to the included headers have been done like so: `../include/json.hpp`.
+
+### Using the tracker
+
+Import and initialize the tracker with your Snowplow collector endpoint and tracker configuration:
+
+```cpp
+#include "tracker.hpp"
+
+using namespace snowplow;
+
+// Emitter is responsible for sending events to a Snowplow Collector
+Emitter emitter("com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 52000, "sp.db");
+// Subject defines additional information about your application's environment and user
+Subject subject;
+subject.set_user_id("a-user-id");
+// Client session keeps track of user sessions
+ClientSession client_session("sp.db", 5000, 5000);
+
+string platform = "pc"; // platform the tracker is running on
+string app_id = "openage"; // application ID
+string name_space = "sp-pc"; // the name of the tracker instance
+bool base64 = false; // whether to enable base 64 encoding
+bool desktop_context = true; // add a context entity to events with information about the device
+
+Tracker *tracker = Tracker::init(emitter, &subject, &client_session, &platform, &app_id, &name_space, &base64, &desktop_context);
+```
+
+Track custom events (see the documentation for the full list of supported event types):
+
+```cpp
+// structured event
+Tracker::StructuredEvent se("category", "action");
+tracker->track_struct_event(se);
+
+// screen view event
+Tracker::ScreenViewEvent sve;
+string name = "Screen ID - 5asd56";
+sve.name = &name;
+tracker->track_screen_view(sve);
+```
+
+Check the tracked events in a [Snowplow Micro](https://docs.snowplowanalytics.com/docs/understanding-your-pipeline/what-is-snowplow-micro/) or [Snowplow Mini](https://docs.snowplowanalytics.com/docs/understanding-your-pipeline/what-is-snowplow-mini/) instance.
+
+## Developer Quick Start
+
+### Building on macOS
 
 ```bash
  host> git clone https://github.com/snowplow/snowplow-cpp-tracker
@@ -52,6 +106,29 @@ Then run the following:
 
 The above runs the test suite and then generates a full code coverage report which can be accessed by opening the `index.html` in the `build` directory.
 
+#### Performance testing
+
+The project also provides performance tests to measure changes in performance of the tracker. The tests measure performance under a few scenarios in which they vary the emitter and session.
+
+To run performance tests on your machine:
+
+```bash
+ host> ./build/performance/tracker_performance
+```
+
+To compare with historical performance measurements (logged in the `performance/logs.txt` file), run the following Python script that will output a table with the performance comparison:
+
+```bash
+ host> ./performance/stats.py                                       
+
+ Metric                                | Max     | Min     | Mean    | Last    |
+--------------------------------------------------------------------------------
+ mocked emitter and mocked session     | 5.27s   | 5.08s   | 5.18s   | 5.27s   |
+ mocked emitter and real session       | 5.08s   | 5.04s   | 5.06s   | 5.07s   |
+ mute emitter and mocked session       | 18.77s  | 17.29s  | 18.08s  | 18.77s  |
+ mute emitter and real session         | 28.02s  | 22.61s  | 25.06s  | 22.61s  |
+```
+
 ### Building on Windows
 
  ```git clone https://github.com/snowplow/snowplow-cpp-tracker```
@@ -74,7 +151,7 @@ To run the tests under windows, you need to open the `snowplow-cpp-tracker.sln` 
 
 ## Copyright and license
 
-The Snowplow C++ Tracker is copyright 2016 Snowplow Analytics Ltd.
+The Snowplow C++ Tracker is copyright 2022 Snowplow Analytics Ltd.
 
 Licensed under the **[Apache License, Version 2.0][license]** (the "License");
 you may not use this software except in compliance with the License.
@@ -85,10 +162,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
+[website]: https://snowplowanalytics.com
+[snowplow]: https://github.com/snowplow/snowplow
+[docs]: https://docs.snowplowanalytics.com/
+
 [travis-image]: https://travis-ci.org/snowplow/snowplow-cpp-tracker.png?branch=master
 [travis]: https://travis-ci.org/snowplow/snowplow-cpp-tracker
 
-[release-image]: https://img.shields.io/badge/release-0.1.0-6ad7e5.svg?style=flat
+[release-image]: https://img.shields.io/badge/release-0.2.0-6ad7e5.svg?style=flat
 [releases]: https://github.com/snowplow/snowplow-cpp-tracker/releases
 
 [license-image]: https://img.shields.io/badge/license-Apache--2-blue.svg?style=flat
@@ -102,10 +183,10 @@ limitations under the License.
 [roadmap-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/roadmap.png
 [contributing-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/contributing.png
 
-[techdocs]: https://github.com/snowplow/snowplow/wiki/CPP-Tracker
-[setup]: https://github.com/snowplow/snowplow/wiki/CPP-Tracker-Setup
-[roadmap]: https://github.com/snowplow/snowplow/wiki/Product-roadmap
-[contributing]: https://github.com/snowplow/snowplow/wiki/Contributing
+[techdocs]: https://docs.snowplowanalytics.com/docs/collecting-data/collecting-from-own-applications/c-tracker/
+[setup]: https://docs.snowplowanalytics.com/docs/collecting-data/collecting-from-own-applications/c-tracker/setup/
+[roadmap]: https://github.com/snowplow/snowplow/projects/7
+[contributing]: https://github.com/snowplow/snowplow-cpp-tracker/blob/master/CONTRIBUTING.md
 
 [tracker-classificiation]: https://github.com/snowplow/snowplow/wiki/Tracker-Maintenance-Classification
 [early-release]: https://img.shields.io/static/v1?style=flat&label=Snowplow&message=Early%20Release&color=014477&labelColor=9ba0aa&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAeFBMVEVMaXGXANeYANeXANZbAJmXANeUANSQAM+XANeMAMpaAJhZAJeZANiXANaXANaOAM2WANVnAKWXANZ9ALtmAKVaAJmXANZaAJlXAJZdAJxaAJlZAJdbAJlbAJmQAM+UANKZANhhAJ+EAL+BAL9oAKZnAKVjAKF1ALNBd8J1AAAAKHRSTlMAa1hWXyteBTQJIEwRgUh2JjJon21wcBgNfmc+JlOBQjwezWF2l5dXzkW3/wAAAHpJREFUeNokhQOCA1EAxTL85hi7dXv/E5YPCYBq5DeN4pcqV1XbtW/xTVMIMAZE0cBHEaZhBmIQwCFofeprPUHqjmD/+7peztd62dWQRkvrQayXkn01f/gWp2CrxfjY7rcZ5V7DEMDQgmEozFpZqLUYDsNwOqbnMLwPAJEwCopZxKttAAAAAElFTkSuQmCC 

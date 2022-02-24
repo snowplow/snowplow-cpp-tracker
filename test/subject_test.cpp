@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2016 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -11,8 +11,10 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "catch.hpp"
 #include "../src/subject.hpp"
+#include "catch.hpp"
+
+using namespace snowplow;
 
 TEST_CASE("subject") {
   Subject sub;
@@ -46,5 +48,11 @@ TEST_CASE("subject") {
   SECTION("set_language adds a value for key lang") {
     sub.set_language("EN");
     REQUIRE(sub.get_map()["lang"] == "EN");
+  }
+
+  SECTION("set_useragent adds a value for key ua") {
+    string useragent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_4) AppleWebKit/537.78.2 (KHTML, like Gecko) Version/7.0.6 Safari/537.78.2";
+    sub.set_useragent(useragent);
+    REQUIRE(sub.get_map()["ua"] == useragent);
   }
 }

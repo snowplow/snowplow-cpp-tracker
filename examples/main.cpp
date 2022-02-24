@@ -4,13 +4,19 @@
 
 #include "../src/tracker.hpp"
 
-using namespace std;
+using snowplow::ClientSession;
+using snowplow::Emitter;
+using snowplow::Subject;
+using snowplow::Tracker;
+using std::cout;
+using std::endl;
+using std::string;
 
 void usage(char *program_name) {
   cout << "Usage: " << program_name << " [COLLECTOR_URI]" << endl;
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
   if (argc != 2) {
     usage(argv[0]);
     return 1;
@@ -29,8 +35,9 @@ int main(int argc, char** argv) {
   subject.set_color_depth(32);
   subject.set_timezone("GMT");
   subject.set_language("EN");
+  subject.set_useragent("Mozilla/5.0");
 
-  ClientSession client_session(db_name, 5000, 5000, 2500);
+  ClientSession client_session(db_name, 5000, 5000);
 
   string platform = "mob";
   string app_id = "app-id";
@@ -42,7 +49,7 @@ int main(int argc, char** argv) {
   Tracker *t = Tracker::init(emitter, &subject, &client_session, &platform, &app_id, &name_space, &base64, &desktop_context);
 
   time_t start, end;
-  time (&start);
+  time(&start);
 
   for (int i = 0; i < 2000; i++) {
     Tracker::TimingEvent te("timing-cat", "timing-var", 123);
@@ -62,17 +69,17 @@ int main(int argc, char** argv) {
     t->track_struct_event(se);
   }
 
-  time (&end);
-  double diff = difftime (end,start);
+  time(&end);
+  double diff = difftime(end, start);
   printf("It took me %f seconds to build and store 6000 events.\n", diff);
 
   // Flush and close
   t->flush();
   Tracker::close();
 
-  time (&end);
-  diff = difftime (end,start);
+  time(&end);
+  diff = difftime(end, start);
   printf("It took me %f seconds to send 6000 events.\n", diff);
-  
+
   return 0;
 }

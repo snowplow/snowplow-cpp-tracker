@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2016 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -39,13 +39,18 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include <sys/sysctl.h>
 #include <CoreFoundation/CoreFoundation.h>
-#include "utils_osx_interface.h"
+#include "utils_macos_interface.h"
 
 #endif
 
-using namespace std;
+using std::list;
+using std::string;
 using json = nlohmann::json;
 
+namespace snowplow {
+/**
+ * @brief Tracker internal utility functions.
+ */
 class Utils {
 public:
   static string get_uuid4();
@@ -66,5 +71,6 @@ public:
 private:
   static SelfDescribingJson *m_desktop_context;
 };
+}
 
 #endif

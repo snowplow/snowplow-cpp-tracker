@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2016 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -11,11 +11,16 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "catch.hpp"
-#include "../include/json.hpp"
 #include "../include/base64.hpp"
-#include "../src/tracker.hpp"
+#include "../include/json.hpp"
 #include "../src/emitter.hpp"
+#include "../src/tracker.hpp"
+#include "catch.hpp"
+
+using namespace snowplow;
+using std::invalid_argument;
+using std::runtime_error;
+using std::to_string;
 
 TEST_CASE("tracker") {
 
@@ -39,10 +44,10 @@ TEST_CASE("tracker") {
   SECTION("Mock emitter stores payloads") {
     MockEmitter e;
 
-    e.start();    
+    e.start();
     REQUIRE(e.is_started() == true);
 
-    Payload example;   
+    Payload example;
     e.add(example);
     REQUIRE(e.get_added_payloads().size() == 1);
   }
@@ -52,9 +57,9 @@ TEST_CASE("tracker") {
   SECTION("Tracker singleton controls provide expected behaviour") {
     bool runtime_exception_on_not_init = false;
     try {
-        Tracker *t = Tracker::instance();
+      Tracker *t = Tracker::instance();
     } catch (runtime_error) {
-        runtime_exception_on_not_init = true;
+      runtime_exception_on_not_init = true;
     }
     REQUIRE(runtime_exception_on_not_init == true);
 
@@ -63,9 +68,9 @@ TEST_CASE("tracker") {
 
     runtime_exception_on_not_init = false;
     try {
-        Tracker *t = Tracker::instance();
+      Tracker *t = Tracker::instance();
     } catch (runtime_error) {
-        runtime_exception_on_not_init = true;
+      runtime_exception_on_not_init = true;
     }
     REQUIRE(runtime_exception_on_not_init == false);
 
@@ -74,7 +79,7 @@ TEST_CASE("tracker") {
 
   SECTION("Tracker controls should provide expected behaviour") {
     MockEmitter e;
-    ClientSession cs("test-tracker.db", 5000, 5000, 500);
+    ClientSession cs("test-tracker.db", 5000, 5000);
     string platform = "pc";
     string app_id = "snowplow-test-suite";
     string name_space = "snowplow-testing";
@@ -144,7 +149,7 @@ TEST_CASE("tracker") {
   SECTION("Tracker adds default fields to each payload") {
     MockEmitter e;
     Tracker *t = Tracker::init(e, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-    
+
     REQUIRE(e.is_started() == true);
 
     vector<SelfDescribingJson> v;
@@ -173,7 +178,7 @@ TEST_CASE("tracker") {
     bool desktop_context = true;
 
     Tracker *t = Tracker::init(e, NULL, NULL, &plat, &app_id, &name_space, &base64, &desktop_context);
-    
+
     REQUIRE(e.is_started() == true);
 
     vector<SelfDescribingJson> v;
@@ -231,7 +236,7 @@ TEST_CASE("tracker") {
     REQUIRE(sve.timestamp > time_now - 1000);
     REQUIRE(sve.timestamp < time_now + 1000);
     REQUIRE(sve.true_timestamp == NULL);
-  }  
+  }
 
   SECTION("TimingEvents have appropriate defaults") {
     unsigned long long time_now = Utils::get_unix_epoch_ms();
@@ -253,19 +258,25 @@ TEST_CASE("tracker") {
     bool is_arg_exception_empty_category;
     bool is_arg_exception_empty_action;
 
-    MockEmitter e; 
+    MockEmitter e;
     Tracker *t = Tracker::init(e, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-    
+
     Tracker::StructuredEvent sv("", "hello");
 
-    try { t->track_struct_event(sv); } 
-    catch (invalid_argument) { is_arg_exception_empty_category = true; }
+    try {
+      t->track_struct_event(sv);
+    } catch (invalid_argument) {
+      is_arg_exception_empty_category = true;
+    }
 
     sv.action = "";
     sv.category = "hello";
 
-    try { t->track_struct_event(sv); }
-    catch (invalid_argument) { is_arg_exception_empty_action = true; }
+    try {
+      t->track_struct_event(sv);
+    } catch (invalid_argument) {
+      is_arg_exception_empty_action = true;
+    }
 
     REQUIRE(is_arg_exception_empty_action);
     REQUIRE(is_arg_exception_empty_category);
@@ -342,10 +353,10 @@ TEST_CASE("tracker") {
     SelfDescribingJson uej(SNOWPLOW_SCHEMA_UNSTRUCT_EVENT, sdj.get());
 
     string json = uej.to_string();
-    const unsigned char* c_json = (const unsigned char*)json.c_str();
+    const unsigned char *c_json = (const unsigned char *)json.c_str();
 
     REQUIRE(payload[SNOWPLOW_UNSTRUCTURED_ENCODED] == base64_encode(c_json, json.length()));
-    
+
     se.id = NULL;
     string name = "name";
     se.name = &name;
@@ -355,7 +366,7 @@ TEST_CASE("tracker") {
     t->track_screen_view(se);
     auto new_payload = e.get_added_payloads()[1].get();
 
-    REQUIRE(new_payload[SNOWPLOW_TRUE_TIMESTAMP] ==  to_string(ttm));
+    REQUIRE(new_payload[SNOWPLOW_TRUE_TIMESTAMP] == to_string(ttm));
 
     nlohmann::json new_expected;
     new_expected[SNOWPLOW_SV_NAME] = "name";
@@ -363,7 +374,7 @@ TEST_CASE("tracker") {
     SelfDescribingJson uej_1(SNOWPLOW_SCHEMA_UNSTRUCT_EVENT, sdj_1.get());
 
     string json_1 = uej_1.to_string();
-    const unsigned char* c_json_1 = (const unsigned char*) json_1.c_str();
+    const unsigned char *c_json_1 = (const unsigned char *)json_1.c_str();
 
     REQUIRE(new_payload[SNOWPLOW_UNSTRUCTURED_ENCODED] == base64_encode(c_json_1, json_1.length()));
 
@@ -408,7 +419,7 @@ TEST_CASE("tracker") {
     SelfDescribingJson uej(SNOWPLOW_SCHEMA_UNSTRUCT_EVENT, sdj.get());
 
     string json = uej.to_string();
-    const unsigned char* c_json = (const unsigned char*)json.c_str();
+    const unsigned char *c_json = (const unsigned char *)json.c_str();
 
     REQUIRE(payload[SNOWPLOW_UNSTRUCTURED_ENCODED] == base64_encode(c_json, json.length()));
 
@@ -418,12 +429,12 @@ TEST_CASE("tracker") {
     te.true_timestamp = &ts;
 
     t->track_timing(te);
-  
+
     expected[SNOWPLOW_UT_LABEL] = "hello world";
     auto new_payload = e.get_added_payloads()[1].get();
 
     REQUIRE(new_payload[SNOWPLOW_TRUE_TIMESTAMP] == to_string(ts));
-   
+
     SelfDescribingJson sde_w_label(SNOWPLOW_SCHEMA_USER_TIMINGS, expected);
     SelfDescribingJson uej_w_label(SNOWPLOW_SCHEMA_UNSTRUCT_EVENT, sde_w_label.get());
     string json_w_label = uej_w_label.to_string();
@@ -432,15 +443,21 @@ TEST_CASE("tracker") {
 
     Tracker::TimingEvent te1("", "", 123);
     bool arg_exception_on_no_category = false;
-    try { t->track_timing(te1); } 
-    catch (invalid_argument) { arg_exception_on_no_category = true; }
+    try {
+      t->track_timing(te1);
+    } catch (invalid_argument) {
+      arg_exception_on_no_category = true;
+    }
 
     REQUIRE(arg_exception_on_no_category == true);
 
     Tracker::TimingEvent te2("category", "", 123);
     bool arg_exception_on_no_variable = false;
-    try { t->track_timing(te2); } 
-    catch (invalid_argument) { arg_exception_on_no_variable = true; }
+    try {
+      t->track_timing(te2);
+    } catch (invalid_argument) {
+      arg_exception_on_no_variable = true;
+    }
 
     REQUIRE(arg_exception_on_no_variable == true);
 
@@ -473,7 +490,7 @@ TEST_CASE("tracker") {
     SelfDescribingJson uej(SNOWPLOW_SCHEMA_UNSTRUCT_EVENT, sdj.get());
 
     string json = uej.to_string();
-    const unsigned char* str = (const unsigned char*)json.c_str();
+    const unsigned char *str = (const unsigned char *)json.c_str();
 
     REQUIRE(payload[SNOWPLOW_UNSTRUCTURED_ENCODED] == base64_encode(str, json.length()));
 

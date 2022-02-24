@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2016 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -16,9 +16,10 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include <string>
 
-using namespace std;
+using std::string;
 
-const string SNOWPLOW_TRACKER_VERSION_LABEL = "cpp-0.1.0";
+namespace snowplow {
+const string SNOWPLOW_TRACKER_VERSION_LABEL = "cpp-0.2.0";
 
 // post requests
 const string SNOWPLOW_POST_PROTOCOL_VENDOR = "com.snowplowanalytics.snowplow";
@@ -67,6 +68,7 @@ const string SNOWPLOW_VIEWPORT = "vp";
 const string SNOWPLOW_COLOR_DEPTH = "cd";
 const string SNOWPLOW_TIMEZONE = "tz";
 const string SNOWPLOW_LANGUAGE = "lang";
+const string SNOWPLOW_USERAGENT = "ua";
 
 // structured event
 const string SNOWPLOW_SE_CATEGORY = "se_ca";
@@ -106,5 +108,6 @@ const string SNOWPLOW_DESKTOP_OS_IS_64_BIT = "osIs64Bit";
 const string SNOWPLOW_DESKTOP_DEVICE_MANU = "deviceManufacturer";
 const string SNOWPLOW_DESKTOP_DEVICE_MODEL = "deviceModel";
 const string SNOWPLOW_DESKTOP_DEVICE_PROC_COUNT = "deviceProcessorCount";
+}
 
 #endif

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2016 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -25,9 +25,16 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../include/sqlite3.h"
 #include "../include/json.hpp"
 
-using namespace std;
+using std::mutex;
+using std::string;
+using std::list;
 using json = nlohmann::json;
 
+namespace snowplow {
+/**
+ * @brief Tracker internal SQLite storage for events and session information. To be used internally within tracker only.
+ * 
+ */
 class Storage {
 private:
   static Storage *m_instance;
@@ -60,5 +67,6 @@ public:
   void delete_all_session_rows();
   string get_db_name();
 };
+}
 
 #endif

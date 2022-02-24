@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2016 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -14,11 +14,15 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #ifndef HTTP_REQUEST_RESULT_H
 #define HTTP_REQUEST_RESULT_H
 
-#include <list>
 #include <iostream>
+#include <list>
 
-using namespace std;
+using std::list;
 
+namespace snowplow {
+/**
+ * @brief Response from HTTP requests to collector. To be used internally within tracker only.
+ */
 class HttpRequestResult {
 private:
   int m_http_response_code;
@@ -33,5 +37,6 @@ public:
   list<int> get_row_ids();
   bool is_success();
 };
+} // namespace snowplow
 
 #endif

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2016 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -13,7 +13,9 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "self_describing_json.hpp"
 
-SelfDescribingJson::SelfDescribingJson(const string & schema, const json & data) {
+using namespace snowplow;
+
+SelfDescribingJson::SelfDescribingJson(const string &schema, const json &data) {
   json sdj;
   sdj[SNOWPLOW_SCHEMA] = schema;
   sdj[SNOWPLOW_DATA] = data;

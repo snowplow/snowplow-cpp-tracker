@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2016 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -11,8 +11,10 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "catch.hpp"
 #include "../src/http_request_result.hpp"
+#include "catch.hpp"
+
+using namespace snowplow;
 
 TEST_CASE("http_request_result") {
   SECTION("is_success should be set only if the error code is zero and the response code is 200") {
