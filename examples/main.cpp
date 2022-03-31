@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
   string uri = argv[1];
   string db_name = "demo.db";
 
-  Emitter emitter(uri, Emitter::Method::POST, Emitter::Protocol::HTTP, 52000, 52000, 500, db_name);
+  Emitter emitter(uri, Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 52000, db_name);
 
   Subject subject;
   subject.set_user_id("a-user-id");

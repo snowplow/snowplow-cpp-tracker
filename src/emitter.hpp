@@ -25,14 +25,15 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "storage.hpp"
 #include "payload.hpp"
 #include "self_describing_json.hpp"
-#include "http_client.hpp"
 #include "http_request_result.hpp"
 #include "cracked_url.hpp"
+#include "ihttp_client.hpp"
 
 using std::string;
 using std::thread;
 using std::condition_variable;
 using std::mutex;
+using std::unique_ptr;
 
 namespace snowplow {
 /**
@@ -67,10 +68,10 @@ public:
 
   /**
    * @brief Construct a new Emitter object
-   * 
+   *
    * The `db_name` can be any valid path on your host file system (that can be created with the current user).
    * By default it will create the required files wherever the application is being run from.
-   * 
+   *
    * @param uri The URI to send events to
    * @param method The request type to use (GET or POST)
    * @param protocol The protocol to use (http or https)
@@ -81,6 +82,24 @@ public:
    */
   Emitter(const string & uri, Method method, Protocol protocol, int send_limit, 
     int byte_limit_post, int byte_limit_get, const string & db_name);
+
+  /**
+   * @brief Construct a new Emitter object with a custom HTTP client
+   * 
+   * The `db_name` can be any valid path on your host file system (that can be created with the current user).
+   * By default it will create the required files wherever the application is being run from.
+   *
+   * @param uri The URI to send events to
+   * @param method The request type to use (GET or POST)
+   * @param protocol The protocol to use (http or https)
+   * @param send_limit The maximum amount of events to send at a time
+   * @param byte_limit_post The byte limit when sending a POST request
+   * @param byte_limit_get The byte limit when sending a GET request
+   * @param db_name Defines the path and file name of the database
+   * @param http_client Custom HTTP client to send GET and POST requests with
+   */
+  Emitter(const string & uri, Method method, Protocol protocol, int send_limit, 
+    int byte_limit_post, int byte_limit_get, const string & db_name, unique_ptr<IHttpClient> http_client);
   ~Emitter();
 
   /**
@@ -150,6 +169,7 @@ public:
 private:
   CrackedUrl m_url;
   Method m_method;
+  unique_ptr<IHttpClient> m_http_client;
   unsigned int m_send_limit;
   unsigned int m_byte_limit_get;
   unsigned int m_byte_limit_post;

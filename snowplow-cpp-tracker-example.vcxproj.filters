@@ -24,7 +24,13 @@
     <ClCompile Include="src\emitter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\http_client.cpp">
+    <ClCompile Include="src\http_client_apple.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\http_client_windows.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\http_client_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\http_request_result.cpp">
@@ -71,7 +77,16 @@
     <ClInclude Include="src\emitter.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\http_client.hpp">
+    <ClInclude Include="src\ihttp_client.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\http_client_apple.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\http_client_windows.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\http_client_test.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\http_request_result.hpp">

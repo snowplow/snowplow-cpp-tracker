@@ -11,7 +11,7 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "../src/http_client.hpp"
+#include "../src/http_client_test.hpp"
 #include "catch.hpp"
 
 using namespace snowplow;
@@ -23,46 +23,46 @@ using namespace snowplow;
 
 TEST_CASE("http_client") {
   SECTION("GET request to valid endpoint must return 200 code") {
-    HttpClient::reset();
+    HttpClientTest::reset();
 
     CrackedUrl c(HTTP_TEST_URL_GET);
     string query_string = "e=pv&tv=cpp-0.1.0";
     list<int> id_list{1};
 
-    HttpRequestResult r = HttpClient::http_get(c, query_string, id_list, false);
+    HttpRequestResult r = HttpClientTest().http_get(c, query_string, id_list, false);
 
     REQUIRE(r.get_http_response_code() == 200);
     REQUIRE(r.is_success() == true);
     REQUIRE(r.get_row_ids().size() == id_list.size());
 
-    list<HttpClient::Request> requests_list = HttpClient::get_requests_list();
+    list<HttpClientTest::Request> requests_list = HttpClientTest::get_requests_list();
     REQUIRE(1 == requests_list.size());
 
-    HttpClient::Request req = requests_list.front();
-    REQUIRE(HttpClient::RequestMethod::GET == req.method);
+    HttpClientTest::Request req = requests_list.front();
+    REQUIRE(HttpClientTest::RequestMethod::GET == req.method);
     REQUIRE(query_string == req.query_string);
     REQUIRE("" == req.post_data);
     REQUIRE(false == req.oversize);
   }
 
   SECTION("POST request to valid endpoint must return 200 code") {
-    HttpClient::reset();
+    HttpClientTest::reset();
 
     CrackedUrl c(HTTP_TEST_URL_POST);
     string json_string = "{\"schema\":\"iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-3\",\"data\":[{\"dtm\":\"1234567890123\"}]}";
     list<int> id_list{1};
 
-    HttpRequestResult r = HttpClient::http_post(c, json_string, id_list, false);
+    HttpRequestResult r = HttpClientTest().http_post(c, json_string, id_list, false);
 
     REQUIRE(r.get_http_response_code() == 200);
     REQUIRE(r.is_success() == true);
     REQUIRE(r.get_row_ids().size() == id_list.size());
 
-    list<HttpClient::Request> requests_list = HttpClient::get_requests_list();
+    list<HttpClientTest::Request> requests_list = HttpClientTest::get_requests_list();
     REQUIRE(1 == requests_list.size());
 
-    HttpClient::Request req = requests_list.front();
-    REQUIRE(HttpClient::RequestMethod::POST == req.method);
+    HttpClientTest::Request req = requests_list.front();
+    REQUIRE(HttpClientTest::RequestMethod::POST == req.method);
     REQUIRE("" == req.query_string);
     REQUIRE(json_string == req.post_data);
     REQUIRE(false == req.oversize);

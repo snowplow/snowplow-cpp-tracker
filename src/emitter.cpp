@@ -12,6 +12,9 @@ See the Apache License Version 2.0 for the specific language governing permissio
 */
 
 #include "emitter.hpp"
+#include "http_client_test.hpp"
+#include "http_client_apple.hpp"
+#include "http_client_windows.hpp"
 
 using namespace snowplow;
 using std::invalid_argument;
@@ -22,8 +25,24 @@ using std::unique_lock;
 const int post_wrapper_bytes = 88; // "schema":"iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-4","data":[]
 const int post_stm_bytes = 22;     // "stm":"1443452851000"
 
+std::unique_ptr<IHttpClient> createDefaultHttpClient() {
+#if defined(SNOWPLOW_TEST_SUITE)
+  return std::unique_ptr<IHttpClient>(new HttpClientTest());
+#elif defined(__APPLE__)
+  return std::unique_ptr<IHttpClient>(new HttpClientApple());
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+  return std::unique_ptr<IHttpClient>(new HttpClientWindows());
+#else
+  throw std::invalid_argument("No supported HTTP client");
+#endif
+}
+
 Emitter::Emitter(const string &uri, Method method, Protocol protocol, int send_limit,
-                 int byte_limit_post, int byte_limit_get, const string &db_name) : m_url(this->get_collector_url(uri, protocol, method)) {
+                 int byte_limit_post, int byte_limit_get, const string &db_name) : Emitter(uri, method, protocol, send_limit, byte_limit_post, byte_limit_get, db_name, createDefaultHttpClient()) {
+}
+
+Emitter::Emitter(const string &uri, Method method, Protocol protocol, int send_limit,
+                 int byte_limit_post, int byte_limit_get, const string &db_name, unique_ptr<IHttpClient> http_client) : m_url(this->get_collector_url(uri, protocol, method)) {
 
   Storage::init(db_name);
 
@@ -50,6 +69,7 @@ Emitter::Emitter(const string &uri, Method method, Protocol protocol, int send_l
   this->m_send_limit = send_limit;
   this->m_byte_limit_post = byte_limit_post;
   this->m_byte_limit_get = byte_limit_get;
+  this->m_http_client = std::move(http_client);
 }
 
 Emitter::~Emitter() {
@@ -154,7 +174,8 @@ void Emitter::do_send(list<Storage::EventRow> *event_rows, list<HttpRequestResul
       string query_string = Utils::map_to_query_string(event_payload.get());
       list<int> row_id = {it->id};
 
-      request_futures.push_back(std::async(HttpClient::http_get, this->m_url, query_string, row_id, (query_string.size() > this->m_byte_limit_get)));
+      request_futures.push_back(std::async(&IHttpClient::http_get, this->m_http_client.get(), this->m_url, query_string, row_id, (query_string.size() > this->m_byte_limit_get)));
+      request_futures.push_back(std::async(&IHttpClient::http_get, this->m_http_client.get(), this->m_url, query_string, row_id, (query_string.size() > this->m_byte_limit_get)));
     }
   } else {
     list<int> row_ids;
@@ -168,13 +189,13 @@ void Emitter::do_send(list<Storage::EventRow> *event_rows, list<HttpRequestResul
         // A single payload has exceeded the Byte Limit
         list<int> single_row_id = {it->id};
         list<Payload> single_payload = {it->event};
-        request_futures.push_back(std::async(HttpClient::http_post, this->m_url, this->build_post_data_json(single_payload), single_row_id, true));
+        request_futures.push_back(std::async(&IHttpClient::http_post, this->m_http_client.get(), this->m_url, this->build_post_data_json(single_payload), single_row_id, true));
 
         single_row_id.clear();
         single_payload.clear();
       } else if ((total_byte_size + byte_size + post_wrapper_bytes + (payloads.size() - 1)) > this->m_byte_limit_post) {
         // Byte limit reached
-        request_futures.push_back(std::async(HttpClient::http_post, this->m_url, this->build_post_data_json(payloads), row_ids, false));
+        request_futures.push_back(std::async(&IHttpClient::http_post, this->m_http_client.get(), this->m_url, this->build_post_data_json(payloads), row_ids, false));
 
         // Reset accumulators
         row_ids.clear();
@@ -190,7 +211,7 @@ void Emitter::do_send(list<Storage::EventRow> *event_rows, list<HttpRequestResul
     }
 
     if (payloads.size() > 0) {
-      request_futures.push_back(std::async(HttpClient::http_post, this->m_url, this->build_post_data_json(payloads), row_ids, false));
+      request_futures.push_back(std::async(&IHttpClient::http_post, this->m_http_client.get(), this->m_url, this->build_post_data_json(payloads), row_ids, false));
     }
   }
 

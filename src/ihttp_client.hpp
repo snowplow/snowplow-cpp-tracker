@@ -11,20 +11,33 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#ifndef MUTE_EMITTER_H
-#define MUTE_EMITTER_H
+#ifndef IHTTP_CLIENT_H
+#define IHTTP_CLIENT_H
 
-#include "../src/emitter.hpp"
+#include <map>
+#include <string>
+#include <regex>
+#include "constants.hpp"
+#include "cracked_url.hpp"
+#include "http_request_result.hpp"
 
-using snowplow::Emitter;
 using std::string;
+using std::list;
+using std::mutex;
 
-class MuteEmitter : public Emitter {
+namespace snowplow {
+/**
+ * @brief HTTP client for making requests to Snowplow Collector. To be used internally within tracker only.
+ */
+class IHttpClient {
 public:
-   MuteEmitter(const string &db_name) : Emitter("127.0.0.1:9090", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 52000, db_name) {}
+  enum RequestMethod { POST, GET };
 
-   void start() {}
-   void stop() {}
+  virtual ~IHttpClient() {}
+  
+  virtual HttpRequestResult http_post(const CrackedUrl url, const string & post_data, list<int> row_ids, bool oversize) = 0;
+  virtual HttpRequestResult http_get(const CrackedUrl url, const string & query_string, list<int> row_ids, bool oversize) = 0;
 };
+}
 
 #endif

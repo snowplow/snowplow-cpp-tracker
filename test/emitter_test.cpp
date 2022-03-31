@@ -12,6 +12,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 */
 
 #include "../src/emitter.hpp"
+#include "../src/http_client_test.hpp"
 #include "catch.hpp"
 
 using namespace snowplow;
@@ -120,7 +121,7 @@ TEST_CASE("emitter") {
     }
     e.flush();
 
-    list<HttpClient::Request> requests = HttpClient::get_requests_list();
+    list<HttpClientTest::Request> requests = HttpClientTest::get_requests_list();
     REQUIRE(0 != requests.size());
 
     list<Storage::EventRow> *event_list = new list<Storage::EventRow>;
@@ -128,7 +129,7 @@ TEST_CASE("emitter") {
     REQUIRE(0 == event_list->size());
     event_list->clear();
 
-    HttpClient::set_http_response_code(404);
+    HttpClientTest::set_http_response_code(404);
     e.start();
 
     for (int i = 0; i < 10; i++) {
@@ -141,7 +142,7 @@ TEST_CASE("emitter") {
     event_list->clear();
 
     e.stop();
-    HttpClient::reset();
+    HttpClientTest::reset();
     delete (event_list);
   }
 
@@ -157,7 +158,7 @@ TEST_CASE("emitter") {
     }
     e.flush();
 
-    list<HttpClient::Request> requests = HttpClient::get_requests_list();
+    list<HttpClientTest::Request> requests = HttpClientTest::get_requests_list();
     REQUIRE(0 != requests.size());
 
     list<Storage::EventRow> *event_list = new list<Storage::EventRow>;
@@ -166,7 +167,7 @@ TEST_CASE("emitter") {
     event_list->clear();
 
     // Test POST 404 response
-    HttpClient::set_http_response_code(404);
+    HttpClientTest::set_http_response_code(404);
     e.start();
 
     for (int i = 0; i < 10; i++) {
@@ -179,7 +180,7 @@ TEST_CASE("emitter") {
     event_list->clear();
 
     e.stop();
-    HttpClient::reset();
+    HttpClientTest::reset();
 
     // Test POST combination logic
     for (int i = 0; i < 1000; i++) {
@@ -197,7 +198,7 @@ TEST_CASE("emitter") {
     p.add("tv", "pvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpv");
     e.add(p);
 
-    HttpClient::set_http_response_code(404);
+    HttpClientTest::set_http_response_code(404);
     e.start();
     e.flush();
 
@@ -206,7 +207,7 @@ TEST_CASE("emitter") {
     REQUIRE(0 == event_list->size());
     event_list->clear();
 
-    HttpClient::reset();
+    HttpClientTest::reset();
     delete (event_list);
   }
 
