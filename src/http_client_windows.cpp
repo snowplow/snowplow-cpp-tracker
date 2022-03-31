@@ -17,14 +17,13 @@ See the Apache License Version 2.0 for the specific language governing permissio
 using namespace snowplow;
 using std::cerr;
 using std::endl;
-using std::lock_guard;
 
-const string HttpClient::TRACKER_AGENT = string("Snowplow C++ Tracker (Win32)");
+const string HttpClientWindows::TRACKER_AGENT = string("Snowplow C++ Tracker (Win32)");
 
-HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUrl url, const string &query_string, const string &post_data, list<int> row_ids, bool oversize) {
+HttpRequestResult HttpClientWindows::http_request(const RequestMethod method, CrackedUrl url, const string &query_string, const string &post_data, list<int> row_ids, bool oversize) {
 
   HINTERNET h_internet = InternetOpen(
-      TEXT(HttpClient::TRACKER_AGENT.c_str()),
+      TEXT(HttpClientWindows::TRACKER_AGENT.c_str()),
       INTERNET_OPEN_TYPE_DIRECT,
       NULL,
       NULL,

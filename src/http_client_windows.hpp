@@ -15,12 +15,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #define HTTP_CLIENT_WINDOWS_H
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 
-#include <map>
 #include <string>
-#include <regex>
-#include "constants.hpp"
-#include "cracked_url.hpp"
-#include "http_request_result.hpp"
 #include "ihttp_client.hpp"
 
 #include <windows.h>
@@ -31,7 +26,6 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 using std::string;
 using std::list;
-using std::mutex;
 
 namespace snowplow {
 /**
