@@ -40,10 +40,8 @@ namespace snowplow {
 class HttpClientWindows : public IHttpClient {
 public:
   static const string TRACKER_AGENT;
-  HttpRequestResult http_post(const CrackedUrl url, const string & post_data, list<int> row_ids, bool oversize);
-  HttpRequestResult http_get(const CrackedUrl url, const string & query_string, list<int> row_ids, bool oversize);
 
-private:
+protected:
   HttpRequestResult http_request(const RequestMethod method, const CrackedUrl url, const string & query_string, const string & post_data, list<int> row_ids, bool oversize);
 };
 }

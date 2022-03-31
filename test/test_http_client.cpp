@@ -11,33 +11,23 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "http_client_test.hpp"
+#include "test_http_client.hpp"
 
 using namespace snowplow;
 using std::cerr;
 using std::endl;
 using std::lock_guard;
 
-HttpRequestResult HttpClientTest::http_post(const CrackedUrl url, const string &post_data, list<int> row_ids, bool oversize) {
-  HttpRequestResult res = this->http_request(POST, url, "", post_data, row_ids, oversize);
-  return res;
-}
+const string TestHttpClient::TRACKER_AGENT = string("Snowplow C++ Tracker (Integration tests)");
 
-HttpRequestResult HttpClientTest::http_get(const CrackedUrl url, const string &query_string, list<int> row_ids, bool oversize) {
-  HttpRequestResult res = this->http_request(GET, url, query_string, "", row_ids, oversize);
-  return res;
-}
+list<TestHttpClient::Request> TestHttpClient::requests_list;
+mutex TestHttpClient::log_read_write;
+int TestHttpClient::response_code = 200;
 
-const string HttpClientTest::TRACKER_AGENT = string("Snowplow C++ Tracker (Integration tests)");
-
-list<HttpClientTest::Request> HttpClientTest::requests_list;
-mutex HttpClientTest::log_read_write;
-int HttpClientTest::response_code = 200;
-
-HttpRequestResult HttpClientTest::http_request(const RequestMethod method, CrackedUrl url, const string &query_string, const string &post_data, list<int> row_ids, bool oversize) {
+HttpRequestResult TestHttpClient::http_request(const RequestMethod method, CrackedUrl url, const string &query_string, const string &post_data, list<int> row_ids, bool oversize) {
   lock_guard<mutex> guard(log_read_write);
 
-  HttpClientTest::Request r;
+  TestHttpClient::Request r;
   r.method = method;
   r.query_string = query_string;
   r.post_data = post_data;
@@ -48,17 +38,17 @@ HttpRequestResult HttpClientTest::http_request(const RequestMethod method, Crack
   return HttpRequestResult(0, response_code, row_ids, oversize);
 }
 
-void HttpClientTest::set_http_response_code(int http_response_code) {
+void TestHttpClient::set_http_response_code(int http_response_code) {
   lock_guard<mutex> guard(log_read_write);
   response_code = http_response_code;
 }
 
-list<HttpClientTest::Request> HttpClientTest::get_requests_list() {
+list<TestHttpClient::Request> TestHttpClient::get_requests_list() {
   lock_guard<mutex> guard(log_read_write);
   return requests_list;
 }
 
-void HttpClientTest::reset() {
+void TestHttpClient::reset() {
   lock_guard<mutex> guard(log_read_write);
   requests_list.clear();
   response_code = 200;

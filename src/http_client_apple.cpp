@@ -13,21 +13,16 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #if defined(__APPLE__)
 #include "http_client_apple.hpp"
+#include "constants.hpp"
+
+#include <CoreFoundation/CoreFoundation.h>
+#include <CFNetwork/CFNetwork.h>
+#include <CFNetwork/CFHTTPStream.h>
 
 using namespace snowplow;
 using std::cerr;
 using std::endl;
 using std::lock_guard;
-
-HttpRequestResult HttpClientApple::http_post(const CrackedUrl url, const string &post_data, list<int> row_ids, bool oversize) {
-  HttpRequestResult res = this->http_request(POST, url, "", post_data, row_ids, oversize);
-  return res;
-}
-
-HttpRequestResult HttpClientApple::http_get(const CrackedUrl url, const string &query_string, list<int> row_ids, bool oversize) {
-  HttpRequestResult res = this->http_request(GET, url, query_string, "", row_ids, oversize);
-  return res;
-}
 
 const string HttpClientApple::TRACKER_AGENT = string("Snowplow C++ Tracker (macOS)");
 

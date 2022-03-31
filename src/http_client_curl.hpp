@@ -11,9 +11,9 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#ifndef HTTP_CLIENT_APPLE_H
-#define HTTP_CLIENT_APPLE_H
-#if defined(__APPLE__)
+#ifndef HTTP_CLIENT_CURL_H
+#define HTTP_CLIENT_CURL_H
+#if !defined(WIN32) && !defined(_WIN32) && !defined(__WIN32) || defined(__CYGWIN__)
 
 #include "ihttp_client.hpp"
 
@@ -29,9 +29,10 @@ namespace snowplow {
 /**
  * @brief HTTP client for making requests to Snowplow Collector. To be used internally within tracker only.
  */
-class HttpClientApple : public IHttpClient {
+class HttpClientCurl : public IHttpClient {
 public:
-  ~HttpClientApple() {}
+  HttpClientCurl();
+  ~HttpClientCurl();
 
   static const string TRACKER_AGENT;
 

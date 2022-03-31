@@ -96,7 +96,7 @@ public:
    * @param byte_limit_post The byte limit when sending a POST request
    * @param byte_limit_get The byte limit when sending a GET request
    * @param db_name Defines the path and file name of the database
-   * @param http_client Custom HTTP client to send GET and POST requests with
+   * @param http_client Unique pointer to a custom HTTP client to send GET and POST requests with
    */
   Emitter(const string & uri, Method method, Protocol protocol, int send_limit, 
     int byte_limit_post, int byte_limit_get, const string & db_name, unique_ptr<IHttpClient> http_client);

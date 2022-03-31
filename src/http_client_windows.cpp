@@ -19,16 +19,6 @@ using std::cerr;
 using std::endl;
 using std::lock_guard;
 
-HttpRequestResult HttpClientWindows::http_post(const CrackedUrl url, const string &post_data, list<int> row_ids, bool oversize) {
-  HttpRequestResult res = this->http_request(POST, url, "", post_data, row_ids, oversize);
-  return res;
-}
-
-HttpRequestResult HttpClientWindows::http_get(const CrackedUrl url, const string &query_string, list<int> row_ids, bool oversize) {
-  HttpRequestResult res = this->http_request(GET, url, query_string, "", row_ids, oversize);
-  return res;
-}
-
 const string HttpClient::TRACKER_AGENT = string("Snowplow C++ Tracker (Win32)");
 
 HttpRequestResult HttpClient::http_request(const RequestMethod method, CrackedUrl url, const string &query_string, const string &post_data, list<int> row_ids, bool oversize) {

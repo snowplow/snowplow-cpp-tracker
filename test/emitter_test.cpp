@@ -12,11 +12,12 @@ See the Apache License Version 2.0 for the specific language governing permissio
 */
 
 #include "../src/emitter.hpp"
-#include "../src/http_client_test.hpp"
+#include "test_http_client.hpp"
 #include "catch.hpp"
 
 using namespace snowplow;
 using std::invalid_argument;
+using std::unique_ptr;
 
 TEST_CASE("emitter") {
   SECTION("Emitter rejects urls (starting with http:// or https://)") {
@@ -26,25 +27,25 @@ TEST_CASE("emitter") {
     bool inv_arg_https_case = false;
 
     try {
-      Emitter emitter("http://com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 51000, "test-emitter.db");
+      Emitter emitter("http://com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 51000, "test-emitter.db", unique_ptr<IHttpClient>(new TestHttpClient()));
     } catch (invalid_argument) {
       inv_arg_http = true;
     }
 
     try {
-      Emitter emitter("https://com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 51000, "test-emitter.db");
+      Emitter emitter("https://com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 51000, "test-emitter.db", unique_ptr<IHttpClient>(new TestHttpClient()));
     } catch (invalid_argument) {
       inv_arg_https = true;
     }
 
     try {
-      Emitter emitter("HTTP://com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 51000, "test-emitter.db");
+      Emitter emitter("HTTP://com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 51000, "test-emitter.db", unique_ptr<IHttpClient>(new TestHttpClient()));
     } catch (invalid_argument) {
       inv_arg_http_case = true;
     }
 
     try {
-      Emitter emitter("HTTPS://com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 51000, "test-emitter.db");
+      Emitter emitter("HTTPS://com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 51000, "test-emitter.db", unique_ptr<IHttpClient>(new TestHttpClient()));
     } catch (invalid_argument) {
       inv_arg_https_case = true;
     }
@@ -56,7 +57,7 @@ TEST_CASE("emitter") {
   }
 
   SECTION("Emitter setup confirmation") {
-    Emitter emitter("com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 51000, "test-emitter.db");
+    Emitter emitter("com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 51000, "test-emitter.db", unique_ptr<IHttpClient>(new TestHttpClient()));
 
     REQUIRE(false == emitter.is_running());
     REQUIRE("http://com.acme.collector/com.snowplowanalytics.snowplow/tp2" == emitter.get_cracked_url().to_string());
@@ -81,7 +82,7 @@ TEST_CASE("emitter") {
     emitter.flush();
     REQUIRE(false == emitter.is_running());
 
-    Emitter emitter_1("com.acme.collector", Emitter::Method::GET, Emitter::Protocol::HTTPS, 500, 52000, 51000, "test-emitter.db");
+    Emitter emitter_1("com.acme.collector", Emitter::Method::GET, Emitter::Protocol::HTTPS, 500, 52000, 51000, "test-emitter.db", unique_ptr<IHttpClient>(new TestHttpClient()));
 
     REQUIRE(false == emitter_1.is_running());
     REQUIRE("https://com.acme.collector/i" == emitter_1.get_cracked_url().to_string());
@@ -92,7 +93,7 @@ TEST_CASE("emitter") {
 
     bool inv_argument_empty_uri = false;
     try {
-      Emitter emitter_2("", Emitter::Method::GET, Emitter::Protocol::HTTPS, 500, 52000, 51000, "test-emitter.db");
+      Emitter emitter_2("", Emitter::Method::GET, Emitter::Protocol::HTTPS, 500, 52000, 51000, "test-emitter.db", unique_ptr<IHttpClient>(new TestHttpClient()));
     } catch (invalid_argument) {
       inv_argument_empty_uri = true;
     }
@@ -100,7 +101,7 @@ TEST_CASE("emitter") {
 
     bool inv_argument_bad_url = false;
     try {
-      Emitter emitter_3("../:random../gibber", Emitter::Method::GET, Emitter::Protocol::HTTPS, 500, 52000, 51000, "test-emitter.db");
+      Emitter emitter_3("../:random../gibber", Emitter::Method::GET, Emitter::Protocol::HTTPS, 500, 52000, 51000, "test-emitter.db", unique_ptr<IHttpClient>(new TestHttpClient()));
     } catch (invalid_argument) {
       inv_argument_bad_url = true;
     }
@@ -110,7 +111,7 @@ TEST_CASE("emitter") {
 #if defined(SNOWPLOW_TEST_SUITE)
 
   SECTION("Emitter should track and remove only successful events from the database for GET requests") {
-    Emitter e("com.acme.collector", Emitter::Method::GET, Emitter::Protocol::HTTPS, 500, 52000, 52000, "test-emitter.db");
+    Emitter e("com.acme.collector", Emitter::Method::GET, Emitter::Protocol::HTTPS, 500, 52000, 52000, "test-emitter.db", unique_ptr<IHttpClient>(new TestHttpClient()));
     e.start();
 
     Payload p;
@@ -121,7 +122,7 @@ TEST_CASE("emitter") {
     }
     e.flush();
 
-    list<HttpClientTest::Request> requests = HttpClientTest::get_requests_list();
+    list<TestHttpClient::Request> requests = TestHttpClient::get_requests_list();
     REQUIRE(0 != requests.size());
 
     list<Storage::EventRow> *event_list = new list<Storage::EventRow>;
@@ -129,7 +130,7 @@ TEST_CASE("emitter") {
     REQUIRE(0 == event_list->size());
     event_list->clear();
 
-    HttpClientTest::set_http_response_code(404);
+    TestHttpClient::set_http_response_code(404);
     e.start();
 
     for (int i = 0; i < 10; i++) {
@@ -142,12 +143,12 @@ TEST_CASE("emitter") {
     event_list->clear();
 
     e.stop();
-    HttpClientTest::reset();
+    TestHttpClient::reset();
     delete (event_list);
   }
 
   SECTION("Emitter should track and remove only successful events from the database for POST requests") {
-    Emitter e("com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 500, 500, "test-emitter.db");
+    Emitter e("com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 500, 500, "test-emitter.db", unique_ptr<IHttpClient>(new TestHttpClient()));
     e.start();
 
     Payload p;
@@ -158,7 +159,7 @@ TEST_CASE("emitter") {
     }
     e.flush();
 
-    list<HttpClientTest::Request> requests = HttpClientTest::get_requests_list();
+    list<TestHttpClient::Request> requests = TestHttpClient::get_requests_list();
     REQUIRE(0 != requests.size());
 
     list<Storage::EventRow> *event_list = new list<Storage::EventRow>;
@@ -167,7 +168,7 @@ TEST_CASE("emitter") {
     event_list->clear();
 
     // Test POST 404 response
-    HttpClientTest::set_http_response_code(404);
+    TestHttpClient::set_http_response_code(404);
     e.start();
 
     for (int i = 0; i < 10; i++) {
@@ -180,7 +181,7 @@ TEST_CASE("emitter") {
     event_list->clear();
 
     e.stop();
-    HttpClientTest::reset();
+    TestHttpClient::reset();
 
     // Test POST combination logic
     for (int i = 0; i < 1000; i++) {
@@ -198,7 +199,7 @@ TEST_CASE("emitter") {
     p.add("tv", "pvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpv");
     e.add(p);
 
-    HttpClientTest::set_http_response_code(404);
+    TestHttpClient::set_http_response_code(404);
     e.start();
     e.flush();
 
@@ -207,7 +208,7 @@ TEST_CASE("emitter") {
     REQUIRE(0 == event_list->size());
     event_list->clear();
 
-    HttpClientTest::reset();
+    TestHttpClient::reset();
     delete (event_list);
   }
 

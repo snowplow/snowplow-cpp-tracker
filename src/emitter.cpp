@@ -12,30 +12,33 @@ See the Apache License Version 2.0 for the specific language governing permissio
 */
 
 #include "emitter.hpp"
-#include "http_client_test.hpp"
-#include "http_client_apple.hpp"
-#include "http_client_windows.hpp"
 
 using namespace snowplow;
 using std::invalid_argument;
 using std::lock_guard;
 using std::stringstream;
 using std::unique_lock;
+using std::unique_ptr;
 
 const int post_wrapper_bytes = 88; // "schema":"iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-4","data":[]
 const int post_stm_bytes = 22;     // "stm":"1443452851000"
 
-std::unique_ptr<IHttpClient> createDefaultHttpClient() {
-#if defined(SNOWPLOW_TEST_SUITE)
-  return std::unique_ptr<IHttpClient>(new HttpClientTest());
-#elif defined(__APPLE__)
-  return std::unique_ptr<IHttpClient>(new HttpClientApple());
-#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-  return std::unique_ptr<IHttpClient>(new HttpClientWindows());
-#else
-  throw std::invalid_argument("No supported HTTP client");
-#endif
+#if defined(__APPLE__)
+#include "http_client_apple.hpp"
+unique_ptr<IHttpClient> createDefaultHttpClient() {
+  return unique_ptr<IHttpClient>(new HttpClientApple());
 }
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+#include "http_client_windows.hpp"
+unique_ptr<IHttpClient> createDefaultHttpClient() {
+  return unique_ptr<IHttpClient>(new HttpClientWindows());
+}
+#else
+#include "http_client_curl.hpp"
+unique_ptr<IHttpClient> createDefaultHttpClient() {
+  return unique_ptr<IHttpClient>(new HttpClientCurl());
+}
+#endif
 
 Emitter::Emitter(const string &uri, Method method, Protocol protocol, int send_limit,
                  int byte_limit_post, int byte_limit_get, const string &db_name) : Emitter(uri, method, protocol, send_limit, byte_limit_post, byte_limit_get, db_name, createDefaultHttpClient()) {

@@ -42,6 +42,7 @@ OBJCXX := c++
 CCFLAGS := -Werror -g
 CXXFLAGS := -std=c++11 -Werror -g -D SNOWPLOW_TEST_SUITE --coverage -O0
 LDFLAGS := -framework CoreFoundation -framework CFNetwork -framework Foundation -framework CoreServices
+LDLIBS := -lcurl
 
 # Building
 

@@ -107,9 +107,7 @@
     <ClCompile Include="src\client_session.cpp" />
     <ClCompile Include="src\cracked_url.cpp" />
     <ClCompile Include="src\emitter.cpp" />
-    <ClCompile Include="src\http_client_apple.cpp" />
     <ClCompile Include="src\http_client_windows.cpp" />
-    <ClCompile Include="src\http_client_test.cpp" />
     <ClCompile Include="src\http_request_result.cpp" />
     <ClCompile Include="src\payload.cpp" />
     <ClCompile Include="src\self_describing_json.cpp" />
@@ -117,6 +115,7 @@
     <ClCompile Include="src\subject.cpp" />
     <ClCompile Include="src\tracker.cpp" />
     <ClCompile Include="src\utils.cpp" />
+    <ClCompile Include="test\test_http_client.cpp" />
     <ClCompile Include="test\client_session_test.cpp" />
     <ClCompile Include="test\cracked_url_test.cpp" />
     <ClCompile Include="test\emitter_test.cpp" />
@@ -139,9 +138,7 @@
     <ClInclude Include="src\cracked_url.hpp" />
     <ClInclude Include="src\emitter.hpp" />
     <ClInclude Include="src\ihttp_client.hpp" />
-    <ClInclude Include="src\http_client_apple.hpp" />
     <ClInclude Include="src\http_client_windows.hpp" />
-    <ClInclude Include="src\http_client_test.hpp" />
     <ClInclude Include="src\http_request_result.hpp" />
     <ClInclude Include="src\payload.hpp" />
     <ClInclude Include="src\self_describing_json.hpp" />
@@ -149,6 +146,7 @@
     <ClInclude Include="src\subject.hpp" />
     <ClInclude Include="src\tracker.hpp" />
     <ClInclude Include="src\utils.hpp" />
+    <ClInclude Include="test\test_http_client.hpp" />
     <ClInclude Include="test\catch.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
