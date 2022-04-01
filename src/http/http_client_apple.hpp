@@ -27,7 +27,9 @@ using std::mutex;
 
 namespace snowplow {
 /**
- * @brief HTTP client for making requests to Snowplow Collector. To be used internally within tracker only.
+ * @brief HTTP client for making requests to Snowplow Collector using Apple Core Foundation APIs.
+ * 
+ * This HTTP client is only compatible with Apple operating systems.
  */
 class HttpClientApple : public HttpClient {
 public:

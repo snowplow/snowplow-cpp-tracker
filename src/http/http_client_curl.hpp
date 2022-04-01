@@ -27,7 +27,9 @@ using std::mutex;
 
 namespace snowplow {
 /**
- * @brief HTTP client for making requests to Snowplow Collector. To be used internally within tracker only.
+ * @brief HTTP client that uses the Curl library for making requests to Snowplow Collector.
+ * 
+ * This HTTP client supports Unix systems with the curl library installed.
  */
 class HttpClientCurl : public HttpClient {
 public:

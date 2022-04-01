@@ -29,7 +29,9 @@ using std::list;
 
 namespace snowplow {
 /**
- * @brief HTTP client for making requests to Snowplow Collector. To be used internally within tracker only.
+ * @brief HTTP client for making requests to Snowplow Collector using Windows APIs.
+ * 
+ * This HTTP client is only compatible with Windows.
  */
 class HttpClientWindows : public HttpClient {
 public:
