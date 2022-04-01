@@ -13,7 +13,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #if defined(__APPLE__)
 #include "http_client_apple.hpp"
-#include "constants.hpp"
+#include "../constants.hpp"
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <CFNetwork/CFNetwork.h>

@@ -25,9 +25,9 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "storage.hpp"
 #include "payload.hpp"
 #include "self_describing_json.hpp"
-#include "http_request_result.hpp"
 #include "cracked_url.hpp"
-#include "http_client.hpp"
+#include "http/http_request_result.hpp"
+#include "http/http_client.hpp"
 
 using std::string;
 using std::thread;

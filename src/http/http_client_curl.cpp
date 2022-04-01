@@ -13,7 +13,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #if !defined(WIN32) && !defined(_WIN32) && !defined(__WIN32) || defined(__CYGWIN__)
 #include "http_client_curl.hpp"
-#include "constants.hpp"
+#include "../constants.hpp"
 #include "curl/curl.h"
 
 using namespace snowplow;
@@ -36,9 +36,7 @@ static size_t write_data(void *data, size_t byte_size, size_t n_bytes, std::stri
 }
 
 HttpRequestResult HttpClientCurl::http_request(const RequestMethod method, CrackedUrl url, const string &query_string, const string &post_data, list<int> row_ids, bool oversize) {
-  CURL *curl;
-  CURLcode res;
-  curl = curl_easy_init();
+  CURL *curl = curl_easy_init();
 
   if (curl) {
     // create the request
@@ -64,7 +62,7 @@ HttpRequestResult HttpClientCurl::http_request(const RequestMethod method, Crack
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
 
     // send the request
-    res = curl_easy_perform(curl);
+    CURLcode res = curl_easy_perform(curl);
     long status_code;
     if (res == CURLE_OK) {
       curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &status_code);

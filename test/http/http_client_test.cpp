@@ -12,7 +12,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 */
 
 #include "test_http_client.hpp"
-#include "catch.hpp"
+#include "../catch.hpp"
 
 using namespace snowplow;
 

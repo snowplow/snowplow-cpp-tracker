@@ -24,10 +24,10 @@
     <ClCompile Include="src\emitter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\http_client_windows.cpp">
+    <ClCompile Include="src\http\http_client_windows.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\http_request_result.cpp">
+    <ClCompile Include="src\http\http_request_result.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\payload.cpp">
@@ -71,13 +71,13 @@
     <ClInclude Include="src\emitter.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\http_client.hpp">
+    <ClInclude Include="src\http\http_client.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\http_client_windows.hpp">
+    <ClInclude Include="src\http\http_client_windows.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\http_request_result.hpp">
+    <ClInclude Include="src\http\http_request_result.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\payload.hpp">

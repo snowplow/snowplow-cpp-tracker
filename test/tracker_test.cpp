@@ -15,7 +15,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../include/json.hpp"
 #include "../src/emitter.hpp"
 #include "../src/tracker.hpp"
-#include "test_http_client.hpp"
+#include "http/test_http_client.hpp"
 #include "catch.hpp"
 
 using namespace snowplow;

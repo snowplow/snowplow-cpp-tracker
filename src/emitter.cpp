@@ -24,17 +24,17 @@ const int post_wrapper_bytes = 88; // "schema":"iglu:com.snowplowanalytics.snowp
 const int post_stm_bytes = 22;     // "stm":"1443452851000"
 
 #if defined(__APPLE__)
-#include "http_client_apple.hpp"
+#include "http/http_client_apple.hpp"
 unique_ptr<HttpClient> createDefaultHttpClient() {
   return unique_ptr<HttpClient>(new HttpClientApple());
 }
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-#include "http_client_windows.hpp"
+#include "http/http_client_windows.hpp"
 unique_ptr<HttpClient> createDefaultHttpClient() {
   return unique_ptr<HttpClient>(new HttpClientWindows());
 }
 #else
-#include "http_client_curl.hpp"
+#include "http/http_client_curl.hpp"
 unique_ptr<HttpClient> createDefaultHttpClient() {
   return unique_ptr<HttpClient>(new HttpClientCurl());
 }

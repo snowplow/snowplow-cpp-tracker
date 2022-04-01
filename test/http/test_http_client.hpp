@@ -14,7 +14,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #ifndef HTTP_CLIENT_TEST_H
 #define HTTP_CLIENT_TEST_H
 
-#include "../src/http_client.hpp"
+#include "../../src/http/http_client.hpp"
 
 #include <mutex>
 
