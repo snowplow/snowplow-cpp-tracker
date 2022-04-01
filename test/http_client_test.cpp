@@ -16,8 +16,6 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 using namespace snowplow;
 
-#if defined(SNOWPLOW_TEST_SUITE)
-
 #define HTTP_TEST_URL_GET "http://com.acme.collector/i"
 #define HTTP_TEST_URL_POST "http://com.acme.collector/com.snowplowanalytics.snowplow/tp2"
 
@@ -68,5 +66,3 @@ TEST_CASE("http_client") {
     REQUIRE(false == req.oversize);
   }
 }
-
-#endif

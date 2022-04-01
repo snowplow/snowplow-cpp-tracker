@@ -14,7 +14,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #ifndef HTTP_CLIENT_TEST_H
 #define HTTP_CLIENT_TEST_H
 
-#include "../src/ihttp_client.hpp"
+#include "../src/http_client.hpp"
 
 #include <mutex>
 
@@ -26,7 +26,7 @@ namespace snowplow {
 /**
  * @brief HTTP client for making requests to Snowplow Collector. To be used internally within tracker only.
  */
-class TestHttpClient : public IHttpClient {
+class TestHttpClient : public HttpClient {
 public:
   ~TestHttpClient() {}
 

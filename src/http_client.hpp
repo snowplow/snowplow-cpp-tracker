@@ -11,8 +11,8 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#ifndef IHTTP_CLIENT_H
-#define IHTTP_CLIENT_H
+#ifndef HTTP_CLIENT_H
+#define HTTP_CLIENT_H
 
 #include <string>
 #include "cracked_url.hpp"
@@ -23,13 +23,13 @@ using std::list;
 
 namespace snowplow {
 /**
- * @brief HTTP client for making requests to Snowplow Collector. To be used internally within tracker only.
+ * @brief Abstract base class for HTTP client for making requests to Snowplow Collector. It is used by Emitter.
  */
-class IHttpClient {
+class HttpClient {
 public:
   enum RequestMethod { POST, GET };
 
-  virtual ~IHttpClient() {}
+  virtual ~HttpClient() {}
 
   HttpRequestResult http_post(const CrackedUrl url, const string &post_data, list<int> row_ids, bool oversize) {
     return http_request(POST, url, "", post_data, row_ids, oversize);

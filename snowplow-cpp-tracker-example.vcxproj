@@ -120,7 +120,7 @@
     <ClInclude Include="src\constants.hpp" />
     <ClInclude Include="src\cracked_url.hpp" />
     <ClInclude Include="src\emitter.hpp" />
-    <ClInclude Include="src\ihttp_client.hpp" />
+    <ClInclude Include="src\http_client.hpp" />
     <ClInclude Include="src\http_client_windows.hpp" />
     <ClInclude Include="src\http_request_result.hpp" />
     <ClInclude Include="src\payload.hpp" />

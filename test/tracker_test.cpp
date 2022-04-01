@@ -33,7 +33,7 @@ TEST_CASE("tracker") {
     vector<Payload> m_payloads;
 
   public:
-    MockEmitter() : Emitter("com.acme", Emitter::Method::POST, Emitter::Protocol::HTTP, 0, 0, 0, "test-tracker.db", unique_ptr<IHttpClient>(new TestHttpClient())) {}
+    MockEmitter() : Emitter("com.acme", Emitter::Method::POST, Emitter::Protocol::HTTP, 0, 0, 0, "test-tracker.db", unique_ptr<HttpClient>(new TestHttpClient())) {}
     void start() { m_started = true; }
     void stop() { m_started = false; }
     void add(Payload payload) { m_payloads.push_back(payload); }

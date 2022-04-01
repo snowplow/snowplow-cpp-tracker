@@ -15,7 +15,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #define HTTP_CLIENT_APPLE_H
 #if defined(__APPLE__)
 
-#include "ihttp_client.hpp"
+#include "http_client.hpp"
 
 #include <string>
 
@@ -29,7 +29,7 @@ namespace snowplow {
 /**
  * @brief HTTP client for making requests to Snowplow Collector. To be used internally within tracker only.
  */
-class HttpClientApple : public IHttpClient {
+class HttpClientApple : public HttpClient {
 public:
   ~HttpClientApple() {}
 

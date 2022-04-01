@@ -16,7 +16,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 
 #include <string>
-#include "ihttp_client.hpp"
+#include "http_client.hpp"
 
 #include <windows.h>
 #include <WinInet.h>
@@ -31,7 +31,7 @@ namespace snowplow {
 /**
  * @brief HTTP client for making requests to Snowplow Collector. To be used internally within tracker only.
  */
-class HttpClientWindows : public IHttpClient {
+class HttpClientWindows : public HttpClient {
 public:
   static const string TRACKER_AGENT;
 

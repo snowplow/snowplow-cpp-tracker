@@ -15,7 +15,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #define HTTP_CLIENT_CURL_H
 #if !defined(WIN32) && !defined(_WIN32) && !defined(__WIN32) || defined(__CYGWIN__)
 
-#include "ihttp_client.hpp"
+#include "http_client.hpp"
 
 #include <string>
 
@@ -29,7 +29,7 @@ namespace snowplow {
 /**
  * @brief HTTP client for making requests to Snowplow Collector. To be used internally within tracker only.
  */
-class HttpClientCurl : public IHttpClient {
+class HttpClientCurl : public HttpClient {
 public:
   HttpClientCurl();
   ~HttpClientCurl();

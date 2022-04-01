@@ -25,18 +25,18 @@ const int post_stm_bytes = 22;     // "stm":"1443452851000"
 
 #if defined(__APPLE__)
 #include "http_client_apple.hpp"
-unique_ptr<IHttpClient> createDefaultHttpClient() {
-  return unique_ptr<IHttpClient>(new HttpClientApple());
+unique_ptr<HttpClient> createDefaultHttpClient() {
+  return unique_ptr<HttpClient>(new HttpClientApple());
 }
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 #include "http_client_windows.hpp"
-unique_ptr<IHttpClient> createDefaultHttpClient() {
-  return unique_ptr<IHttpClient>(new HttpClientWindows());
+unique_ptr<HttpClient> createDefaultHttpClient() {
+  return unique_ptr<HttpClient>(new HttpClientWindows());
 }
 #else
 #include "http_client_curl.hpp"
-unique_ptr<IHttpClient> createDefaultHttpClient() {
-  return unique_ptr<IHttpClient>(new HttpClientCurl());
+unique_ptr<HttpClient> createDefaultHttpClient() {
+  return unique_ptr<HttpClient>(new HttpClientCurl());
 }
 #endif
 
@@ -45,7 +45,7 @@ Emitter::Emitter(const string &uri, Method method, Protocol protocol, int send_l
 }
 
 Emitter::Emitter(const string &uri, Method method, Protocol protocol, int send_limit,
-                 int byte_limit_post, int byte_limit_get, const string &db_name, unique_ptr<IHttpClient> http_client) : m_url(this->get_collector_url(uri, protocol, method)) {
+                 int byte_limit_post, int byte_limit_get, const string &db_name, unique_ptr<HttpClient> http_client) : m_url(this->get_collector_url(uri, protocol, method)) {
 
   Storage::init(db_name);
 
@@ -177,8 +177,8 @@ void Emitter::do_send(list<Storage::EventRow> *event_rows, list<HttpRequestResul
       string query_string = Utils::map_to_query_string(event_payload.get());
       list<int> row_id = {it->id};
 
-      request_futures.push_back(std::async(&IHttpClient::http_get, this->m_http_client.get(), this->m_url, query_string, row_id, (query_string.size() > this->m_byte_limit_get)));
-      request_futures.push_back(std::async(&IHttpClient::http_get, this->m_http_client.get(), this->m_url, query_string, row_id, (query_string.size() > this->m_byte_limit_get)));
+      request_futures.push_back(std::async(&HttpClient::http_get, this->m_http_client.get(), this->m_url, query_string, row_id, (query_string.size() > this->m_byte_limit_get)));
+      request_futures.push_back(std::async(&HttpClient::http_get, this->m_http_client.get(), this->m_url, query_string, row_id, (query_string.size() > this->m_byte_limit_get)));
     }
   } else {
     list<int> row_ids;
@@ -192,13 +192,13 @@ void Emitter::do_send(list<Storage::EventRow> *event_rows, list<HttpRequestResul
         // A single payload has exceeded the Byte Limit
         list<int> single_row_id = {it->id};
         list<Payload> single_payload = {it->event};
-        request_futures.push_back(std::async(&IHttpClient::http_post, this->m_http_client.get(), this->m_url, this->build_post_data_json(single_payload), single_row_id, true));
+        request_futures.push_back(std::async(&HttpClient::http_post, this->m_http_client.get(), this->m_url, this->build_post_data_json(single_payload), single_row_id, true));
 
         single_row_id.clear();
         single_payload.clear();
       } else if ((total_byte_size + byte_size + post_wrapper_bytes + (payloads.size() - 1)) > this->m_byte_limit_post) {
         // Byte limit reached
-        request_futures.push_back(std::async(&IHttpClient::http_post, this->m_http_client.get(), this->m_url, this->build_post_data_json(payloads), row_ids, false));
+        request_futures.push_back(std::async(&HttpClient::http_post, this->m_http_client.get(), this->m_url, this->build_post_data_json(payloads), row_ids, false));
 
         // Reset accumulators
         row_ids.clear();
@@ -214,7 +214,7 @@ void Emitter::do_send(list<Storage::EventRow> *event_rows, list<HttpRequestResul
     }
 
     if (payloads.size() > 0) {
-      request_futures.push_back(std::async(&IHttpClient::http_post, this->m_http_client.get(), this->m_url, this->build_post_data_json(payloads), row_ids, false));
+      request_futures.push_back(std::async(&HttpClient::http_post, this->m_http_client.get(), this->m_url, this->build_post_data_json(payloads), row_ids, false));
     }
   }
 

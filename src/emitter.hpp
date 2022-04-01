@@ -27,7 +27,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "self_describing_json.hpp"
 #include "http_request_result.hpp"
 #include "cracked_url.hpp"
-#include "ihttp_client.hpp"
+#include "http_client.hpp"
 
 using std::string;
 using std::thread;
@@ -99,7 +99,7 @@ public:
    * @param http_client Unique pointer to a custom HTTP client to send GET and POST requests with
    */
   Emitter(const string & uri, Method method, Protocol protocol, int send_limit, 
-    int byte_limit_post, int byte_limit_get, const string & db_name, unique_ptr<IHttpClient> http_client);
+    int byte_limit_post, int byte_limit_get, const string & db_name, unique_ptr<HttpClient> http_client);
   ~Emitter();
 
   /**
@@ -169,7 +169,7 @@ public:
 private:
   CrackedUrl m_url;
   Method m_method;
-  unique_ptr<IHttpClient> m_http_client;
+  unique_ptr<HttpClient> m_http_client;
   unsigned int m_send_limit;
   unsigned int m_byte_limit_get;
   unsigned int m_byte_limit_post;

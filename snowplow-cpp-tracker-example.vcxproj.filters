@@ -71,7 +71,7 @@
     <ClInclude Include="src\emitter.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ihttp_client.hpp">
+    <ClInclude Include="src\http_client.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\http_client_windows.hpp">
