@@ -37,45 +37,42 @@ static size_t write_data(void *data, size_t byte_size, size_t n_bytes, std::stri
 
 HttpRequestResult HttpClientCurl::http_request(const RequestMethod method, CrackedUrl url, const string &query_string, const string &post_data, list<int> row_ids, bool oversize) {
   CURL *curl = curl_easy_init();
+  if (!curl) { return HttpRequestResult(1, -1, row_ids, oversize); }
 
-  if (curl) {
-    // create the request
-    std::ostringstream full_url_stream;
-    full_url_stream << url.to_string();
+  // create the request
+  std::ostringstream full_url_stream;
+  full_url_stream << url.to_string();
 
-    struct curl_slist *headers = NULL;
-    headers = curl_slist_append(headers, ("User-Agent: " + TRACKER_AGENT).c_str());
-    headers = curl_slist_append(headers, "Connection: keep-alive");
+  struct curl_slist *headers = NULL;
+  headers = curl_slist_append(headers, ("User-Agent: " + TRACKER_AGENT).c_str());
+  headers = curl_slist_append(headers, "Connection: keep-alive");
 
-    if (method == GET) {
-      full_url_stream << '?' << query_string;
-      curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
-    } else {
-      curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_data.c_str());
-      headers = curl_slist_append(headers, ("Content-Type: " + SNOWPLOW_POST_CONTENT_TYPE).c_str());
-    }
-
-    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-
-    std::string full_url = full_url_stream.str();
-    curl_easy_setopt(curl, CURLOPT_URL, full_url.c_str());
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
-
-    // send the request
-    CURLcode res = curl_easy_perform(curl);
-    long status_code;
-    if (res == CURLE_OK) {
-      curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &status_code);
-    }
-    
-    // cleanup
-    curl_easy_cleanup(curl);
-    curl_slist_free_all(headers);
-
-    return HttpRequestResult(0, status_code, row_ids, oversize);
+  if (method == GET) {
+    full_url_stream << '?' << query_string;
+    curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
+  } else {
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_data.c_str());
+    headers = curl_slist_append(headers, ("Content-Type: " + SNOWPLOW_POST_CONTENT_TYPE).c_str());
   }
 
-  return HttpRequestResult(1, -1, row_ids, oversize);
+  curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+  std::string full_url = full_url_stream.str();
+  curl_easy_setopt(curl, CURLOPT_URL, full_url.c_str());
+  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+
+  // send the request
+  CURLcode res = curl_easy_perform(curl);
+  long status_code;
+  if (res == CURLE_OK) {
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &status_code);
+  }
+  
+  // cleanup
+  curl_easy_cleanup(curl);
+  curl_slist_free_all(headers);
+
+  return HttpRequestResult(0, status_code, row_ids, oversize);
 }
 
 #endif
