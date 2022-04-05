@@ -21,7 +21,7 @@ using std::string;
 
 class MuteEmitter : public Emitter {
 public:
-   MuteEmitter(const string &db_name) : Emitter("127.0.0.1:9090", Emitter::Method::POST, Emitter::Protocol::HTTP, 52000, 52000, 500, db_name) {}
+   MuteEmitter(const string &db_name) : Emitter("127.0.0.1:9090", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 52000, db_name) {}
 
    void start() {}
    void stop() {}

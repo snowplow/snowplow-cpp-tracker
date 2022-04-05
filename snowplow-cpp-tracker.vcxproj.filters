@@ -24,10 +24,10 @@
     <ClCompile Include="src\emitter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\http_client.cpp">
+    <ClCompile Include="src\http\http_client_windows.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\http_request_result.cpp">
+    <ClCompile Include="src\http\http_request_result.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\payload.cpp">
@@ -54,6 +54,9 @@
     <ClCompile Include="include\sqlite3.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="test\http\test_http_client.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="test\client_session_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -63,10 +66,10 @@
     <ClCompile Include="test\emitter_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="test\http_client_test.cpp">
+    <ClCompile Include="test\http\http_client_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="test\http_request_result_test.cpp">
+    <ClCompile Include="test\http\http_request_result_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="test\main.cpp">
@@ -104,10 +107,13 @@
     <ClInclude Include="src\emitter.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\http_client.hpp">
+    <ClInclude Include="src\http\http_client.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\http_request_result.hpp">
+    <ClInclude Include="src\http\http_client_windows.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\http\http_request_result.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\payload.hpp">
@@ -137,8 +143,11 @@
     <ClInclude Include="include\json.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="test\catch.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <clinclude include="test\catch.hpp">
+      <filter>header files</filter>
+    </clinclude>
+    <clinclude include="test\http\test_http_client.hpp">
+      <filter>header files</filter>
+    </clinclude>
   </ItemGroup>
 </Project>

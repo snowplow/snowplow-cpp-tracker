@@ -25,14 +25,15 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "storage.hpp"
 #include "payload.hpp"
 #include "self_describing_json.hpp"
-#include "http_client.hpp"
-#include "http_request_result.hpp"
 #include "cracked_url.hpp"
+#include "http/http_request_result.hpp"
+#include "http/http_client.hpp"
 
 using std::string;
 using std::thread;
 using std::condition_variable;
 using std::mutex;
+using std::unique_ptr;
 
 namespace snowplow {
 /**
@@ -46,6 +47,10 @@ namespace snowplow {
  * 4. The emitter will send all of these events as determined by the Request, Protocol and ByteLimits
  *    - Each request is sent in its thread.
  * 5. Once sent it will process the results of all the requests sent and will remove all successfully sent events from the database
+ * 
+ * You may optionally configure the HTTP client to be used to make HTTP requests to the collector.
+ * This is done by passing a unique pointer to a class inheriting from `HttpClient` that the Emitter will take ownership of.
+ * If not configured, the Emitter will use the built-in `HttpClientWindows` on Windows, `HttpClientApple` on Apple operating systems, and `HttpClientCurl` on other Unix systems.
  */
 class Emitter {
 public:
@@ -67,10 +72,10 @@ public:
 
   /**
    * @brief Construct a new Emitter object
-   * 
+   *
    * The `db_name` can be any valid path on your host file system (that can be created with the current user).
    * By default it will create the required files wherever the application is being run from.
-   * 
+   *
    * @param uri The URI to send events to
    * @param method The request type to use (GET or POST)
    * @param protocol The protocol to use (http or https)
@@ -81,6 +86,24 @@ public:
    */
   Emitter(const string & uri, Method method, Protocol protocol, int send_limit, 
     int byte_limit_post, int byte_limit_get, const string & db_name);
+
+  /**
+   * @brief Construct a new Emitter object with a custom HTTP client
+   * 
+   * The `db_name` can be any valid path on your host file system (that can be created with the current user).
+   * By default it will create the required files wherever the application is being run from.
+   *
+   * @param uri The URI to send events to
+   * @param method The request type to use (GET or POST)
+   * @param protocol The protocol to use (http or https)
+   * @param send_limit The maximum amount of events to send at a time
+   * @param byte_limit_post The byte limit when sending a POST request
+   * @param byte_limit_get The byte limit when sending a GET request
+   * @param db_name Defines the path and file name of the database
+   * @param http_client Unique pointer to a custom HTTP client to send GET and POST requests with
+   */
+  Emitter(const string & uri, Method method, Protocol protocol, int send_limit, 
+    int byte_limit_post, int byte_limit_get, const string & db_name, unique_ptr<HttpClient> http_client);
   ~Emitter();
 
   /**
@@ -150,6 +173,7 @@ public:
 private:
   CrackedUrl m_url;
   Method m_method;
+  unique_ptr<HttpClient> m_http_client;
   unsigned int m_send_limit;
   unsigned int m_byte_limit_get;
   unsigned int m_byte_limit_post;

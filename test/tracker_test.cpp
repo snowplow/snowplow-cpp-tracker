@@ -15,6 +15,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../include/json.hpp"
 #include "../src/emitter.hpp"
 #include "../src/tracker.hpp"
+#include "http/test_http_client.hpp"
 #include "catch.hpp"
 
 using namespace snowplow;
@@ -32,7 +33,7 @@ TEST_CASE("tracker") {
     vector<Payload> m_payloads;
 
   public:
-    MockEmitter() : Emitter("com.acme", Emitter::Method::POST, Emitter::Protocol::HTTP, 0, 0, 0, "test-tracker.db") {}
+    MockEmitter() : Emitter("com.acme", Emitter::Method::POST, Emitter::Protocol::HTTP, 0, 0, 0, "test-tracker.db", unique_ptr<HttpClient>(new TestHttpClient())) {}
     void start() { m_started = true; }
     void stop() { m_started = false; }
     void add(Payload payload) { m_payloads.push_back(payload); }

@@ -18,9 +18,9 @@ cc-objects := $(patsubst %.c, %.o, $(cc-include-files))
 
 # C++ Files
 
-cxx-src-files := $(shell find src -maxdepth 1 -name "*.cpp")
+cxx-src-files := $(shell find src -maxdepth 2 -name "*.cpp")
 cxx-include-files := $(shell find include -maxdepth 1 -name "*.cpp")
-cxx-test-files := $(shell find test -maxdepth 1 -name "*.cpp")
+cxx-test-files := $(shell find test -maxdepth 2 -name "*.cpp")
 cxx-example-files := $(shell find examples -maxdepth 1 -name "*.cpp")
 cxx-performance-files := $(shell find performance -maxdepth 1 -name "*.cpp")
 
@@ -42,6 +42,7 @@ OBJCXX := c++
 CCFLAGS := -Werror -g
 CXXFLAGS := -std=c++11 -Werror -g -D SNOWPLOW_TEST_SUITE --coverage -O0
 LDFLAGS := -framework CoreFoundation -framework CFNetwork -framework Foundation -framework CoreServices
+LDLIBS := -lcurl
 
 # Building
 
