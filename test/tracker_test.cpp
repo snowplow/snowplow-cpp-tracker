@@ -15,6 +15,10 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../include/json.hpp"
 #include "../src/emitter.hpp"
 #include "../src/tracker.hpp"
+#include "../src/events/structured_event.hpp"
+#include "../src/events/screen_view_event.hpp"
+#include "../src/events/self_describing_event.hpp"
+#include "../src/events/timing_event.hpp"
 #include "http/test_http_client.hpp"
 #include "catch.hpp"
 
@@ -89,8 +93,8 @@ TEST_CASE("tracker") {
 
     Tracker *t = Tracker::init(e, NULL, &cs, &platform, &app_id, &name_space, &base64, &desktop_context);
 
-    Tracker::StructuredEvent sv("hello", "world");
-    t->track_struct_event(sv);
+    StructuredEvent sv("hello", "world");
+    t->track(sv);
 
     vector<Payload> payloads = e.get_added_payloads();
     REQUIRE(payloads.size() == 1);
@@ -107,7 +111,7 @@ TEST_CASE("tracker") {
     Subject s;
     s.set_screen_resolution(1920, 1080);
     Tracker::instance()->set_subject(&s);
-    t->track_struct_event(sv);
+    t->track(sv);
 
     payloads = e.get_added_payloads();
     REQUIRE(payloads.size() == 2);
@@ -124,7 +128,7 @@ TEST_CASE("tracker") {
 
     s.set_screen_resolution(1080, 1920);
     Tracker::instance()->set_subject(&s);
-    t->track_struct_event(sv);
+    t->track(sv);
 
     payloads = e.get_added_payloads();
     REQUIRE(payloads.size() == 3);
@@ -153,9 +157,7 @@ TEST_CASE("tracker") {
 
     REQUIRE(e.is_started() == true);
 
-    vector<SelfDescribingJson> v;
-    Payload p;
-    t->track(p, "eid", v);
+    t->track(StructuredEvent("c", "a"));
 
     vector<Payload> payloads = e.get_added_payloads();
     REQUIRE(payloads.size() == 1);
@@ -182,9 +184,7 @@ TEST_CASE("tracker") {
 
     REQUIRE(e.is_started() == true);
 
-    vector<SelfDescribingJson> v;
-    Payload p;
-    t->track(p, "eid", v);
+    t->track(StructuredEvent("c", "a"));
     vector<Payload> payloads = e.get_added_payloads();
 
     REQUIRE(payloads.size() == 1);
@@ -202,70 +202,54 @@ TEST_CASE("tracker") {
   // --- Event Builders
 
   SECTION("StructuredEvents have appropriate defaults") {
-    unsigned long long time_now = Utils::get_unix_epoch_ms();
-    Tracker::StructuredEvent s("category", "action");
+    StructuredEvent s("category", "action");
     REQUIRE(s.category == "category");
     REQUIRE(s.action == "action");
-    REQUIRE(s.contexts.size() == 0);
-    REQUIRE(s.event_id.size() > 5);
+    REQUIRE(s.get_context().size() == 0);
     REQUIRE(s.label == NULL);
-    REQUIRE(s.timestamp > (time_now - 1000));
-    REQUIRE(s.timestamp < (time_now + 1000));
-    REQUIRE(s.true_timestamp == NULL);
+    REQUIRE(s.get_true_timestamp() == NULL);
     REQUIRE(s.value == NULL);
   }
 
   SECTION("SelfDescribingEvents have appropriate defaults") {
-    unsigned long long time_now = Utils::get_unix_epoch_ms();
     SelfDescribingJson e = SelfDescribingJson("abc", "{\"hello\": \"world\"}"_json);
-    Tracker::SelfDescribingEvent sde(e);
+    SelfDescribingEvent sde(e);
     REQUIRE(sde.event.to_string() == e.to_string());
-    REQUIRE(sde.contexts.size() == 0);
-    REQUIRE(sde.event_id.size() > 5);
-    REQUIRE(sde.timestamp > time_now - 1000);
-    REQUIRE(sde.timestamp < time_now + 1000);
-    REQUIRE(sde.true_timestamp == NULL);
+    REQUIRE(sde.get_context().size() == 0);
+    REQUIRE(sde.get_true_timestamp() == NULL);
   }
 
   SECTION("ScreenViewEvents have appropriate defaults") {
-    unsigned long long time_now = Utils::get_unix_epoch_ms();
-    Tracker::ScreenViewEvent sve;
-    REQUIRE(sve.contexts.size() == 0);
-    REQUIRE(sve.event_id.size() > 5);
+    ScreenViewEvent sve;
+    REQUIRE(sve.get_context().size() == 0);
     REQUIRE(sve.id == NULL);
     REQUIRE(sve.name == NULL);
-    REQUIRE(sve.timestamp > time_now - 1000);
-    REQUIRE(sve.timestamp < time_now + 1000);
-    REQUIRE(sve.true_timestamp == NULL);
+    REQUIRE(sve.get_true_timestamp() == NULL);
   }
 
   SECTION("TimingEvents have appropriate defaults") {
-    unsigned long long time_now = Utils::get_unix_epoch_ms();
-    Tracker::TimingEvent t("cat", "variable", 123);
+    TimingEvent t("cat", "variable", 123);
     REQUIRE(t.category == "cat");
     REQUIRE(t.variable == "variable");
-    REQUIRE(t.timestamp > time_now - 1000);
-    REQUIRE(t.timestamp < time_now + 1000);
-    REQUIRE(t.true_timestamp == NULL);
+    REQUIRE(t.get_true_timestamp() == NULL);
     REQUIRE(t.label == NULL);
     REQUIRE(t.timing == 123);
-    REQUIRE(t.contexts.size() == 0);
-    REQUIRE(t.event_id.size() > 5);
+    REQUIRE(t.get_context().size() == 0);
   }
 
   // --- Event Tracker Functions
 
-  SECTION("track_struct_event generates sane event") {
+  SECTION("track StructuredEvent generates sane event") {
     bool is_arg_exception_empty_category;
     bool is_arg_exception_empty_action;
 
     MockEmitter e;
     Tracker *t = Tracker::init(e, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
-    Tracker::StructuredEvent sv("", "hello");
+    StructuredEvent sv("", "hello");
 
     try {
-      t->track_struct_event(sv);
+      t->track(sv);
     } catch (invalid_argument) {
       is_arg_exception_empty_category = true;
     }
@@ -274,7 +258,7 @@ TEST_CASE("tracker") {
     sv.category = "hello";
 
     try {
-      t->track_struct_event(sv);
+      t->track(sv);
     } catch (invalid_argument) {
       is_arg_exception_empty_action = true;
     }
@@ -286,7 +270,7 @@ TEST_CASE("tracker") {
     sv.action = "action";
     sv.category = "category";
 
-    t->track_struct_event(sv);
+    t->track(sv);
 
     REQUIRE(e.get_added_payloads().size() == 1);
 
@@ -303,8 +287,10 @@ TEST_CASE("tracker") {
     REQUIRE(payload[SNOWPLOW_EID].size() > 5);
     REQUIRE(payload.find(SNOWPLOW_TRUE_TIMESTAMP) == payload.end());
 
-    sv.contexts = vector<SelfDescribingJson>();
-    sv.contexts.push_back(SelfDescribingJson("hello", "{\"hello\":\"world\"}"_json));
+    
+    vector<SelfDescribingJson> context;
+    context.push_back(SelfDescribingJson("hello", "{\"hello\":\"world\"}"_json));
+    sv.set_context(context);
     string label = "label";
     sv.label = &label;
     string property = "property";
@@ -312,14 +298,17 @@ TEST_CASE("tracker") {
     double value = 11.11;
     sv.value = &value;
     unsigned long long ts = Utils::get_unix_epoch_ms();
-    sv.true_timestamp = &ts;
+    sv.set_true_timestamp(&ts);
 
-    t->track_struct_event(sv);
+    t->track(sv);
     auto new_payload = e.get_added_payloads()[1].get();
 
     REQUIRE(new_payload[SNOWPLOW_TIMESTAMP].size() > 10);
     REQUIRE(new_payload[SNOWPLOW_EID].size() > 5);
     REQUIRE(new_payload[SNOWPLOW_TIMESTAMP].size() > 10);
+    unsigned long long timestamp = std::stoull(new_payload[SNOWPLOW_TIMESTAMP]);
+    REQUIRE(timestamp > (ts - 1000));
+    REQUIRE(timestamp < (ts + 1000));
     REQUIRE(new_payload[SNOWPLOW_SE_LABEL] == "label");
     REQUIRE(new_payload[SNOWPLOW_SE_PROPERTY] == "property");
     REQUIRE(new_payload[SNOWPLOW_SE_VALUE] == to_string(11.11));
@@ -328,14 +317,14 @@ TEST_CASE("tracker") {
     Tracker::close();
   }
 
-  SECTION("track_screen_view generates sane event") {
+  SECTION("track ScreenViewEvent generates sane event") {
     MockEmitter e;
     Tracker *t = Tracker::init(e, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
-    Tracker::ScreenViewEvent se;
+    ScreenViewEvent se;
     string id = "123";
     se.id = &id;
-    t->track_screen_view(se);
+    t->track(se);
 
     REQUIRE(e.get_added_payloads().size() == 1);
     auto payload = e.get_added_payloads()[0].get();
@@ -362,9 +351,9 @@ TEST_CASE("tracker") {
     string name = "name";
     se.name = &name;
     unsigned long long ttm = Utils::get_unix_epoch_ms();
-    se.true_timestamp = &ttm;
+    se.set_true_timestamp(&ttm);
 
-    t->track_screen_view(se);
+    t->track(se);
     auto new_payload = e.get_added_payloads()[1].get();
 
     REQUIRE(new_payload[SNOWPLOW_TRUE_TIMESTAMP] == to_string(ttm));
@@ -383,7 +372,7 @@ TEST_CASE("tracker") {
     se.name = NULL;
     bool arg_exception_on_no_id_or_name = false;
     try {
-      t->track_screen_view(se);
+      t->track(se);
     } catch (invalid_argument) {
       arg_exception_on_no_id_or_name = true;
     }
@@ -393,12 +382,12 @@ TEST_CASE("tracker") {
     Tracker::close();
   }
 
-  SECTION("track_timing generates a sane event") {
+  SECTION("track TimingEvent generates a sane event") {
     MockEmitter e;
     Tracker *t = Tracker::init(e, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
-    Tracker::TimingEvent te("category", "variable", 123);
-    t->track_timing(te);
+    TimingEvent te("category", "variable", 123);
+    t->track(te);
 
     REQUIRE(e.get_added_payloads().size() == 1);
 
@@ -427,9 +416,9 @@ TEST_CASE("tracker") {
     string label = "hello world";
     te.label = &label;
     unsigned long long ts = Utils::get_unix_epoch_ms();
-    te.true_timestamp = &ts;
+    te.set_true_timestamp(&ts);
 
-    t->track_timing(te);
+    t->track(te);
 
     expected[SNOWPLOW_UT_LABEL] = "hello world";
     auto new_payload = e.get_added_payloads()[1].get();
@@ -442,20 +431,20 @@ TEST_CASE("tracker") {
 
     REQUIRE(base64_decode(new_payload[SNOWPLOW_UNSTRUCTURED_ENCODED]) == json_w_label);
 
-    Tracker::TimingEvent te1("", "", 123);
+    TimingEvent te1("", "", 123);
     bool arg_exception_on_no_category = false;
     try {
-      t->track_timing(te1);
+      t->track(te1);
     } catch (invalid_argument) {
       arg_exception_on_no_category = true;
     }
 
     REQUIRE(arg_exception_on_no_category == true);
 
-    Tracker::TimingEvent te2("category", "", 123);
+    TimingEvent te2("category", "", 123);
     bool arg_exception_on_no_variable = false;
     try {
-      t->track_timing(te2);
+      t->track(te2);
     } catch (invalid_argument) {
       arg_exception_on_no_variable = true;
     }
@@ -465,15 +454,15 @@ TEST_CASE("tracker") {
     Tracker::close();
   }
 
-  SECTION("track_self_describing_event generates a sane event") {
+  SECTION("track SelfDescribingEvent generates a sane event") {
     MockEmitter e;
 
     bool desktop_context = false;
     Tracker *t = Tracker::init(e, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
     SelfDescribingJson sdj("schema", "{ \"hello\":\"world\" }"_json);
-    Tracker::SelfDescribingEvent sde(sdj);
-    t->track_self_describing_event(sde);
+    SelfDescribingEvent sde(sdj);
+    t->track(sde);
 
     REQUIRE(e.get_added_payloads().size() == 1);
 

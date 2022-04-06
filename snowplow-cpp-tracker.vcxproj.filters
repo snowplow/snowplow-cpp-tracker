@@ -30,10 +30,28 @@
     <ClCompile Include="src\http\http_request_result.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\payload.cpp">
+    <ClCompile Include="src\payload\payload.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\self_describing_json.cpp">
+    <ClCompile Include="src\payload\event_payload.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\payload\self_describing_json.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\events\event.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\events\screen_view_event.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\events\self_describing_event.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\events\structured_event.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\events\timing_event.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\storage.cpp">
@@ -75,10 +93,13 @@
     <ClCompile Include="test\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="test\payload_test.cpp">
+    <ClCompile Include="test\payload\payload_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="test\self_describing_json_test.cpp">
+    <ClCompile Include="test\payload\event_payload_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test\payload\self_describing_json_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="test\storage_test.cpp">
@@ -116,11 +137,29 @@
     <ClInclude Include="src\http\http_request_result.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\payload.hpp">
+    <ClInclude Include="src\payload\payload.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\self_describing_json.hpp">
+    <ClInclude Include="src\payload\event_payload.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\payload\self_describing_json.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\events\event.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\events\screen_view_event.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\events\self_describing_event.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\events\structured_event.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\events\timing_event.hpp">
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\storage.hpp">
       <Filter>Header Files</Filter>

@@ -48,14 +48,14 @@ Track custom events (see the documentation for the full list of supported event 
 
 ```cpp
 // structured event
-Tracker::StructuredEvent se("category", "action");
-tracker->track_struct_event(se);
+StructuredEvent se("category", "action");
+tracker->track(se);
 
 // screen view event
-Tracker::ScreenViewEvent sve;
+ScreenViewEvent sve;
 string name = "Screen ID - 5asd56";
 sve.name = &name;
-tracker->track_screen_view(sve);
+tracker->track(sve);
 ```
 
 Check the tracked events in a [Snowplow Micro](https://docs.snowplowanalytics.com/docs/understanding-your-pipeline/what-is-snowplow-micro/) or [Snowplow Mini](https://docs.snowplowanalytics.com/docs/understanding-your-pipeline/what-is-snowplow-mini/) instance.

@@ -24,8 +24,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <chrono>
 #include <cstdint>
 #include <thread>
-#include "self_describing_json.hpp"
-#include "payload.hpp"
+#include "payload/self_describing_json.hpp"
+#include "payload/payload.hpp"
 #include "../include/json.hpp"
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
