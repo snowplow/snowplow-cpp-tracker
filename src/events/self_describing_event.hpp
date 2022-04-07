@@ -35,12 +35,12 @@ public:
   /**
    * @brief Construct a new Self Describing Event object
    *
-   * @param event Main properties of the self-describing event including it's schema and body
+   * @param event Main properties of the self-describing event including its schema and body
    */
   SelfDescribingEvent(const SelfDescribingJson &event);
 
   /**
-   * @brief Main properties of the self-describing event including it's schema and body
+   * @brief Main properties of the self-describing event including its schema and body
    */
   SelfDescribingJson event; // required
 
