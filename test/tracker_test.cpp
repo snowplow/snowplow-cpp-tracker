@@ -82,6 +82,28 @@ TEST_CASE("tracker") {
     Tracker::close();
   }
 
+  SECTION("Tracker returns unique event ID") {
+    MockEmitter e;
+    ClientSession cs("test-tracker.db", 5000, 5000);
+    string platform = "pc";
+    string app_id = "snowplow-test-suite";
+    string name_space = "snowplow-testing";
+    bool base64 = false;
+    bool desktop_context = false;
+
+    Tracker *t = Tracker::init(e, NULL, &cs, &platform, &app_id, &name_space, &base64, &desktop_context);
+
+    StructuredEvent sv("hello", "world");
+    string sv_id_1 = t->track(sv);
+    REQUIRE(sv_id_1.size() > 5);
+
+    string sv_id_2 = t->track(sv);
+    REQUIRE(sv_id_2.size() > 5);
+    REQUIRE(sv_id_1 != sv_id_2);
+
+    Tracker::close();
+  }
+
   SECTION("Tracker controls should provide expected behaviour") {
     MockEmitter e;
     ClientSession cs("test-tracker.db", 5000, 5000);

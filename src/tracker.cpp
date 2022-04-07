@@ -92,7 +92,7 @@ void Tracker::set_subject(Subject *subject) {
 
 // --- Event Tracking
 
-vector<string> Tracker::track(const Event &event) {
+string Tracker::track(const Event &event) {
   EventPayload payload = event.get_payload(m_use_base64);
   vector<SelfDescribingJson> context = event.get_context();
 
@@ -130,8 +130,5 @@ vector<string> Tracker::track(const Event &event) {
   // Add the event to the Emitter
   this->m_emitter.add(payload);
 
-  // Return a vector with the tracked event ID
-  vector<string> event_ids;
-  event_ids.push_back(payload.get_event_id());
-  return event_ids;
+  return payload.get_event_id();
 }

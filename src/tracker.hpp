@@ -79,13 +79,12 @@ public:
    * 
    * A Payload object will be created from the event.
    * This is passed to the configured Emitter.
-   * A vector containing the payload's event ID string (a UUID) is returned.
-   * This will likely contain only a single event ID but may contain more IDs for some event types.
+   * The payload's event ID string (a UUID) is returned.
    * 
    * @param event The event to track
-   * @return Vector of tracked event IDs (most commonly with a single UUID)
+   * @return Tracked event ID
    */
-  vector<string> track(const Event &event);
+  string track(const Event &event);
 
 private:
   static Tracker *m_instance;
