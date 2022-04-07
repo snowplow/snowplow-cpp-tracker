@@ -40,7 +40,7 @@ const string SNOWPLOW_SCHEMA_DESKTOP_CONTEXT = "iglu:com.snowplowanalytics.snowp
 
 // event types
 const string SNOWPLOW_EVENT_STRUCTURED = "se";
-const string SNOWPLOW_EVENT_UNSTRUCTURED = "ue";
+const string SNOWPLOW_EVENT_SELF_DESCRIBING = "ue";
 const string SNOWPLOW_EVENT_PAGE_VIEW = "pv";
 
 const string SNOWPLOW_CONTEXT = "co";

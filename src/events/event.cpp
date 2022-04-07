@@ -41,7 +41,7 @@ EventPayload Event::get_payload(bool use_base64) const {
 
 EventPayload Event::get_self_describing_event_payload(const SelfDescribingJson &event, bool use_base64) const {
   EventPayload p;
-  p.add(SNOWPLOW_EVENT, SNOWPLOW_EVENT_UNSTRUCTURED);
+  p.add(SNOWPLOW_EVENT, SNOWPLOW_EVENT_SELF_DESCRIBING);
 
   SelfDescribingJson sdj(SNOWPLOW_SCHEMA_UNSTRUCT_EVENT, event.get());
   p.add_json(sdj.get(), use_base64, SNOWPLOW_UNSTRUCTURED_ENCODED, SNOWPLOW_UNSTRUCTURED);
