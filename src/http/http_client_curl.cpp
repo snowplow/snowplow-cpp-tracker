@@ -14,12 +14,11 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #if !defined(WIN32) && !defined(_WIN32) && !defined(__WIN32) || defined(__CYGWIN__)
 #include "http_client_curl.hpp"
 #include "../constants.hpp"
-#include "curl/curl.h"
+#include <curl/curl.h>
 
 using namespace snowplow;
 using std::cerr;
 using std::endl;
-using std::lock_guard;
 
 HttpClientCurl::HttpClientCurl() {
   curl_global_init(CURL_GLOBAL_ALL);

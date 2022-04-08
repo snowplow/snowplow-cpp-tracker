@@ -215,30 +215,7 @@ int Utils::get_device_processor_count() {
   return sysinfo.dwNumberOfProcessors;
 }
 
-#elif defined(__APPLE__)
-
-string Utils::get_os_type() {
-  return "macOS";
-}
-
-string Utils::get_os_version() {
-  return get_os_version_objc();
-}
-
-string Utils::get_os_service_pack() {
-  return "";
-}
-
-string Utils::get_device_manufacturer() {
-  return "Apple Inc.";
-}
-
-string Utils::get_device_model() {
-  char str[256];
-  size_t size = sizeof(str);
-  int ret = sysctlbyname("hw.model", str, &size, NULL, 0);
-  return str;
-}
+#else
 
 bool Utils::get_os_is_64bit() {
 #if INTPTR_MAX == INT64_MAX
@@ -252,4 +229,54 @@ int Utils::get_device_processor_count() {
   return std::thread::hardware_concurrency();
 }
 
+string Utils::get_os_service_pack() {
+  return "";
+}
+
+#if defined(__APPLE__)
+
+string Utils::get_os_type() {
+  return "macOS";
+}
+
+string Utils::get_os_version() {
+  return get_os_version_objc();
+}
+
+string Utils::get_device_manufacturer() {
+  return "Apple Inc.";
+}
+
+string Utils::get_device_model() {
+  char str[256];
+  size_t size = sizeof(str);
+  int ret = sysctlbyname("hw.model", str, &size, NULL, 0);
+  return str;
+}
+
+#else
+
+#include <sys/utsname.h>
+
+string Utils::get_os_type() {
+  utsname info;
+  uname(&info);
+  return info.sysname; // e.g., Linux
+}
+
+string Utils::get_os_version() {
+  utsname info;
+  uname(&info);
+  return info.version; // e.g., #26~20.04.1-Ubuntu SMP Sat Jan 8 18:05:46 UTC 2022
+}
+
+string Utils::get_device_manufacturer() {
+  return "";
+}
+
+string Utils::get_device_model() {
+  return "";
+}
+
+#endif
 #endif
