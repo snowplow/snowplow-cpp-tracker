@@ -12,11 +12,18 @@ Snowplow C++ tracker enables you to add analytics to your C++ applications, serv
 
 ## Quick Start
 
-The tracker currently supports macOS and Windows.
+The tracker supports macOS, Windows, and Linux.
 
 ### Installation
 
 Download the most recent release from the [releases section](https://github.com/snowplow/snowplow-cpp-tracker/releases). Everything in both the `src` and `include` folders will need to be included in your application. It is important to keep the same folder structure as references to the included headers have been done like so: `../include/json.hpp`.
+
+#### Requirements under Linux
+
+The following libraries need to be installed:
+
+* curl (using `apt install libcurl4-openssl-dev` on Ubuntu)
+* uuid (using `apt install uuid-dev` on Ubuntu)
 
 ### Using the tracker
 
@@ -62,7 +69,7 @@ Check the tracked events in a [Snowplow Micro](https://docs.snowplowanalytics.co
 
 ## Developer Quick Start
 
-### Building on macOS
+### Building on macOS and Linux
 
 ```bash
  host> git clone https://github.com/snowplow/snowplow-cpp-tracker
@@ -92,7 +99,7 @@ To run the test suite:
  host> make unit-tests
 ```
 
-If you wish to generate a local code coverage report you will first need to install [lcov](http://ltp.sourceforge.net/coverage/lcov.php) on your host machine.  The easiest way to do this is using [brew](http://brew.sh/):
+If you wish to generate a local code coverage report you will first need to install [lcov](http://ltp.sourceforge.net/coverage/lcov.php) on your host machine.  The easiest way to do this is using [brew](http://brew.sh/) under macOS:
 
 ```bash
  host> brew install lcov 
