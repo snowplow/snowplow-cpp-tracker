@@ -12,8 +12,10 @@ See the Apache License Version 2.0 for the specific language governing permissio
 */
 
 #include "payload.hpp"
+#include "../utils.hpp"
 
 using namespace snowplow;
+using std::to_string;
 
 Payload::~Payload() {
   this->m_pairs.clear();
@@ -32,11 +34,11 @@ void Payload::add_map(map<string, string> pairs) {
   }
 }
 
-void Payload::add_payload(Payload p) {
+void Payload::add_payload(const Payload &p) {
   this->add_map(p.get());
 }
 
-void Payload::add_json(json j, bool base64Encode, const string &encoded, const string &not_encoded) {
+void Payload::add_json(const json &j, bool base64Encode, const string &encoded, const string &not_encoded) {
   if (base64Encode) {
     string json_str = j.dump();
     this->add(encoded, base64_encode((const unsigned char *)json_str.c_str(), json_str.length()));
@@ -45,6 +47,6 @@ void Payload::add_json(json j, bool base64Encode, const string &encoded, const s
   }
 }
 
-map<string, string> Payload::get() {
-  return this->m_pairs;
+map<string, string> Payload::get() const {
+  return m_pairs;
 }

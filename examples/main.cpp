@@ -3,11 +3,17 @@
 #include <time.h>
 
 #include "../src/tracker.hpp"
+#include "../src/events/structured_event.hpp"
+#include "../src/events/timing_event.hpp"
+#include "../src/events/screen_view_event.hpp"
 
 using snowplow::ClientSession;
 using snowplow::Emitter;
 using snowplow::Subject;
 using snowplow::Tracker;
+using snowplow::StructuredEvent;
+using snowplow::ScreenViewEvent;
+using snowplow::TimingEvent;
 using std::cout;
 using std::endl;
 using std::string;
@@ -52,21 +58,21 @@ int main(int argc, char **argv) {
   time(&start);
 
   for (int i = 0; i < 2000; i++) {
-    Tracker::TimingEvent te("timing-cat", "timing-var", 123);
+    TimingEvent te("timing-cat", "timing-var", 123);
 
-    Tracker::ScreenViewEvent sve;
+    ScreenViewEvent sve;
     string name = "Screen ID - 5asd56";
     sve.name = &name;
 
-    Tracker::StructuredEvent se("shop", "add-to-basket");
+    StructuredEvent se("shop", "add-to-basket");
     string property = "pcs";
     double value = 25.6;
     se.property = &property;
     se.value = &value;
 
-    t->track_timing(te);
-    t->track_screen_view(sve);
-    t->track_struct_event(se);
+    t->track(te);
+    t->track(sve);
+    t->track(se);
   }
 
   time(&end);

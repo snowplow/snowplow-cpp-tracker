@@ -16,6 +16,9 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "../src/subject.hpp"
 #include "../src/tracker.hpp"
+#include "../src/events/structured_event.hpp"
+#include "../src/events/timing_event.hpp"
+#include "../src/events/screen_view_event.hpp"
 #include "mock_client_session.hpp"
 #include "mock_emitter.hpp"
 #include "mute_emitter.hpp"
@@ -26,6 +29,9 @@ using snowplow::Emitter;
 using snowplow::Storage;
 using snowplow::Subject;
 using snowplow::Tracker;
+using snowplow::ScreenViewEvent;
+using snowplow::StructuredEvent;
+using snowplow::TimingEvent;
 using std::vector;
 using std::chrono::duration;
 using std::chrono::high_resolution_clock;
@@ -36,21 +42,21 @@ void track_events() {
   Tracker *tracker = Tracker::instance();
 
   for (int i = 0; i < NUM_OPERATIONS; i++) {
-    Tracker::TimingEvent te("timing-cat", "timing-var", 123);
+    TimingEvent te("timing-cat", "timing-var", 123);
 
-    Tracker::ScreenViewEvent sve;
+    ScreenViewEvent sve;
     string name = "Screen ID - 5asd56";
     sve.name = &name;
 
-    Tracker::StructuredEvent se("shop", "add-to-basket");
+    StructuredEvent se("shop", "add-to-basket");
     string property = "pcs";
     double value = 25.6;
     se.property = &property;
     se.value = &value;
 
-    tracker->track_timing(te);
-    tracker->track_screen_view(sve);
-    tracker->track_struct_event(se);
+    tracker->track(te);
+    tracker->track(sve);
+    tracker->track(se);
   }
 }
 

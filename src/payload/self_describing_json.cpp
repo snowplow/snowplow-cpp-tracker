@@ -26,10 +26,10 @@ SelfDescribingJson::~SelfDescribingJson() {
   this->m_json.clear();
 }
 
-json SelfDescribingJson::get() {
+json SelfDescribingJson::get() const {
   return this->m_json;
 }
 
-string SelfDescribingJson::to_string() {
+string SelfDescribingJson::to_string() const {
   return this->m_json.dump();
 }

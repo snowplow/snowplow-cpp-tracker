@@ -16,7 +16,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include <string>
 #include <mutex>
-#include "self_describing_json.hpp"
+#include "payload/self_describing_json.hpp"
 #include "../include/json.hpp"
 
 using std::string;
