@@ -17,6 +17,9 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "event.hpp"
 
 namespace snowplow {
+
+const string SNOWPLOW_SCHEMA_SCREEN_VIEW = "iglu:com.snowplowanalytics.snowplow/screen_view/jsonschema/1-0-0";
+
 /**
  * @brief Event to track user viewing a screen within the application.
  *

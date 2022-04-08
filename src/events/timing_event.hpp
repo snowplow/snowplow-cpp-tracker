@@ -17,6 +17,9 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "event.hpp"
 
 namespace snowplow {
+
+const string SNOWPLOW_SCHEMA_USER_TIMINGS = "iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0";
+
 /**
  * @brief Event used to track user timing events such as how long resources take to load.
  *
