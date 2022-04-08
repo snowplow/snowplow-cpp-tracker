@@ -59,6 +59,18 @@ string Utils::get_uuid4() {
   return uuid;
 }
 
+#else
+
+#include <uuid/uuid.h>
+
+string Utils::get_uuid4() {
+  uuid_t uuid;
+  char str[200];
+  uuid_generate_random(uuid);
+  uuid_unparse(uuid, str);
+  return string(str);
+}
+
 #endif
 
 string Utils::int_list_to_string(list<int> *int_list, const string &delimiter) {
