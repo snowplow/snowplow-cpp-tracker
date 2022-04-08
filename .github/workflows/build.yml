@@ -31,3 +31,18 @@ jobs:
 
     - name: Run tests
       run: .\x64\Debug\snowplow-cpp-tracker.exe
+
+  test-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Install packages
+      run: sudo apt-get install -y libcurl4-openssl-dev uuid-dev
+
+    - name: Make
+      run: make
+
+    - name: Run tests
+      run: make unit-tests

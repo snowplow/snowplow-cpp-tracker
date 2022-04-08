@@ -18,6 +18,7 @@ using namespace snowplow;
 using std::runtime_error;
 
 TEST_CASE("storage") {
+  Storage::close();
   Storage *storage = Storage::init("test1.db");
   REQUIRE("test1.db" == storage->get_db_name());
   storage->delete_all_event_rows();
