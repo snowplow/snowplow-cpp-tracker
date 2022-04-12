@@ -14,7 +14,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #ifndef MOCK_CLIENT_SESSION_H
 #define MOCK_CLIENT_SESSION_H
 
-#include "../src/client_session.hpp"
+#include "../src/snowplow.hpp"
 
 using snowplow::ClientSession;
 using snowplow::SelfDescribingJson;
