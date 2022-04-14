@@ -9,6 +9,7 @@
 
 using snowplow::ClientSession;
 using snowplow::Emitter;
+using snowplow::EmitStatus;
 using snowplow::Subject;
 using snowplow::Tracker;
 using snowplow::StructuredEvent;
@@ -33,6 +34,21 @@ int main(int argc, char **argv) {
   string db_name = "demo.db";
 
   Emitter emitter(uri, Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 52000, db_name);
+  emitter.set_request_callback(
+      [](list<string> event_ids, EmitStatus emit_status) {
+        switch (emit_status) {
+        case EmitStatus::SUCCESS:
+          printf("Successfuly sent %lu events.\n", event_ids.size());
+          break;
+        case EmitStatus::FAILED_WILL_RETRY:
+          printf("Failed to send %lu events, but will retry.\n", event_ids.size());
+          break;
+        case EmitStatus::FAILED_WONT_RETRY:
+          printf("Failed to send %lu events and won't retry.\n", event_ids.size());
+          break;
+        }
+      },
+      EmitStatus::SUCCESS | EmitStatus::FAILED_WILL_RETRY | EmitStatus::FAILED_WONT_RETRY);
 
   Subject subject;
   subject.set_user_id("a-user-id");

@@ -23,6 +23,7 @@ const string TestHttpClient::TRACKER_AGENT = string("Snowplow C++ Tracker (Integ
 list<TestHttpClient::Request> TestHttpClient::requests_list;
 mutex TestHttpClient::log_read_write;
 int TestHttpClient::response_code = 200;
+int TestHttpClient::temporary_response_code = -1;
 
 HttpRequestResult TestHttpClient::http_request(const RequestMethod method, CrackedUrl url, const string &query_string, const string &post_data, list<int> row_ids, bool oversize) {
   lock_guard<mutex> guard(log_read_write);
@@ -35,12 +36,26 @@ HttpRequestResult TestHttpClient::http_request(const RequestMethod method, Crack
   r.oversize = oversize;
   requests_list.push_back(r);
 
-  return HttpRequestResult(0, response_code, row_ids, oversize);
+  return HttpRequestResult(0, fetch_response_code(), row_ids, oversize);
 }
 
 void TestHttpClient::set_http_response_code(int http_response_code) {
   lock_guard<mutex> guard(log_read_write);
   response_code = http_response_code;
+}
+
+void TestHttpClient::set_temporary_response_code(int http_response_code) {
+  lock_guard<mutex> guard(log_read_write);
+  temporary_response_code = http_response_code;
+}
+
+int TestHttpClient::fetch_response_code() {
+  if (temporary_response_code >= 0) {
+    int code = temporary_response_code;
+    temporary_response_code = -1;
+    return code;
+  }
+  return response_code;
 }
 
 list<TestHttpClient::Request> TestHttpClient::get_requests_list() {

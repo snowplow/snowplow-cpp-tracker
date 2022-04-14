@@ -12,12 +12,27 @@ See the Apache License Version 2.0 for the specific language governing permissio
 */
 
 #include "../src/emitter.hpp"
-#include "http/test_http_client.hpp"
+#include "../src/payload/event_payload.hpp"
 #include "catch.hpp"
+#include "http/test_http_client.hpp"
 
 using namespace snowplow;
 using std::invalid_argument;
+using std::make_tuple;
+using std::tuple;
 using std::unique_ptr;
+using std::vector;
+using std::this_thread::sleep_for;
+using std::chrono::milliseconds;
+
+string track_sample_event(Emitter &emitter) {
+  emitter.start();
+  EventPayload payload;
+  payload.add("e", "pv");
+  emitter.add(payload);
+  emitter.flush();
+  return payload.get_event_id();
+}
 
 TEST_CASE("emitter") {
   SECTION("Emitter rejects urls (starting with http:// or https://)") {
@@ -109,16 +124,16 @@ TEST_CASE("emitter") {
   }
 
   SECTION("Emitter should track and remove only successful events from the database for GET requests") {
-    Emitter e("com.acme.collector", Emitter::Method::GET, Emitter::Protocol::HTTPS, 500, 52000, 52000, "test-emitter.db", unique_ptr<HttpClient>(new TestHttpClient()));
-    e.start();
+    Emitter emitter("com.acme.collector", Emitter::Method::GET, Emitter::Protocol::HTTPS, 500, 52000, 52000, "test-emitter.db", unique_ptr<HttpClient>(new TestHttpClient()));
+    emitter.start();
 
-    Payload p;
-    p.add("e", "pv");
+    Payload payload;
+    payload.add("e", "pv");
 
     for (int i = 0; i < 10; i++) {
-      e.add(p);
+      emitter.add(payload);
     }
-    e.flush();
+    emitter.flush();
 
     list<TestHttpClient::Request> requests = TestHttpClient::get_requests_list();
     REQUIRE(0 != requests.size());
@@ -129,10 +144,10 @@ TEST_CASE("emitter") {
     event_list->clear();
 
     TestHttpClient::set_http_response_code(404);
-    e.start();
+    emitter.start();
 
     for (int i = 0; i < 10; i++) {
-      e.add(p);
+      emitter.add(payload);
     }
 
     event_list = new list<Storage::EventRow>;
@@ -140,22 +155,22 @@ TEST_CASE("emitter") {
     REQUIRE(10 == event_list->size());
     event_list->clear();
 
-    e.stop();
+    emitter.stop();
     TestHttpClient::reset();
     delete (event_list);
   }
 
   SECTION("Emitter should track and remove only successful events from the database for POST requests") {
-    Emitter e("com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 500, 500, "test-emitter.db", unique_ptr<HttpClient>(new TestHttpClient()));
-    e.start();
+    Emitter emitter("com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 500, 500, "test-emitter.db", unique_ptr<HttpClient>(new TestHttpClient()));
+    emitter.start();
 
-    Payload p;
-    p.add("e", "pv");
+    Payload payload;
+    payload.add("e", "pv");
 
     for (int i = 0; i < 10; i++) {
-      e.add(p);
+      emitter.add(payload);
     }
-    e.flush();
+    emitter.flush();
 
     list<TestHttpClient::Request> requests = TestHttpClient::get_requests_list();
     REQUIRE(0 != requests.size());
@@ -167,10 +182,10 @@ TEST_CASE("emitter") {
 
     // Test POST 404 response
     TestHttpClient::set_http_response_code(404);
-    e.start();
+    emitter.start();
 
     for (int i = 0; i < 10; i++) {
-      e.add(p);
+      emitter.add(payload);
     }
 
     event_list = new list<Storage::EventRow>;
@@ -178,15 +193,15 @@ TEST_CASE("emitter") {
     REQUIRE(10 == event_list->size());
     event_list->clear();
 
-    e.stop();
+    emitter.stop();
     TestHttpClient::reset();
 
     // Test POST combination logic
     for (int i = 0; i < 1000; i++) {
-      e.add(p);
+      emitter.add(payload);
     }
-    e.start();
-    e.flush();
+    emitter.start();
+    emitter.flush();
 
     event_list = new list<Storage::EventRow>;
     Storage::instance()->select_all_event_rows(event_list);
@@ -194,12 +209,12 @@ TEST_CASE("emitter") {
     event_list->clear();
 
     // Test POST single event too large logic
-    p.add("tv", "pvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpv");
-    e.add(p);
+    payload.add("tv", "pvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpvpv");
+    emitter.add(payload);
 
     TestHttpClient::set_http_response_code(404);
-    e.start();
-    e.flush();
+    emitter.start();
+    emitter.flush();
 
     event_list = new list<Storage::EventRow>;
     Storage::instance()->select_all_event_rows(event_list);
@@ -208,5 +223,65 @@ TEST_CASE("emitter") {
 
     TestHttpClient::reset();
     delete (event_list);
+  }
+
+  SECTION("triggers callback for all emit statuses") {
+    Emitter emitter("com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 500, 500, "test-emitter.db", unique_ptr<HttpClient>(new TestHttpClient()));
+    vector<tuple<list<string>, EmitStatus>> calls;
+    emitter.set_request_callback(
+        [&](list<string> event_ids, EmitStatus status) {
+          calls.push_back(make_tuple(event_ids, status));
+        },
+        EmitStatus::SUCCESS | EmitStatus::FAILED_WILL_RETRY | EmitStatus::FAILED_WONT_RETRY);
+
+    // calls for successful event
+    TestHttpClient::set_http_response_code(200);
+    string event_id = track_sample_event(emitter);
+    sleep_for(milliseconds(500));
+    REQUIRE(1 == calls.size());
+    REQUIRE(1 == std::get<0>(calls[0]).size());
+    REQUIRE(event_id == std::get<0>(calls[0]).front());
+    REQUIRE(EmitStatus::SUCCESS == std::get<1>(calls[0]));
+    calls.clear();
+    TestHttpClient::reset();
+
+    // calls for failed with retry event
+    TestHttpClient::set_temporary_response_code(500);
+    event_id = track_sample_event(emitter);
+    sleep_for(milliseconds(500));
+    REQUIRE(2 == calls.size());
+    REQUIRE(event_id == std::get<0>(calls[0]).front());
+    REQUIRE(event_id == std::get<0>(calls[1]).front());
+    REQUIRE(EmitStatus::FAILED_WILL_RETRY == std::get<1>(calls[0]));
+    REQUIRE(EmitStatus::SUCCESS == std::get<1>(calls[1]));
+    calls.clear();
+    TestHttpClient::reset();
+  }
+
+  SECTION("doesn't trigger callbacks for not subscribed emit statuses") {
+    Emitter emitter("com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 500, 500, "test-emitter.db", unique_ptr<HttpClient>(new TestHttpClient()));
+    vector<tuple<list<string>, EmitStatus>> calls;
+    emitter.set_request_callback(
+        [&](list<string> event_ids, EmitStatus status) {
+          calls.push_back(make_tuple(event_ids, status));
+        },
+        EmitStatus::FAILED_WILL_RETRY);
+
+    // doesn't call for successful event
+    TestHttpClient::set_http_response_code(200);
+    track_sample_event(emitter);
+    sleep_for(milliseconds(500));
+    REQUIRE(0 == calls.size());
+    TestHttpClient::reset();
+
+    // doesn't call for failed with retry event
+    TestHttpClient::set_temporary_response_code(500);
+    string event_id = track_sample_event(emitter);
+    sleep_for(milliseconds(500));
+    REQUIRE(1 == calls.size());
+    REQUIRE(1 == calls.size());
+    REQUIRE(event_id == std::get<0>(calls[0]).front());
+    REQUIRE(EmitStatus::FAILED_WILL_RETRY == std::get<1>(calls[0]));
+    TestHttpClient::reset();
   }
 }

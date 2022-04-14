@@ -19,6 +19,12 @@ using std::lock_guard;
 using std::stringstream;
 using std::unique_lock;
 using std::unique_ptr;
+using std::async;
+using std::to_string;
+using std::transform;
+using std::equal;
+using std::move;
+using std::future;
 
 const int post_wrapper_bytes = 88; // "schema":"iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-4","data":[]
 const int post_stm_bytes = 22;     // "stm":"1443452851000"
@@ -56,10 +62,10 @@ Emitter::Emitter(const string &uri, Method method, Protocol protocol, int send_l
   string expected_http = "http://";
   string expected_https = "https://";
   string actual_uri_lower = uri;
-  std::transform(actual_uri_lower.begin(), actual_uri_lower.end(), actual_uri_lower.begin(), ::tolower);
+  transform(actual_uri_lower.begin(), actual_uri_lower.end(), actual_uri_lower.begin(), ::tolower);
 
-  if ((expected_http.size() <= actual_uri_lower.size() && std::equal(expected_http.begin(), expected_http.end(), actual_uri_lower.begin())) ||
-      (expected_https.size() <= actual_uri_lower.size() && std::equal(expected_https.begin(), expected_https.end(), actual_uri_lower.begin()))) {
+  if ((expected_http.size() <= actual_uri_lower.size() && equal(expected_http.begin(), expected_http.end(), actual_uri_lower.begin())) ||
+      (expected_https.size() <= actual_uri_lower.size() && equal(expected_https.begin(), expected_https.end(), actual_uri_lower.begin()))) {
     throw invalid_argument("FATAL: Emitter URI (" + uri + ") must not start with http:// or https://");
   }
 
@@ -72,7 +78,7 @@ Emitter::Emitter(const string &uri, Method method, Protocol protocol, int send_l
   this->m_send_limit = send_limit;
   this->m_byte_limit_post = byte_limit_post;
   this->m_byte_limit_get = byte_limit_get;
-  this->m_http_client = std::move(http_client);
+  this->m_http_client = move(http_client);
 }
 
 Emitter::~Emitter() {
@@ -84,12 +90,10 @@ Emitter::~Emitter() {
 void Emitter::start() {
   unique_lock<mutex> locker(this->m_run_check);
   if (this->m_running) {
-    locker.unlock(); // refuse to start more than once
-    return;
+    return; // refuse to start more than once
   }
   this->m_running = true;
   this->m_daemon_thread = thread(&Emitter::run, this);
-  locker.unlock();
 }
 
 void Emitter::stop() {
@@ -100,8 +104,6 @@ void Emitter::stop() {
 
     this->m_check_db.notify_all();
     this->m_daemon_thread.join();
-  } else {
-    locker.unlock();
   }
 }
 
@@ -113,7 +115,6 @@ void Emitter::add(Payload payload) {
 void Emitter::flush() {
   unique_lock<mutex> locker_1(this->m_run_check);
   if (this->m_running == false) {
-    locker_1.unlock();
     return;
   }
   locker_1.unlock();
@@ -130,99 +131,152 @@ void Emitter::flush() {
 // --- Private
 
 void Emitter::run() {
-  list<Storage::EventRow> *event_rows = new list<Storage::EventRow>;
-  list<HttpRequestResult> *results = new list<HttpRequestResult>;
-  list<int> *success_ids = new list<int>;
-
   do {
-    Storage::instance()->select_event_row_range(event_rows, this->m_send_limit);
+    list<Storage::EventRow> event_rows;
+    Storage::instance()->select_event_row_range(&event_rows, m_send_limit);
 
-    if (event_rows->size() > 0) {
-      this->do_send(event_rows, results);
+    if (event_rows.size() > 0) {
+      // emit the events
+      list<HttpRequestResult> results;
+      do_send(event_rows, &results);
 
-      for (list<HttpRequestResult>::iterator it = results->begin(); it != results->end(); ++it) {
-        list<int> res_row_ids = it->get_row_ids();
-        if (it->is_success()) {
-          success_ids->splice(success_ids->end(), res_row_ids);
+      // classify results into successful and failed
+      list<int> success_row_ids;
+      list<int> failed_will_retry_row_ids;
+      list<int> failed_wont_retry_row_ids;
+      for (auto const &result : results) {
+        auto res_row_ids = result.get_row_ids();
+        if (result.is_success()) {
+          success_row_ids.splice(success_row_ids.end(), res_row_ids);
+        } else if (result.should_retry()) {
+          failed_will_retry_row_ids.splice(failed_will_retry_row_ids.end(), res_row_ids);
+        } else {
+          failed_wont_retry_row_ids.splice(failed_wont_retry_row_ids.end(), res_row_ids);
         }
       }
-      Storage::instance()->delete_event_row_ids(success_ids);
 
-      // Reset collections
-      event_rows->clear();
-      results->clear();
-      success_ids->clear();
+      // trigger callbacks if enabled
+      trigger_callbacks(success_row_ids, failed_will_retry_row_ids, failed_wont_retry_row_ids, event_rows);
+
+      // delete rows with successfully sent events and failed events that should not be retried
+      list<int> delete_row_ids;
+      delete_row_ids.splice(delete_row_ids.end(), success_row_ids);
+      delete_row_ids.splice(delete_row_ids.end(), failed_wont_retry_row_ids);
+      Storage::instance()->delete_event_row_ids(&delete_row_ids);
     } else {
-      this->m_check_fin.notify_all();
+      m_check_fin.notify_all();
 
-      unique_lock<mutex> locker(this->m_db_select);
-      this->m_check_db.wait_for(locker, std::chrono::seconds(5));
-      locker.unlock();
+      // if there are no events to send, sleep for a while
+      unique_lock<mutex> locker(m_db_select);
+      m_check_db.wait_for(locker, std::chrono::seconds(5));
     }
-  } while (this->is_running());
-
-  delete (event_rows);
-  delete (results);
-  delete (success_ids);
+  } while (is_running());
 }
 
-void Emitter::do_send(list<Storage::EventRow> *event_rows, list<HttpRequestResult> *results) {
-  list<std::future<HttpRequestResult>> request_futures;
+void Emitter::do_send(const list<Storage::EventRow> &event_rows, list<HttpRequestResult> *results) {
+  list<future<HttpRequestResult>> request_futures;
 
   // Send each request in its own thread
   if (this->m_method == GET) {
-    for (list<Storage::EventRow>::iterator it = event_rows->begin(); it != event_rows->end(); ++it) {
-      Payload event_payload = it->event;
-      event_payload.add(SNOWPLOW_SENT_TIMESTAMP, std::to_string(Utils::get_unix_epoch_ms()));
+    for (auto const &row : event_rows) {
+      Payload event_payload = row.event;
+      event_payload.add(SNOWPLOW_SENT_TIMESTAMP, to_string(Utils::get_unix_epoch_ms()));
       string query_string = Utils::map_to_query_string(event_payload.get());
-      list<int> row_id = {it->id};
+      list<int> row_id = {row.id};
 
-      request_futures.push_back(std::async(&HttpClient::http_get, this->m_http_client.get(), this->m_url, query_string, row_id, (query_string.size() > this->m_byte_limit_get)));
-      request_futures.push_back(std::async(&HttpClient::http_get, this->m_http_client.get(), this->m_url, query_string, row_id, (query_string.size() > this->m_byte_limit_get)));
+      request_futures.push_back(async(&HttpClient::http_get, this->m_http_client.get(), this->m_url, query_string, row_id, (query_string.size() > this->m_byte_limit_get)));
     }
   } else {
     list<int> row_ids;
     list<Payload> payloads;
     int total_byte_size = 0;
 
-    for (list<Storage::EventRow>::iterator it = event_rows->begin(); it != event_rows->end(); ++it) {
-      unsigned int byte_size = Utils::serialize_payload(it->event).size() + post_stm_bytes;
+    for (auto const &row : event_rows) {
+      unsigned int byte_size = Utils::serialize_payload(row.event).size() + post_stm_bytes;
 
       if ((byte_size + post_wrapper_bytes) > this->m_byte_limit_post) {
         // A single payload has exceeded the Byte Limit
-        list<int> single_row_id = {it->id};
-        list<Payload> single_payload = {it->event};
-        request_futures.push_back(std::async(&HttpClient::http_post, this->m_http_client.get(), this->m_url, this->build_post_data_json(single_payload), single_row_id, true));
+        list<int> single_row_id = {row.id};
+        list<Payload> single_payload = {row.event};
+        request_futures.push_back(async(&HttpClient::http_post, this->m_http_client.get(), this->m_url, this->build_post_data_json(single_payload), single_row_id, true));
 
         single_row_id.clear();
         single_payload.clear();
       } else if ((total_byte_size + byte_size + post_wrapper_bytes + (payloads.size() - 1)) > this->m_byte_limit_post) {
         // Byte limit reached
-        request_futures.push_back(std::async(&HttpClient::http_post, this->m_http_client.get(), this->m_url, this->build_post_data_json(payloads), row_ids, false));
+        request_futures.push_back(async(&HttpClient::http_post, this->m_http_client.get(), this->m_url, this->build_post_data_json(payloads), row_ids, false));
 
         // Reset accumulators
         row_ids.clear();
-        row_ids = {it->id};
+        row_ids = {row.id};
         payloads.clear();
-        payloads = {it->event};
+        payloads = {row.event};
         total_byte_size = byte_size;
       } else {
-        row_ids.push_back(it->id);
-        payloads.push_back(it->event);
+        row_ids.push_back(row.id);
+        payloads.push_back(row.event);
         total_byte_size += byte_size;
       }
     }
 
     if (payloads.size() > 0) {
-      request_futures.push_back(std::async(&HttpClient::http_post, this->m_http_client.get(), this->m_url, this->build_post_data_json(payloads), row_ids, false));
+      request_futures.push_back(async(&HttpClient::http_post, this->m_http_client.get(), this->m_url, this->build_post_data_json(payloads), row_ids, false));
     }
   }
 
   // Grab all the request results and return
-  for (list<std::future<HttpRequestResult>>::iterator it = request_futures.begin(); it != request_futures.end(); ++it) {
+  for (auto it = request_futures.begin(); it != request_futures.end(); ++it) {
     results->push_back(it->get());
   }
   request_futures.clear();
+}
+
+void Emitter::trigger_callbacks(const list<int> &success_row_ids, const list<int> &failed_will_retry_row_ids, const list<int> &failed_wont_retry_row_ids, const list<Storage::EventRow> &event_rows) const {
+  if (!m_callback) {
+    return;
+  }
+
+  // create a mapping table and function between row IDs and event IDs
+  map<int, string> event_ids_for_row_ids;
+  for (auto const &row : event_rows) {
+    auto payload = row.event.get();
+    auto it = payload.find(SNOWPLOW_EID);
+    if (it != payload.end()) {
+      event_ids_for_row_ids.insert({row.id, it->second});
+    }
+  }
+  auto transform_row_ids_to_event_ids = [&](const list<int> &row_ids) {
+    list<string> event_ids;
+    for (auto const &row_id : row_ids) {
+      auto it = event_ids_for_row_ids.find(row_id);
+      if (it != event_ids_for_row_ids.end()) {
+        event_ids.push_back(it->second);
+      }
+    }
+    return event_ids;
+  };
+
+  // execute callback for successful events
+  if ((m_callback_emit_status & SUCCESS) && !success_row_ids.empty()) {
+    list<string> success_event_ids = transform_row_ids_to_event_ids(success_row_ids);
+    execute_callback(success_event_ids, SUCCESS);
+  }
+
+  // execute callback for failed events that will be retried
+  if ((m_callback_emit_status & FAILED_WILL_RETRY) && !failed_will_retry_row_ids.empty()) {
+    list<string> failed_will_retry_event_ids = transform_row_ids_to_event_ids(failed_will_retry_row_ids);
+    execute_callback(failed_will_retry_event_ids, FAILED_WILL_RETRY);
+  }
+
+  // execute callback for failed events that won't be retried
+  if ((m_callback_emit_status & FAILED_WONT_RETRY) && !failed_wont_retry_row_ids.empty()) {
+    list<string> failed_wont_retry_event_ids = transform_row_ids_to_event_ids(failed_wont_retry_row_ids);
+    execute_callback(failed_wont_retry_event_ids, FAILED_WONT_RETRY);
+  }
+}
+
+void Emitter::execute_callback(const list<string> &event_ids, EmitStatus emit_status) const {
+  thread(m_callback, event_ids, emit_status).detach();
 }
 
 // --- Helpers
@@ -231,7 +285,7 @@ string Emitter::build_post_data_json(list<Payload> payload_list) {
   json data_array = json::array();
 
   // Add 'stm' to each payload
-  string stm = std::to_string(Utils::get_unix_epoch_ms());
+  string stm = to_string(Utils::get_unix_epoch_ms());
   for (list<Payload>::iterator it = payload_list.begin(); it != payload_list.end(); ++it) {
     it->add(SNOWPLOW_SENT_TIMESTAMP, stm);
     data_array.push_back(it->get());
@@ -242,7 +296,7 @@ string Emitter::build_post_data_json(list<Payload> payload_list) {
   return post_envelope.to_string();
 }
 
-string Emitter::get_collector_url(const string &uri, Protocol protocol, Method method) {
+string Emitter::get_collector_url(const string &uri, Protocol protocol, Method method) const {
   stringstream url;
   url << (protocol == HTTP ? "http" : "https") << "://" << uri;
   url << "/" << (method == GET ? SNOWPLOW_GET_PROTOCOL_PATH : SNOWPLOW_POST_PROTOCOL_VENDOR + "/" + SNOWPLOW_POST_PROTOCOL_VERSION);
@@ -252,4 +306,14 @@ string Emitter::get_collector_url(const string &uri, Protocol protocol, Method m
 bool Emitter::is_running() {
   lock_guard<mutex> guard(this->m_run_check);
   return this->m_running;
+}
+
+void Emitter::set_request_callback(const EmitterCallback &callback, EmitStatus emit_status) {
+  lock_guard<mutex> guard(this->m_run_check);
+  if (m_running) {
+    throw std::logic_error("Not allowed when Emitter is running");
+  }
+
+  m_callback_emit_status = emit_status;
+  m_callback = callback;
 }

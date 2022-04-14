@@ -43,14 +43,19 @@ public:
 
   static list<Request> requests_list;
   static int response_code;
+  static int temporary_response_code;
   static mutex log_read_write;
 
   static void set_http_response_code(int http_response_code);
+  static void set_temporary_response_code(int http_response_code);
   static list<Request> get_requests_list();
   static void reset();
 
 protected:
   HttpRequestResult http_request(const RequestMethod method, const CrackedUrl url, const string & query_string, const string & post_data, list<int> row_ids, bool oversize);
+  
+private:
+  static int fetch_response_code();
 };
 }
 
