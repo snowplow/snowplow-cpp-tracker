@@ -256,6 +256,15 @@ TEST_CASE("emitter") {
     REQUIRE(EmitStatus::SUCCESS == std::get<1>(calls[1]));
     calls.clear();
     TestHttpClient::reset();
+
+    // calls for failed with no retry event
+    TestHttpClient::set_temporary_response_code(422);
+    event_id = track_sample_event(emitter);
+    sleep_for(milliseconds(500));
+    REQUIRE(1 == calls.size());
+    REQUIRE(event_id == std::get<0>(calls[0]).front());
+    REQUIRE(EmitStatus::FAILED_WONT_RETRY == std::get<1>(calls[0]));
+    TestHttpClient::reset();
   }
 
   SECTION("doesn't trigger callbacks for not subscribed emit statuses") {
@@ -265,7 +274,7 @@ TEST_CASE("emitter") {
         [&](list<string> event_ids, EmitStatus status) {
           calls.push_back(make_tuple(event_ids, status));
         },
-        EmitStatus::FAILED_WILL_RETRY);
+        EmitStatus::FAILED_WONT_RETRY);
 
     // doesn't call for successful event
     TestHttpClient::set_http_response_code(200);
@@ -276,12 +285,52 @@ TEST_CASE("emitter") {
 
     // doesn't call for failed with retry event
     TestHttpClient::set_temporary_response_code(500);
+    track_sample_event(emitter);
+    sleep_for(milliseconds(500));
+    REQUIRE(0 == calls.size());
+    TestHttpClient::reset();
+
+    // calls for failed with no retry event
+    TestHttpClient::set_temporary_response_code(422);
     string event_id = track_sample_event(emitter);
     sleep_for(milliseconds(500));
     REQUIRE(1 == calls.size());
-    REQUIRE(1 == calls.size());
     REQUIRE(event_id == std::get<0>(calls[0]).front());
-    REQUIRE(EmitStatus::FAILED_WILL_RETRY == std::get<1>(calls[0]));
+    REQUIRE(EmitStatus::FAILED_WONT_RETRY == std::get<1>(calls[0]));
     TestHttpClient::reset();
+  }
+
+  SECTION("Emitter should not retry failed events for no-retry status codes") {
+    Emitter emitter("com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 500, 500, "test-emitter.db", unique_ptr<HttpClient>(new TestHttpClient()));
+
+    TestHttpClient::set_http_response_code(200); // success, don't retry
+    track_sample_event(emitter);
+    REQUIRE(1 == TestHttpClient::get_requests_list().size());
+    TestHttpClient::reset();
+
+    TestHttpClient::set_temporary_response_code(501); // retry
+    track_sample_event(emitter);
+    REQUIRE(2 == TestHttpClient::get_requests_list().size());
+    TestHttpClient::reset();
+
+    TestHttpClient::set_temporary_response_code(422); // don't retry for this code
+    track_sample_event(emitter);
+    REQUIRE(1 == TestHttpClient::get_requests_list().size());
+    TestHttpClient::reset();
+
+    emitter.set_custom_retry_for_status_code(501, false);
+    emitter.set_custom_retry_for_status_code(422, true);
+
+    TestHttpClient::set_temporary_response_code(501); // don't retry
+    track_sample_event(emitter);
+    REQUIRE(1 == TestHttpClient::get_requests_list().size());
+    TestHttpClient::reset();
+
+    TestHttpClient::set_temporary_response_code(422); // retry
+    track_sample_event(emitter);
+    REQUIRE(2 == TestHttpClient::get_requests_list().size());
+    TestHttpClient::reset();
+
+    emitter.stop();
   }
 }

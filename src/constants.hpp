@@ -15,8 +15,10 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #define CONSTANTS_H
 
 #include <string>
+#include <set>
 
 using std::string;
+using std::set;
 
 namespace snowplow {
 const string SNOWPLOW_TRACKER_VERSION_LABEL = "cpp-0.2.0";
@@ -58,6 +60,7 @@ const string SNOWPLOW_TRACKER_VERSION = "tv";
 const string SNOWPLOW_APP_ID = "aid";
 const string SNOWPLOW_SP_NAMESPACE = "tna";
 const string SNOWPLOW_PLATFORM = "p";
+const set<int> SNOWPLOW_FAIL_NO_RETRY_HTTP_STATUS_CODES = {400, 401, 403, 410, 422};
 
 // subject class
 const string SNOWPLOW_UID = "uid";

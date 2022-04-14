@@ -148,7 +148,7 @@ void Emitter::run() {
         auto res_row_ids = result.get_row_ids();
         if (result.is_success()) {
           success_row_ids.splice(success_row_ids.end(), res_row_ids);
-        } else if (result.should_retry()) {
+        } else if (result.should_retry(m_custom_retry_for_status_codes)) {
           failed_will_retry_row_ids.splice(failed_will_retry_row_ids.end(), res_row_ids);
         } else {
           failed_wont_retry_row_ids.splice(failed_wont_retry_row_ids.end(), res_row_ids);
@@ -316,4 +316,16 @@ void Emitter::set_request_callback(const EmitterCallback &callback, EmitStatus e
 
   m_callback_emit_status = emit_status;
   m_callback = callback;
+}
+
+void Emitter::set_custom_retry_for_status_code(int http_status_code, bool retry) {
+  lock_guard<mutex> guard(this->m_run_check);
+  if (m_running) {
+    throw std::logic_error("Not allowed when Emitter is running");
+  }
+  if (http_status_code < 300) {
+    throw std::invalid_argument("Retry rules can only be set for status codes >= 300");
+  }
+
+  m_custom_retry_for_status_codes.insert({http_status_code, retry});
 }
