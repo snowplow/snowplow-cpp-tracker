@@ -27,10 +27,10 @@ The following libraries need to be installed:
 
 ### Using the tracker
 
-Import and initialize the tracker with your Snowplow collector endpoint and tracker configuration:
+Import using the `snowplow.hpp` header file and initialize the tracker with your Snowplow collector endpoint and tracker configuration:
 
 ```cpp
-#include "tracker.hpp"
+#include "snowplow.hpp"
 
 using namespace snowplow;
 

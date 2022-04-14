@@ -14,7 +14,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #ifndef MOCK_EMITTER_H
 #define MOCK_EMITTER_H
 
-#include "../src/emitter.hpp"
+#include "../src/snowplow.hpp"
 
 using snowplow::Emitter;
 using snowplow::Payload;

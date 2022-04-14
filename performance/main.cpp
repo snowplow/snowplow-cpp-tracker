@@ -14,8 +14,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <fstream>
 #include <string>
 
-#include "../src/storage.hpp"
-#include "../src/utils.hpp"
+#include "../src/snowplow.hpp"
 #include "run.hpp"
 
 using snowplow::SelfDescribingJson;

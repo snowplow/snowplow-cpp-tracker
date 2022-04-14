@@ -14,11 +14,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <chrono>
 #include <string>
 
-#include "../src/subject.hpp"
-#include "../src/tracker.hpp"
-#include "../src/events/structured_event.hpp"
-#include "../src/events/timing_event.hpp"
-#include "../src/events/screen_view_event.hpp"
+#include "../src/snowplow.hpp"
 #include "mock_client_session.hpp"
 #include "mock_emitter.hpp"
 #include "mute_emitter.hpp"

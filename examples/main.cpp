@@ -2,10 +2,7 @@
 #include <string>
 #include <time.h>
 
-#include "../src/tracker.hpp"
-#include "../src/events/structured_event.hpp"
-#include "../src/events/timing_event.hpp"
-#include "../src/events/screen_view_event.hpp"
+#include "../src/snowplow.hpp"
 
 using snowplow::ClientSession;
 using snowplow::Emitter;
