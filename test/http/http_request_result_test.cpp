@@ -36,25 +36,44 @@ TEST_CASE("http_request_result") {
   SECTION("should not retry if success") {
     HttpRequestResult httpRequestResult(0, 200, list<int>(), true);
     REQUIRE(httpRequestResult.is_success() == true);
-    REQUIRE(httpRequestResult.should_retry() == false);
+    REQUIRE(httpRequestResult.should_retry(map<int, bool>()) == false);
   }
 
   SECTION("should not retry if oversized") {
     HttpRequestResult httpRequestResult(0, 500, list<int>(), true);
     REQUIRE(httpRequestResult.is_success() == false);
-    REQUIRE(httpRequestResult.should_retry() == false);
+    REQUIRE(httpRequestResult.should_retry(map<int, bool>()) == false);
   }
 
   SECTION("should retry for internal errors") {
     HttpRequestResult httpRequestResult(1, 200, list<int>(), false);
     REQUIRE(httpRequestResult.is_success() == false);
-    REQUIRE(httpRequestResult.should_retry() == true);
+    REQUIRE(httpRequestResult.should_retry(map<int, bool>()) == true);
   }
 
   SECTION("should retry for 5xx status codes") {
     HttpRequestResult httpRequestResult(0, 501, list<int>(), false);
     REQUIRE(httpRequestResult.is_success() == false);
-    REQUIRE(httpRequestResult.should_retry() == true);
+    REQUIRE(httpRequestResult.should_retry(map<int, bool>()) == true);
+  }
+
+  SECTION("should not retry for no-retry status codes") {
+    HttpRequestResult httpRequestResult(0, 422, list<int>(), false);
+    REQUIRE(httpRequestResult.get_http_response_code() == 422);
+    REQUIRE(httpRequestResult.is_success() == false);
+    REQUIRE(httpRequestResult.should_retry(map<int, bool>()) == false);
+  }
+
+  SECTION("should retry according to custom status code rules") {
+    map<int, bool> custom_rules;
+    custom_rules.insert({501, false});
+    custom_rules.insert({422, true});
+
+    HttpRequestResult httpRequestResult1(0, 501, list<int>(), false);
+    REQUIRE(httpRequestResult1.should_retry(custom_rules) == false);
+
+    HttpRequestResult httpRequestResult2(0, 422, list<int>(), false);
+    REQUIRE(httpRequestResult2.should_retry(custom_rules) == true);
   }
 
   SECTION("the default constructor should return nothing for getter functions") {

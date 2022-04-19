@@ -32,7 +32,7 @@ public:
   int get_http_response_code() const;
   list<int> get_row_ids() const;
   bool is_success() const;
-  bool should_retry() const;
+  bool should_retry(const map<int, bool> &custom_retry_for_status_codes) const;
 
 private:
   bool is_internal_error() const;

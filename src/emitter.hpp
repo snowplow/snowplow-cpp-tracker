@@ -197,6 +197,17 @@ public:
    */
   void set_request_callback(const EmitterCallback &callback, EmitStatus emit_status);
 
+  /**
+   * @brief Set a custom retry rule for when the HTTP status code is received in emit response from Collector.
+   * 
+   * This overrides default behavior for HTTP status codes greater than 300.
+   * The custom retry rules can't be changed when the Emitter is running.
+   * 
+   * @param http_status_code HTTP status code
+   * @param retry Whether events should be retried or not
+   */
+  void set_custom_retry_for_status_code(int http_status_code, bool retry);
+
 private:
   CrackedUrl m_url;
   Method m_method;
@@ -214,6 +225,7 @@ private:
   bool m_running;
   EmitterCallback m_callback;
   EmitStatus m_callback_emit_status;
+  map<int, bool> m_custom_retry_for_status_codes;
 
   void run();
   void do_send(const list<Storage::EventRow> &event_rows, list<HttpRequestResult> *results);

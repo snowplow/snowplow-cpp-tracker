@@ -49,7 +49,7 @@ bool HttpRequestResult::is_success() const {
   return (get_http_response_code() >= 200 && get_http_response_code() < 300);
 }
 
-bool HttpRequestResult::should_retry() const {
+bool HttpRequestResult::should_retry(const map<int, bool> &custom_retry_for_status_codes) const {
   // don't retry if successful
   if (is_success()) {
     return false;
@@ -60,5 +60,17 @@ bool HttpRequestResult::should_retry() const {
     return false;
   }
 
-  return true;
+  // retry if it was an internal error
+  if (is_internal_error()) {
+    return true;
+  }
+
+  // status code has a custom retry rule
+  auto it = custom_retry_for_status_codes.find(get_http_response_code());
+  if (it != custom_retry_for_status_codes.end()) {
+    return it->second;
+  }
+
+  // retry if status code is not in the list of no-retry status codes
+  return SNOWPLOW_FAIL_NO_RETRY_HTTP_STATUS_CODES.find(get_http_response_code()) == SNOWPLOW_FAIL_NO_RETRY_HTTP_STATUS_CODES.end();
 }
