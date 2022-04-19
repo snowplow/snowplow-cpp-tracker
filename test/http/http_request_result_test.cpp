@@ -33,10 +33,28 @@ TEST_CASE("http_request_result") {
     REQUIRE(httpRequestResult.get_http_response_code() == 999);
   }
 
-  SECTION("the http_response_code and error_code should be 200 and 0 when oversized") {
-    HttpRequestResult httpRequestResult(123, 404, list<int>(), true);
-    REQUIRE(httpRequestResult.get_http_response_code() == 200);
+  SECTION("should not retry if success") {
+    HttpRequestResult httpRequestResult(0, 200, list<int>(), true);
     REQUIRE(httpRequestResult.is_success() == true);
+    REQUIRE(httpRequestResult.should_retry() == false);
+  }
+
+  SECTION("should not retry if oversized") {
+    HttpRequestResult httpRequestResult(0, 500, list<int>(), true);
+    REQUIRE(httpRequestResult.is_success() == false);
+    REQUIRE(httpRequestResult.should_retry() == false);
+  }
+
+  SECTION("should retry for internal errors") {
+    HttpRequestResult httpRequestResult(1, 200, list<int>(), false);
+    REQUIRE(httpRequestResult.is_success() == false);
+    REQUIRE(httpRequestResult.should_retry() == true);
+  }
+
+  SECTION("should retry for 5xx status codes") {
+    HttpRequestResult httpRequestResult(0, 501, list<int>(), false);
+    REQUIRE(httpRequestResult.is_success() == false);
+    REQUIRE(httpRequestResult.should_retry() == true);
   }
 
   SECTION("the default constructor should return nothing for getter functions") {

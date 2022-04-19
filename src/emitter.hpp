@@ -34,8 +34,22 @@ using std::thread;
 using std::condition_variable;
 using std::mutex;
 using std::unique_ptr;
+using std::list;
 
 namespace snowplow {
+
+enum EmitStatus {
+  SUCCESS = 1,
+  FAILED_WILL_RETRY = 2,
+  FAILED_WONT_RETRY = 4
+};
+
+inline EmitStatus operator|(EmitStatus a, EmitStatus b) {
+  return static_cast<EmitStatus>(static_cast<int>(a) | static_cast<int>(b));
+}
+
+typedef std::function<void(list<string>, EmitStatus)> EmitterCallback;
+
 /**
  * @brief Emitter is responsible for sending events to a Snowplow Collector.
  * 
@@ -133,35 +147,35 @@ public:
    * 
    * @return CrackedUrl 
    */
-  CrackedUrl get_cracked_url() { return m_url; }
+  CrackedUrl get_cracked_url() const { return m_url; }
 
   /**
    * @brief Get the HTTP method.
    * 
    * @return Method HTTP method used for sending events to Collector
   */
-  Method get_method() { return m_method; }
+  Method get_method() const { return m_method; }
 
   /**
    * @brief Get the send limit.
    * 
    * @return unsigned int The maximum amount of events to send at a time
    */
-  unsigned int get_send_limit() { return m_send_limit; }
+  unsigned int get_send_limit() const { return m_send_limit; }
 
   /**
    * @brief Get the byte limit for GET.
    * 
    * @return unsigned int The byte limit when sending a GET request
    */
-  unsigned int get_byte_limit_get() { return m_byte_limit_get; }
+  unsigned int get_byte_limit_get() const { return m_byte_limit_get; }
 
   /**
    * @brief Get the byte limit for POST.
    * 
    * @return unsigned int The byte limit when sending a POST request
    */
-  unsigned int get_byte_limit_post() { return m_byte_limit_post; }
+  unsigned int get_byte_limit_post() const { return m_byte_limit_post; }
 
   /**
    * @brief Check if the Emitter is started.
@@ -169,6 +183,19 @@ public:
    * @return true if Emitter is running
    */
   bool is_running();
+
+  /**
+   * @brief Set a callback to call after emit requests are made with the resulting emit status.
+   * 
+   * To subscribe to multiple emit statuses, use binary operations such as `EmitStatus::FAILED_WILL_RETRY | EmitStatus::FAILED_WONT_RETRY`.
+   * Calling this function overwrites any previously set callbacks.
+   * The callback can't be changed when the Emitter is running.
+   * The callback will be fired in a new thread.
+   * 
+   * @param callback Callback function
+   * @param emit_status Emit status to trigger the callback for
+   */
+  void set_request_callback(const EmitterCallback &callback, EmitStatus emit_status);
 
 private:
   CrackedUrl m_url;
@@ -185,12 +212,16 @@ private:
   mutex m_db_select;
   mutex m_run_check;
   bool m_running;
+  EmitterCallback m_callback;
+  EmitStatus m_callback_emit_status;
 
   void run();
-  void do_send(list<Storage::EventRow>* event_rows, list<HttpRequestResult>* results);
+  void do_send(const list<Storage::EventRow> &event_rows, list<HttpRequestResult> *results);
   string build_post_data_json(list<Payload> payload_list);
-  string get_collector_url(const string & uri, Protocol protocol, Method method);
+  string get_collector_url(const string &uri, Protocol protocol, Method method) const;
+  void trigger_callbacks(const list<int> &success_row_ids, const list<int> &failed_will_retry_row_ids, const list<int> &failed_wont_retry_row_ids, const list<Storage::EventRow> &event_rows) const;
+  void execute_callback(const list<string> &event_ids, EmitStatus emit_status) const;
 };
-}
+} // namespace snowplow
 
 #endif

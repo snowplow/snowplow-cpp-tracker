@@ -12,42 +12,53 @@ See the Apache License Version 2.0 for the specific language governing permissio
 */
 
 #include "http_request_result.hpp"
+#include "../constants.hpp"
 
 using namespace snowplow;
 
 HttpRequestResult::HttpRequestResult() {
-  this->m_http_response_code = 0;
-  this->m_internal_error_code = 0;
-  this->m_row_ids = {};
-  this->m_is_successful = false;
+  m_is_oversize = false;
+  m_internal_error_code = 0; // not an error
+  m_http_response_code = 0; // not success, should retry
+  m_row_ids = {};
 }
 
 HttpRequestResult::HttpRequestResult(int internal_error_code, int http_response_code, list<int> row_ids, bool oversize) {
-  if (oversize) {
-    this->m_internal_error_code = 0;
-    this->m_http_response_code = 200;
-    this->m_is_successful = true;
-  } else if (internal_error_code != 0) {
-    this->m_internal_error_code = internal_error_code;
-    this->m_http_response_code = -1;
-    this->m_is_successful = false;
-  } else {
-    this->m_internal_error_code = 0;
-    this->m_http_response_code = http_response_code;
-    this->m_is_successful = (this->m_http_response_code == 200);
+  m_is_oversize = oversize;
+  m_internal_error_code = internal_error_code;
+  m_http_response_code = internal_error_code != 0 ? -1 : http_response_code;
+  m_row_ids = row_ids;
+}
+
+int HttpRequestResult::get_http_response_code() const {
+  return m_http_response_code;
+}
+
+list<int> HttpRequestResult::get_row_ids() const {
+  return m_row_ids;
+}
+
+bool HttpRequestResult::is_internal_error() const {
+  return m_internal_error_code != 0;
+}
+
+bool HttpRequestResult::is_success() const {
+  if (is_internal_error()) {
+    return false;
+  }
+  return (get_http_response_code() >= 200 && get_http_response_code() < 300);
+}
+
+bool HttpRequestResult::should_retry() const {
+  // don't retry if successful
+  if (is_success()) {
+    return false;
   }
 
-  this->m_row_ids = row_ids;
-}
+  // don't retry if request is larger than max byte limit
+  if (m_is_oversize) {
+    return false;
+  }
 
-int HttpRequestResult::get_http_response_code() {
-  return this->m_http_response_code;
-}
-
-list<int> HttpRequestResult::get_row_ids() {
-  return this->m_row_ids;
-}
-
-bool HttpRequestResult::is_success() {
-  return this->m_is_successful;
+  return true;
 }
