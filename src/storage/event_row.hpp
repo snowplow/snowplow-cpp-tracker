@@ -11,25 +11,16 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#ifndef MOCK_CLIENT_SESSION_H
-#define MOCK_CLIENT_SESSION_H
+#ifndef EVENT_ROW_H
+#define EVENT_ROW_H
 
-#include "../src/snowplow.hpp"
+#include "../payload/payload.hpp"
 
-using snowplow::ClientSession;
-using snowplow::SelfDescribingJson;
-using snowplow::Storage;
-using std::string;
-using std::shared_ptr;
-using std::move;
-
-class MockClientSession : public ClientSession {
-public:
-   MockClientSession(shared_ptr<Storage> storage) : ClientSession(move(storage), 5000, 5000) {}
-
-   void set_is_background(bool is_background) {}
-   bool get_is_background() { return false; }
-   SelfDescribingJson update_and_get_session_context(const string &event_id) { return SelfDescribingJson("schema", json()); }
+namespace snowplow {
+struct EventRow {
+  int id;
+  Payload event;
 };
+} // namespace snowplow
 
 #endif

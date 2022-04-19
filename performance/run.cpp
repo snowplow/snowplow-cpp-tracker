@@ -28,11 +28,12 @@ using snowplow::Tracker;
 using snowplow::ScreenViewEvent;
 using snowplow::StructuredEvent;
 using snowplow::TimingEvent;
+using snowplow::SqliteStorage;
 using std::vector;
 using std::chrono::duration;
 using std::chrono::high_resolution_clock;
 
-void clear_storage(const string &db_name);
+void clear_storage(shared_ptr<SqliteStorage> &db_name);
 
 void track_events() {
   Tracker *tracker = Tracker::instance();
@@ -89,42 +90,41 @@ double run(Emitter &emitter, ClientSession &client_session) {
 }
 
 double run_mocked_emitter_and_mocked_session(const string &db_name) {
-  MockEmitter emitter(db_name);
-  MockClientSession client_session(db_name);
+  auto storage = std::make_shared<SqliteStorage>(db_name);
+  MockEmitter emitter(storage);
+  MockClientSession client_session(storage);
   double time = run(emitter, client_session);
-  Storage::close();
   return time;
 }
 
 double run_mocked_emitter_and_real_session(const string &db_name) {
-  MockEmitter emitter(db_name);
-  ClientSession client_session(db_name, 5000, 5000);
-  clear_storage(db_name);
+  auto storage = std::make_shared<SqliteStorage>(db_name);
+  MockEmitter emitter(storage);
+  ClientSession client_session(storage, 5000, 5000);
+  clear_storage(storage);
   double time = run(emitter, client_session);
-  Storage::close();
   return time;
 }
 
 double run_mute_emitter_and_mocked_session(const string &db_name) {
-  MuteEmitter emitter(db_name);
-  MockClientSession client_session(db_name);
-  clear_storage(db_name);
+  auto storage = std::make_shared<SqliteStorage>(db_name);
+  MuteEmitter emitter(storage);
+  MockClientSession client_session(storage);
+  clear_storage(storage);
   double time = run(emitter, client_session);
-  Storage::close();
   return time;
 }
 
 double run_mute_emitter_and_real_session(const string &db_name) {
-  MuteEmitter emitter(db_name);
-  ClientSession client_session(db_name, 5000, 5000);
-  clear_storage(db_name);
+  auto storage = std::make_shared<SqliteStorage>(db_name);
+  MuteEmitter emitter(storage);
+  ClientSession client_session(storage, 5000, 5000);
+  clear_storage(storage);
   double time = run(emitter, client_session);
-  Storage::close();
   return time;
 }
 
-void clear_storage(const string &db_name) {
-  Storage *storage = Storage::init(db_name);
+void clear_storage(shared_ptr<SqliteStorage> &storage) {
   storage->delete_all_event_rows();
   storage->delete_all_session_rows();
 }

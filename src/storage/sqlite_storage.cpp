@@ -11,7 +11,10 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "storage.hpp"
+#include "sqlite_storage.hpp"
+
+#include <iostream>
+#include "../utils.hpp"
 
 using namespace snowplow;
 using std::cerr;
@@ -29,38 +32,9 @@ const string db_table_session = "sessions";
 const string db_column_session_id = "id";
 const string db_column_session_data = "data";
 
-// --- Static Singleton Access
-
-Storage *Storage::m_instance = 0;
-mutex Storage::m_db_get;
-
-Storage *Storage::init(const string &db_name) {
-  lock_guard<mutex> guard(m_db_get);
-  if (!m_instance) {
-    m_instance = new Storage(db_name);
-  }
-  return m_instance;
-}
-
-Storage *Storage::instance() {
-  lock_guard<mutex> guard(m_db_get);
-  if (!m_instance) {
-    throw runtime_error("FATAL: Storage must be initialized first.");
-  }
-  return m_instance;
-}
-
-void Storage::close() {
-  lock_guard<mutex> guard(m_db_get);
-  if (m_instance) {
-    delete (m_instance);
-  }
-  m_instance = 0;
-}
-
 // --- Constructor & Destructor
 
-Storage::Storage(const string &db_name) {
+SqliteStorage::SqliteStorage(const string &db_name) {
   sqlite3 *db;
   char *err_msg = 0;
   int rc;
@@ -127,14 +101,14 @@ Storage::Storage(const string &db_name) {
   }
 }
 
-Storage::~Storage() {
+SqliteStorage::~SqliteStorage() {
   sqlite3_finalize(this->m_add_stmt);
   sqlite3_close(this->m_db);
 }
 
 // --- INSERT
 
-void Storage::insert_payload(Payload payload) {
+void SqliteStorage::insert_payload(const Payload &payload) {
   lock_guard<mutex> guard(this->m_db_access);
 
   int rc;
@@ -160,7 +134,7 @@ void Storage::insert_payload(Payload payload) {
   }
 }
 
-void Storage::insert_update_session(json session_data) {
+void SqliteStorage::insert_update_session(const json &session_data) {
   lock_guard<mutex> guard(this->m_db_access);
 
   int rc;
@@ -209,7 +183,7 @@ void Storage::insert_update_session(json session_data) {
 
 static int select_event_callback(void *data, int argc, char **argv, char **az_col_name) {
   int i, id = 0;
-  list<Storage::EventRow> *data_list = (list<Storage::EventRow> *)data;
+  list<EventRow> *data_list = (list<EventRow> *)data;
   Payload event;
 
   for (i = 0; i < argc; i++) {
@@ -220,14 +194,14 @@ static int select_event_callback(void *data, int argc, char **argv, char **az_co
     }
   }
 
-  Storage::EventRow event_row;
+  EventRow event_row;
   event_row.id = id;
   event_row.event = event;
   data_list->push_back(event_row);
   return 0;
 }
 
-void Storage::select_all_event_rows(list<Storage::EventRow> *event_list) {
+void SqliteStorage::select_all_event_rows(list<EventRow> *event_list) {
   lock_guard<mutex> guard(this->m_db_access);
 
   int rc;
@@ -243,7 +217,7 @@ void Storage::select_all_event_rows(list<Storage::EventRow> *event_list) {
   }
 }
 
-void Storage::select_event_row_range(list<Storage::EventRow> *event_list, int range) {
+void SqliteStorage::select_event_row_range(list<EventRow> *event_list, int range) {
   lock_guard<mutex> guard(this->m_db_access);
 
   int rc;
@@ -276,7 +250,7 @@ static int select_session_callback(void *data, int argc, char **argv, char **az_
   return 0;
 }
 
-void Storage::select_all_session_rows(list<json> *session_list) {
+void SqliteStorage::select_all_session_rows(list<json> *session_list) {
   lock_guard<mutex> guard(this->m_db_access);
 
   int rc;
@@ -294,7 +268,7 @@ void Storage::select_all_session_rows(list<json> *session_list) {
 
 // --- DELETE
 
-void Storage::delete_all_event_rows() {
+void SqliteStorage::delete_all_event_rows() {
   lock_guard<mutex> guard(this->m_db_access);
 
   int rc;
@@ -310,7 +284,7 @@ void Storage::delete_all_event_rows() {
   }
 }
 
-void Storage::delete_event_row_ids(list<int> *id_list) {
+void SqliteStorage::delete_event_row_ids(const list<int> &id_list) {
   lock_guard<mutex> guard(this->m_db_access);
 
   int rc;
@@ -327,7 +301,7 @@ void Storage::delete_event_row_ids(list<int> *id_list) {
   }
 }
 
-void Storage::delete_all_session_rows() {
+void SqliteStorage::delete_all_session_rows() {
   lock_guard<mutex> guard(this->m_db_access);
 
   int rc;
@@ -345,6 +319,6 @@ void Storage::delete_all_session_rows() {
 
 // --- Getters
 
-string Storage::get_db_name() {
+string SqliteStorage::get_db_name() {
   return this->m_db_name;
 }

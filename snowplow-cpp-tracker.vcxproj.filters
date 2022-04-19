@@ -54,7 +54,7 @@
     <ClCompile Include="src\events\timing_event.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\storage.cpp">
+    <ClCompile Include="src\storage\sqlite_storage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\subject.cpp">
@@ -102,7 +102,7 @@
     <ClCompile Include="test\payload\self_describing_json_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="test\storage_test.cpp">
+    <ClCompile Include="test\storage\sqlite_storage_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="test\subject_test.cpp">
@@ -161,7 +161,10 @@
     <ClInclude Include="src\events\timing_event.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\storage.hpp">
+    <ClInclude Include="src\storage\storage.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\storage\sqlite_storage.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\subject.hpp">

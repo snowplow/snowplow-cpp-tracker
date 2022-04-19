@@ -17,11 +17,14 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../src/snowplow.hpp"
 
 using snowplow::Emitter;
+using snowplow::Storage;
 using std::string;
+using std::shared_ptr;
+using std::move;
 
 class MuteEmitter : public Emitter {
 public:
-   MuteEmitter(const string &db_name) : Emitter("127.0.0.1:9090", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 52000, db_name) {}
+   MuteEmitter(shared_ptr<Storage> storage) : Emitter("127.0.0.1:9090", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 52000, storage) {}
 
    void start() {}
    void stop() {}

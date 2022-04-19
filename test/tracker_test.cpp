@@ -19,6 +19,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../src/events/screen_view_event.hpp"
 #include "../src/events/self_describing_event.hpp"
 #include "../src/events/timing_event.hpp"
+#include "../src/storage/sqlite_storage.hpp"
 #include "http/test_http_client.hpp"
 #include "catch.hpp"
 
@@ -28,6 +29,7 @@ using std::runtime_error;
 using std::to_string;
 
 TEST_CASE("tracker") {
+  auto storage = std::make_shared<SqliteStorage>("test-tracker.db");
 
   // --- Emitter Mock
 
@@ -37,7 +39,7 @@ TEST_CASE("tracker") {
     vector<Payload> m_payloads;
 
   public:
-    MockEmitter() : Emitter("com.acme", Emitter::Method::POST, Emitter::Protocol::HTTP, 0, 0, 0, "test-tracker.db", unique_ptr<HttpClient>(new TestHttpClient())) {}
+    MockEmitter(std::shared_ptr<Storage> storage) : Emitter("com.acme", Emitter::Method::POST, Emitter::Protocol::HTTP, 0, 0, 0, move(storage), unique_ptr<HttpClient>(new TestHttpClient())) {}
     void start() { m_started = true; }
     void stop() { m_started = false; }
     void add(Payload payload) { m_payloads.push_back(payload); }
@@ -47,7 +49,7 @@ TEST_CASE("tracker") {
   };
 
   SECTION("Mock emitter stores payloads") {
-    MockEmitter e;
+    MockEmitter e(storage);
 
     e.start();
     REQUIRE(e.is_started() == true);
@@ -68,7 +70,7 @@ TEST_CASE("tracker") {
     }
     REQUIRE(runtime_exception_on_not_init == true);
 
-    MockEmitter e;
+    MockEmitter e(storage);
     Tracker *t = Tracker::init(e, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
     runtime_exception_on_not_init = false;
@@ -83,8 +85,8 @@ TEST_CASE("tracker") {
   }
 
   SECTION("Tracker returns unique event ID") {
-    MockEmitter e;
-    ClientSession cs("test-tracker.db", 5000, 5000);
+    MockEmitter e(storage);
+    ClientSession cs(storage, 5000, 5000);
     string platform = "pc";
     string app_id = "snowplow-test-suite";
     string name_space = "snowplow-testing";
@@ -105,8 +107,8 @@ TEST_CASE("tracker") {
   }
 
   SECTION("Tracker controls should provide expected behaviour") {
-    MockEmitter e;
-    ClientSession cs("test-tracker.db", 5000, 5000);
+    MockEmitter e(storage);
+    ClientSession cs(storage, 5000, 5000);
     string platform = "pc";
     string app_id = "snowplow-test-suite";
     string name_space = "snowplow-testing";
@@ -174,7 +176,7 @@ TEST_CASE("tracker") {
   // --- Tracker Defaults
 
   SECTION("Tracker adds default fields to each payload") {
-    MockEmitter e;
+    MockEmitter e(storage);
     Tracker *t = Tracker::init(e, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
     REQUIRE(e.is_started() == true);
@@ -194,7 +196,7 @@ TEST_CASE("tracker") {
   }
 
   SECTION("Tracker can change default fields") {
-    MockEmitter e;
+    MockEmitter e(storage);
 
     string plat = "mob";
     string app_id = "app-id";
@@ -265,7 +267,7 @@ TEST_CASE("tracker") {
     bool is_arg_exception_empty_category;
     bool is_arg_exception_empty_action;
 
-    MockEmitter e;
+    MockEmitter e(storage);
     Tracker *t = Tracker::init(e, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
     StructuredEvent sv("", "hello");
@@ -340,7 +342,7 @@ TEST_CASE("tracker") {
   }
 
   SECTION("track ScreenViewEvent generates sane event") {
-    MockEmitter e;
+    MockEmitter e(storage);
     Tracker *t = Tracker::init(e, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
     ScreenViewEvent se;
@@ -405,7 +407,7 @@ TEST_CASE("tracker") {
   }
 
   SECTION("track TimingEvent generates a sane event") {
-    MockEmitter e;
+    MockEmitter e(storage);
     Tracker *t = Tracker::init(e, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
     TimingEvent te("category", "variable", 123);
@@ -477,7 +479,7 @@ TEST_CASE("tracker") {
   }
 
   SECTION("track SelfDescribingEvent generates a sane event") {
-    MockEmitter e;
+    MockEmitter e(storage);
 
     bool desktop_context = false;
     Tracker *t = Tracker::init(e, NULL, NULL, NULL, NULL, NULL, NULL, NULL);

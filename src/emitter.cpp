@@ -18,6 +18,7 @@ using std::invalid_argument;
 using std::lock_guard;
 using std::stringstream;
 using std::unique_lock;
+using std::shared_ptr;
 using std::unique_ptr;
 using std::async;
 using std::to_string;
@@ -47,13 +48,11 @@ unique_ptr<HttpClient> createDefaultHttpClient() {
 #endif
 
 Emitter::Emitter(const string &uri, Method method, Protocol protocol, int send_limit,
-                 int byte_limit_post, int byte_limit_get, const string &db_name) : Emitter(uri, method, protocol, send_limit, byte_limit_post, byte_limit_get, db_name, createDefaultHttpClient()) {
+                 int byte_limit_post, int byte_limit_get, shared_ptr<Storage> storage) : Emitter(uri, method, protocol, send_limit, byte_limit_post, byte_limit_get, std::move(storage), createDefaultHttpClient()) {
 }
 
 Emitter::Emitter(const string &uri, Method method, Protocol protocol, int send_limit,
-                 int byte_limit_post, int byte_limit_get, const string &db_name, unique_ptr<HttpClient> http_client) : m_url(this->get_collector_url(uri, protocol, method)) {
-
-  Storage::init(db_name);
+                 int byte_limit_post, int byte_limit_get, shared_ptr<Storage> storage, unique_ptr<HttpClient> http_client) : m_url(this->get_collector_url(uri, protocol, method)) {
 
   if (uri == "") {
     throw invalid_argument("FATAL: Emitter URI cannot be empty.");
@@ -78,6 +77,7 @@ Emitter::Emitter(const string &uri, Method method, Protocol protocol, int send_l
   this->m_send_limit = send_limit;
   this->m_byte_limit_post = byte_limit_post;
   this->m_byte_limit_get = byte_limit_get;
+  this->m_storage = move(storage);
   this->m_http_client = move(http_client);
 }
 
@@ -108,7 +108,7 @@ void Emitter::stop() {
 }
 
 void Emitter::add(Payload payload) {
-  Storage::instance()->insert_payload(payload);
+  m_storage->insert_payload(payload);
   this->m_check_db.notify_all();
 }
 
@@ -132,8 +132,8 @@ void Emitter::flush() {
 
 void Emitter::run() {
   do {
-    list<Storage::EventRow> event_rows;
-    Storage::instance()->select_event_row_range(&event_rows, m_send_limit);
+    list<EventRow> event_rows;
+    m_storage->select_event_row_range(&event_rows, m_send_limit);
 
     if (event_rows.size() > 0) {
       // emit the events
@@ -162,7 +162,7 @@ void Emitter::run() {
       list<int> delete_row_ids;
       delete_row_ids.splice(delete_row_ids.end(), success_row_ids);
       delete_row_ids.splice(delete_row_ids.end(), failed_wont_retry_row_ids);
-      Storage::instance()->delete_event_row_ids(&delete_row_ids);
+      m_storage->delete_event_row_ids(delete_row_ids);
     } else {
       m_check_fin.notify_all();
 
@@ -173,7 +173,7 @@ void Emitter::run() {
   } while (is_running());
 }
 
-void Emitter::do_send(const list<Storage::EventRow> &event_rows, list<HttpRequestResult> *results) {
+void Emitter::do_send(const list<EventRow> &event_rows, list<HttpRequestResult> *results) {
   list<future<HttpRequestResult>> request_futures;
 
   // Send each request in its own thread
@@ -231,7 +231,7 @@ void Emitter::do_send(const list<Storage::EventRow> &event_rows, list<HttpReques
   request_futures.clear();
 }
 
-void Emitter::trigger_callbacks(const list<int> &success_row_ids, const list<int> &failed_will_retry_row_ids, const list<int> &failed_wont_retry_row_ids, const list<Storage::EventRow> &event_rows) const {
+void Emitter::trigger_callbacks(const list<int> &success_row_ids, const list<int> &failed_will_retry_row_ids, const list<int> &failed_wont_retry_row_ids, const list<EventRow> &event_rows) const {
   if (!m_callback) {
     return;
   }

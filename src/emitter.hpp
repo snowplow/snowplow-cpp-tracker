@@ -22,7 +22,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <algorithm>
 #include "constants.hpp"
 #include "utils.hpp"
-#include "storage.hpp"
+#include "storage/storage.hpp"
 #include "payload/payload.hpp"
 #include "payload/self_describing_json.hpp"
 #include "cracked_url.hpp"
@@ -35,6 +35,7 @@ using std::condition_variable;
 using std::mutex;
 using std::unique_ptr;
 using std::list;
+using std::shared_ptr;
 
 namespace snowplow {
 
@@ -87,25 +88,19 @@ public:
   /**
    * @brief Construct a new Emitter object
    *
-   * The `db_name` can be any valid path on your host file system (that can be created with the current user).
-   * By default it will create the required files wherever the application is being run from.
-   *
    * @param uri The URI to send events to
    * @param method The request type to use (GET or POST)
    * @param protocol The protocol to use (http or https)
    * @param send_limit The maximum amount of events to send at a time
    * @param byte_limit_post The byte limit when sending a POST request
    * @param byte_limit_get The byte limit when sending a GET request
-   * @param db_name Defines the path and file name of the database
+   * @param storage Defines the database to use for event queue
    */
   Emitter(const string & uri, Method method, Protocol protocol, int send_limit, 
-    int byte_limit_post, int byte_limit_get, const string & db_name);
+    int byte_limit_post, int byte_limit_get, shared_ptr<Storage> storage);
 
   /**
    * @brief Construct a new Emitter object with a custom HTTP client
-   * 
-   * The `db_name` can be any valid path on your host file system (that can be created with the current user).
-   * By default it will create the required files wherever the application is being run from.
    *
    * @param uri The URI to send events to
    * @param method The request type to use (GET or POST)
@@ -113,11 +108,11 @@ public:
    * @param send_limit The maximum amount of events to send at a time
    * @param byte_limit_post The byte limit when sending a POST request
    * @param byte_limit_get The byte limit when sending a GET request
-   * @param db_name Defines the path and file name of the database
+   * @param storage Defines the database to use for event queue
    * @param http_client Unique pointer to a custom HTTP client to send GET and POST requests with
    */
   Emitter(const string & uri, Method method, Protocol protocol, int send_limit, 
-    int byte_limit_post, int byte_limit_get, const string & db_name, unique_ptr<HttpClient> http_client);
+    int byte_limit_post, int byte_limit_get, shared_ptr<Storage> storage, unique_ptr<HttpClient> http_client);
   ~Emitter();
 
   /**
@@ -211,6 +206,7 @@ public:
 private:
   CrackedUrl m_url;
   Method m_method;
+  shared_ptr<Storage> m_storage;
   unique_ptr<HttpClient> m_http_client;
   unsigned int m_send_limit;
   unsigned int m_byte_limit_get;
@@ -228,10 +224,10 @@ private:
   map<int, bool> m_custom_retry_for_status_codes;
 
   void run();
-  void do_send(const list<Storage::EventRow> &event_rows, list<HttpRequestResult> *results);
+  void do_send(const list<EventRow> &event_rows, list<HttpRequestResult> *results);
   string build_post_data_json(list<Payload> payload_list);
   string get_collector_url(const string &uri, Protocol protocol, Method method) const;
-  void trigger_callbacks(const list<int> &success_row_ids, const list<int> &failed_will_retry_row_ids, const list<int> &failed_wont_retry_row_ids, const list<Storage::EventRow> &event_rows) const;
+  void trigger_callbacks(const list<int> &success_row_ids, const list<int> &failed_will_retry_row_ids, const list<int> &failed_wont_retry_row_ids, const list<EventRow> &event_rows) const;
   void execute_callback(const list<string> &event_ids, EmitStatus emit_status) const;
 };
 } // namespace snowplow
