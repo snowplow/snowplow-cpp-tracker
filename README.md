@@ -34,13 +34,15 @@ Import using the `snowplow.hpp` header file and initialize the tracker with your
 
 using namespace snowplow;
 
+// Storage for events to be sent and current session
+auto storage = std::make_shared<SqliteStorage>("sp.db");
 // Emitter is responsible for sending events to a Snowplow Collector
-Emitter emitter("com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 52000, "sp.db");
+Emitter emitter("com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 52000, storage);
 // Subject defines additional information about your application's environment and user
 Subject subject;
 subject.set_user_id("a-user-id");
 // Client session keeps track of user sessions
-ClientSession client_session("sp.db", 5000, 5000);
+ClientSession client_session(storage, 5000, 5000);
 
 string platform = "pc"; // platform the tracker is running on
 string app_id = "openage"; // application ID

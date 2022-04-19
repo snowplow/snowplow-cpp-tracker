@@ -22,7 +22,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <algorithm>
 #include "constants.hpp"
 #include "utils.hpp"
-#include "storage/storage.hpp"
+#include "storage/event_store.hpp"
 #include "payload/payload.hpp"
 #include "payload/self_describing_json.hpp"
 #include "cracked_url.hpp"
@@ -94,10 +94,10 @@ public:
    * @param send_limit The maximum amount of events to send at a time
    * @param byte_limit_post The byte limit when sending a POST request
    * @param byte_limit_get The byte limit when sending a GET request
-   * @param storage Defines the database to use for event queue
+   * @param event_store Defines the database to use for event queue
    */
   Emitter(const string & uri, Method method, Protocol protocol, int send_limit, 
-    int byte_limit_post, int byte_limit_get, shared_ptr<Storage> storage);
+    int byte_limit_post, int byte_limit_get, shared_ptr<EventStore> event_store);
 
   /**
    * @brief Construct a new Emitter object with a custom HTTP client
@@ -108,11 +108,11 @@ public:
    * @param send_limit The maximum amount of events to send at a time
    * @param byte_limit_post The byte limit when sending a POST request
    * @param byte_limit_get The byte limit when sending a GET request
-   * @param storage Defines the database to use for event queue
+   * @param event_store Defines the database to use for event queue
    * @param http_client Unique pointer to a custom HTTP client to send GET and POST requests with
    */
   Emitter(const string & uri, Method method, Protocol protocol, int send_limit, 
-    int byte_limit_post, int byte_limit_get, shared_ptr<Storage> storage, unique_ptr<HttpClient> http_client);
+    int byte_limit_post, int byte_limit_get, shared_ptr<EventStore> event_store, unique_ptr<HttpClient> http_client);
   ~Emitter();
 
   /**
@@ -206,7 +206,7 @@ public:
 private:
   CrackedUrl m_url;
   Method m_method;
-  shared_ptr<Storage> m_storage;
+  shared_ptr<EventStore> m_event_store;
   unique_ptr<HttpClient> m_http_client;
   unsigned int m_send_limit;
   unsigned int m_byte_limit_get;

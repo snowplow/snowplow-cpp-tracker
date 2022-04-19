@@ -39,7 +39,7 @@ TEST_CASE("tracker") {
     vector<Payload> m_payloads;
 
   public:
-    MockEmitter(std::shared_ptr<Storage> storage) : Emitter("com.acme", Emitter::Method::POST, Emitter::Protocol::HTTP, 0, 0, 0, move(storage), unique_ptr<HttpClient>(new TestHttpClient())) {}
+    MockEmitter(std::shared_ptr<EventStore> event_store) : Emitter("com.acme", Emitter::Method::POST, Emitter::Protocol::HTTP, 0, 0, 0, move(event_store), unique_ptr<HttpClient>(new TestHttpClient())) {}
     void start() { m_started = true; }
     void stop() { m_started = false; }
     void add(Payload payload) { m_payloads.push_back(payload); }

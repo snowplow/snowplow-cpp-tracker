@@ -108,7 +108,7 @@ SqliteStorage::~SqliteStorage() {
 
 // --- INSERT
 
-void SqliteStorage::insert_payload(const Payload &payload) {
+void SqliteStorage::add_event(const Payload &payload) {
   lock_guard<mutex> guard(this->m_db_access);
 
   int rc;
@@ -134,7 +134,7 @@ void SqliteStorage::insert_payload(const Payload &payload) {
   }
 }
 
-void SqliteStorage::insert_update_session(const json &session_data) {
+void SqliteStorage::set_session(const json &session_data) {
   lock_guard<mutex> guard(this->m_db_access);
 
   int rc;
@@ -201,7 +201,7 @@ static int select_event_callback(void *data, int argc, char **argv, char **az_co
   return 0;
 }
 
-void SqliteStorage::select_all_event_rows(list<EventRow> *event_list) {
+void SqliteStorage::get_all_event_rows(list<EventRow> *event_list) {
   lock_guard<mutex> guard(this->m_db_access);
 
   int rc;
@@ -217,7 +217,7 @@ void SqliteStorage::select_all_event_rows(list<EventRow> *event_list) {
   }
 }
 
-void SqliteStorage::select_event_row_range(list<EventRow> *event_list, int range) {
+void SqliteStorage::get_event_rows_batch(list<EventRow> *event_list, int number_to_get) {
   lock_guard<mutex> guard(this->m_db_access);
 
   int rc;
@@ -225,7 +225,7 @@ void SqliteStorage::select_event_row_range(list<EventRow> *event_list, int range
 
   string select_range_query =
       "SELECT * FROM " + db_table_events + " " +
-      "ORDER BY " + db_column_events_id + " ASC LIMIT " + std::to_string(range) + ";";
+      "ORDER BY " + db_column_events_id + " ASC LIMIT " + std::to_string(number_to_get) + ";";
 
   rc = sqlite3_exec(this->m_db, (const char *)select_range_query.c_str(), select_event_callback, (void *)event_list, &err_msg);
   if (rc != SQLITE_OK) {
@@ -250,7 +250,7 @@ static int select_session_callback(void *data, int argc, char **argv, char **az_
   return 0;
 }
 
-void SqliteStorage::select_all_session_rows(list<json> *session_list) {
+void SqliteStorage::get_session(list<json> *session_list) {
   lock_guard<mutex> guard(this->m_db_access);
 
   int rc;
@@ -284,7 +284,7 @@ void SqliteStorage::delete_all_event_rows() {
   }
 }
 
-void SqliteStorage::delete_event_row_ids(const list<int> &id_list) {
+void SqliteStorage::delete_event_rows_with_ids(const list<int> &id_list) {
   lock_guard<mutex> guard(this->m_db_access);
 
   int rc;
@@ -301,7 +301,7 @@ void SqliteStorage::delete_event_row_ids(const list<int> &id_list) {
   }
 }
 
-void SqliteStorage::delete_all_session_rows() {
+void SqliteStorage::delete_session() {
   lock_guard<mutex> guard(this->m_db_access);
 
   int rc;

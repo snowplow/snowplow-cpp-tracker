@@ -143,7 +143,7 @@ TEST_CASE("emitter") {
     REQUIRE(0 != requests.size());
 
     list<EventRow> *event_list = new list<EventRow>;
-    storage->select_all_event_rows(event_list);
+    storage->get_all_event_rows(event_list);
     REQUIRE(0 == event_list->size());
     event_list->clear();
 
@@ -155,7 +155,7 @@ TEST_CASE("emitter") {
     }
 
     event_list = new list<EventRow>;
-    storage->select_all_event_rows(event_list);
+    storage->get_all_event_rows(event_list);
     REQUIRE(10 == event_list->size());
     event_list->clear();
 
@@ -180,7 +180,7 @@ TEST_CASE("emitter") {
     REQUIRE(0 != requests.size());
 
     list<EventRow> *event_list = new list<EventRow>;
-    storage->select_all_event_rows(event_list);
+    storage->get_all_event_rows(event_list);
     REQUIRE(0 == event_list->size());
     event_list->clear();
 
@@ -193,7 +193,7 @@ TEST_CASE("emitter") {
     }
 
     event_list = new list<EventRow>;
-    storage->select_all_event_rows(event_list);
+    storage->get_all_event_rows(event_list);
     REQUIRE(10 == event_list->size());
     event_list->clear();
 
@@ -208,7 +208,7 @@ TEST_CASE("emitter") {
     emitter.flush();
 
     event_list = new list<EventRow>;
-    storage->select_all_event_rows(event_list);
+    storage->get_all_event_rows(event_list);
     REQUIRE(0 == event_list->size());
     event_list->clear();
 
@@ -221,7 +221,7 @@ TEST_CASE("emitter") {
     emitter.flush();
 
     event_list = new list<EventRow>;
-    storage->select_all_event_rows(event_list);
+    storage->get_all_event_rows(event_list);
     REQUIRE(0 == event_list->size());
     event_list->clear();
 

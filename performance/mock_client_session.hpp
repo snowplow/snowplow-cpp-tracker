@@ -18,14 +18,14 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 using snowplow::ClientSession;
 using snowplow::SelfDescribingJson;
-using snowplow::Storage;
+using snowplow::SessionStore;
 using std::string;
 using std::shared_ptr;
 using std::move;
 
 class MockClientSession : public ClientSession {
 public:
-   MockClientSession(shared_ptr<Storage> storage) : ClientSession(move(storage), 5000, 5000) {}
+   MockClientSession(shared_ptr<SessionStore> session_store) : ClientSession(move(session_store), 5000, 5000) {}
 
    void set_is_background(bool is_background) {}
    bool get_is_background() { return false; }

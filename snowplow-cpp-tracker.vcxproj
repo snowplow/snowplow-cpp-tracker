@@ -155,7 +155,8 @@
     <ClInclude Include="src\events\self_describing_event.hpp" />
     <ClInclude Include="src\events\structured_event.hpp" />
     <ClInclude Include="src\events\timing_event.hpp" />
-    <ClInclude Include="src\storage\storage.hpp" />
+    <ClInclude Include="src\storage\event_store.hpp" />
+    <ClInclude Include="src\storage\session_store.hpp" />
     <ClInclude Include="src\storage\sqlite_storage.hpp" />
     <ClInclude Include="src\subject.hpp" />
     <ClInclude Include="src\tracker.hpp" />

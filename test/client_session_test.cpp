@@ -23,7 +23,7 @@ using std::this_thread::sleep_for;
 TEST_CASE("client_session") {
   SECTION("The Session doesn't change for subsequent tracked events") {
     auto storage = std::make_shared<SqliteStorage>("test1.db");
-    storage->delete_all_session_rows();
+    storage->delete_session();
 
     ClientSession cs(storage, 500, 500);
 
@@ -40,7 +40,7 @@ TEST_CASE("client_session") {
 
   SECTION("The Session must persist and update in the background") {
     auto storage = std::make_shared<SqliteStorage>("test1.db");
-    storage->delete_all_session_rows();
+    storage->delete_session();
 
     ClientSession cs(storage, 500, 500);
 
@@ -74,7 +74,7 @@ TEST_CASE("client_session") {
 
   SECTION("The Session must fetch information from previous sessions") {
     auto storage = std::make_shared<SqliteStorage>("test2.db");
-    storage->delete_all_session_rows();
+    storage->delete_session();
 
     ClientSession cs(storage, 10000, 10000);
     SelfDescribingJson session_json = cs.update_and_get_session_context("event-id2");
@@ -110,7 +110,7 @@ TEST_CASE("client_session") {
 
   SECTION("If corrupted data makes it into the session database entry use defaults") {
     auto storage = std::make_shared<SqliteStorage>("test3.db");
-    storage->insert_update_session("{}"_json);
+    storage->set_session("{}"_json);
 
     ClientSession cs(storage, 500, 500);
 
@@ -140,7 +140,7 @@ TEST_CASE("client_session") {
 
   SECTION("The Session updates using background timeout in background") {
     auto storage = std::make_shared<SqliteStorage>("test1.db");
-    storage->delete_all_session_rows();
+    storage->delete_session();
 
     ClientSession cs(storage, 500, 1);
     cs.set_is_background(true);
@@ -168,7 +168,7 @@ TEST_CASE("client_session") {
 
   SECTION("The Session updates using background timeout after transition to foreground") {
     auto storage = std::make_shared<SqliteStorage>("test1.db");
-    storage->delete_all_session_rows();
+    storage->delete_session();
 
     ClientSession cs(storage, 500, 1);
 

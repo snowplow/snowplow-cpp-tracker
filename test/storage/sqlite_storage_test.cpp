@@ -44,12 +44,12 @@ TEST_CASE("SQLite storage") {
 
     // INSERT 50 rows
     for (int i = 0; i < 50; i++) {
-      storage.insert_payload(p);
+      storage.add_event(p);
     }
 
     // SELECT one row
     list<EventRow> *event_list = new list<EventRow>;
-    storage.select_all_event_rows(event_list);
+    storage.get_all_event_rows(event_list);
     REQUIRE(50 == event_list->size());
 
     for (list<EventRow>::iterator it = event_list->begin(); it != event_list->end(); ++it) {
@@ -59,10 +59,10 @@ TEST_CASE("SQLite storage") {
     }
     event_list->clear();
 
-    storage.select_event_row_range(event_list, 100);
+    storage.get_event_rows_batch(event_list, 100);
     REQUIRE(50 == event_list->size());
     event_list->clear();
-    storage.select_event_row_range(event_list, 5);
+    storage.get_event_rows_batch(event_list, 5);
     REQUIRE(5 == event_list->size());
 
     // DELETE rows by id
@@ -70,16 +70,16 @@ TEST_CASE("SQLite storage") {
     for (list<EventRow>::iterator it = event_list->begin(); it != event_list->end(); ++it) {
       id_list.push_back(it->id);
     }
-    storage.delete_event_row_ids(id_list);
+    storage.delete_event_rows_with_ids(id_list);
     event_list->clear();
 
-    storage.select_event_row_range(event_list, 100);
+    storage.get_event_rows_batch(event_list, 100);
     REQUIRE(45 == event_list->size());
     event_list->clear();
 
     // DELETE all rows
     storage.delete_all_event_rows();
-    storage.select_all_event_rows(event_list);
+    storage.get_all_event_rows(event_list);
     REQUIRE(0 == event_list->size());
     event_list->clear();
 
@@ -94,8 +94,8 @@ TEST_CASE("SQLite storage") {
 
     // Insert and check row
     json j = "{\"storage\":\"SQLITE\",\"previousSessionId\":null}"_json;
-    storage.insert_update_session(j);
-    storage.select_all_session_rows(session_rows);
+    storage.set_session(j);
+    storage.get_session(session_rows);
 
     REQUIRE(1 == session_rows->size());
     REQUIRE("{\"previousSessionId\":null,\"storage\":\"SQLITE\"}" == session_rows->front().dump());
@@ -103,9 +103,9 @@ TEST_CASE("SQLite storage") {
 
     // Check we can only insert one row
     for (int i = 0; i < 50; i++) {
-      storage.insert_update_session(j);
+      storage.set_session(j);
     }
-    storage.select_all_session_rows(session_rows);
+    storage.get_session(session_rows);
 
     REQUIRE(1 == session_rows->size());
     REQUIRE("{\"previousSessionId\":null,\"storage\":\"SQLITE\"}" == session_rows->front().dump());
@@ -113,8 +113,8 @@ TEST_CASE("SQLite storage") {
 
     // Check we can update the row values
     j = "{\"storage\":\"SQLITE\",\"previousSessionId\":\"a_value\"}"_json;
-    storage.insert_update_session(j);
-    storage.select_all_session_rows(session_rows);
+    storage.set_session(j);
+    storage.get_session(session_rows);
 
     REQUIRE(1 == session_rows->size());
     REQUIRE("{\"previousSessionId\":\"a_value\",\"storage\":\"SQLITE\"}" == session_rows->front().dump());
@@ -122,6 +122,6 @@ TEST_CASE("SQLite storage") {
 
     // Delete memory for list
     delete (session_rows);
-    storage.delete_all_session_rows();
+    storage.delete_session();
   }
 }

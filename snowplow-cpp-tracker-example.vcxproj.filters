@@ -122,7 +122,10 @@
     <ClInclude Include="src\events\timing_event.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\storage\storage.hpp">
+    <ClInclude Include="src\storage\event_store.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\storage\session_store.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\storage\sqlite_storage.hpp">

@@ -14,7 +14,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #ifndef SQLITE_STORAGE_H
 #define SQLITE_STORAGE_H
 
-#include "storage.hpp"
+#include "event_store.hpp"
+#include "session_store.hpp"
 #include <string>
 #include <list>
 #include <mutex>
@@ -31,19 +32,21 @@ namespace snowplow {
  * @brief Tracker SQLite storage for events and session information.
  *
  */
-class SqliteStorage : public Storage {
+class SqliteStorage : public EventStore, public SessionStore {
 public:
   SqliteStorage(const string &db_name);
   ~SqliteStorage();
 
-  void insert_payload(const Payload &payload);
-  void insert_update_session(const json &session_data);
-  void select_all_event_rows(list<EventRow> *event_list);
-  void select_event_row_range(list<EventRow> *event_list, int range);
-  void select_all_session_rows(list<json> *session_list);
+  void add_event(const Payload &payload);
+  void get_all_event_rows(list<EventRow> *event_list);
+  void get_event_rows_batch(list<EventRow> *event_list, int number_to_get);
   void delete_all_event_rows();
-  void delete_event_row_ids(const list<int> &id_list);
-  void delete_all_session_rows();
+  void delete_event_rows_with_ids(const list<int> &id_list);
+
+  void set_session(const json &session_data);
+  void get_session(list<json> *session_list);
+  void delete_session();
+
   string get_db_name();
 
 private:

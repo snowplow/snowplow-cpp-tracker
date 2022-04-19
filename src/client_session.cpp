@@ -13,7 +13,6 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "client_session.hpp"
 #include "constants.hpp"
-#include "storage/storage.hpp"
 #include "utils.hpp"
 
 using namespace snowplow;
@@ -21,8 +20,8 @@ using std::lock_guard;
 using std::unique_lock;
 using std::shared_ptr;
 
-ClientSession::ClientSession(shared_ptr<Storage> storage, unsigned long long foreground_timeout, unsigned long long background_timeout) {
-  this->m_storage = std::move(storage);
+ClientSession::ClientSession(shared_ptr<SessionStore> storage, unsigned long long foreground_timeout, unsigned long long background_timeout) {
+  this->m_session_store = std::move(storage);
   this->m_foreground_timeout = foreground_timeout;
   this->m_background_timeout = background_timeout;
 
@@ -32,7 +31,7 @@ ClientSession::ClientSession(shared_ptr<Storage> storage, unsigned long long for
 
   // Check for existing session
   list<json> *session_rows = new list<json>;
-  m_storage->select_all_session_rows(session_rows);
+  m_session_store->get_session(session_rows);
 
   if (session_rows->size() == 1) {
     try {
@@ -45,7 +44,7 @@ ClientSession::ClientSession(shared_ptr<Storage> storage, unsigned long long for
       this->m_user_id = Utils::get_uuid4();
       this->m_current_session_id = "";
       this->m_session_index = 0;
-      m_storage->delete_all_session_rows();
+      m_session_store->delete_session();
     }
   } else {
     this->m_user_id = Utils::get_uuid4();
@@ -80,7 +79,7 @@ SelfDescribingJson ClientSession::update_and_get_session_context(const string &e
   }
 
   if (save_to_storage) {
-    m_storage->insert_update_session(session_context_data);
+    m_session_store->set_session(session_context_data);
   }
   SelfDescribingJson sdj(SNOWPLOW_SCHEMA_CLIENT_SESSION, session_context_data);
   return sdj;

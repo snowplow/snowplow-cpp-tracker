@@ -22,7 +22,6 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 using snowplow::ClientSession;
 using snowplow::Emitter;
-using snowplow::Storage;
 using snowplow::Subject;
 using snowplow::Tracker;
 using snowplow::ScreenViewEvent;
@@ -126,5 +125,5 @@ double run_mute_emitter_and_real_session(const string &db_name) {
 
 void clear_storage(shared_ptr<SqliteStorage> &storage) {
   storage->delete_all_event_rows();
-  storage->delete_all_session_rows();
+  storage->delete_session();
 }

@@ -18,7 +18,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <mutex>
 #include "payload/self_describing_json.hpp"
 #include "../include/json.hpp"
-#include "storage/storage.hpp"
+#include "storage/session_store.hpp"
 
 using std::string;
 using std::mutex;
@@ -39,11 +39,11 @@ public:
   /**
    * @brief Construct a new Client Session object
    * 
-   * @param storage Defines the database where session data will be read and stored (must be the same as for Emitter)
+   * @param session_store Defines the database where session data will be read and stored
    * @param foreground_timeout Timeout in ms for updating the session when the app is in background
    * @param background_timeout Timeout in ms for updating the session when the app is in foreground
    */
-  ClientSession(shared_ptr<Storage> storage, unsigned long long foreground_timeout, unsigned long long background_timeout);
+  ClientSession(shared_ptr<SessionStore> session_store, unsigned long long foreground_timeout, unsigned long long background_timeout);
 
   /**
    * @brief Forces a new session to be started when next event is tracked.
@@ -86,7 +86,7 @@ public:
 
 private:
   // Constructor
-  shared_ptr<Storage> m_storage;
+  shared_ptr<SessionStore> m_session_store;
   unsigned long long m_foreground_timeout;
   unsigned long long m_background_timeout;
 
