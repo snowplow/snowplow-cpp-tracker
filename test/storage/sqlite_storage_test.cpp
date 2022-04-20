@@ -116,7 +116,9 @@ TEST_CASE("SQLite storage") {
     REQUIRE(session);
     REQUIRE("{\"previousSessionId\":\"a_value\",\"storage\":\"SQLITE\"}" == session->dump());
 
-    // Delete session
+    // Delete session and check that it is deleted
     storage.delete_session();
+    session = storage.get_session();
+    REQUIRE(!session);
   }
 }
