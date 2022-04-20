@@ -250,7 +250,7 @@ static int select_session_callback(void *data, int argc, char **argv, char **az_
   return 0;
 }
 
-json *SqliteStorage::get_session() {
+unique_ptr<json> SqliteStorage::get_session() {
   lock_guard<mutex> guard(this->m_db_access);
   list<json> session_list;
   int rc;
@@ -266,7 +266,7 @@ json *SqliteStorage::get_session() {
   }
 
   if (!session_list.empty()) {
-    return new json(session_list.front());
+    return unique_ptr<json>(new json(session_list.front()));
   }
   return nullptr;
 }

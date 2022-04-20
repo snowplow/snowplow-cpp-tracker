@@ -94,7 +94,7 @@ TEST_CASE("SQLite storage") {
     // Insert and check row
     json j = "{\"storage\":\"SQLITE\",\"previousSessionId\":null}"_json;
     storage.set_session(j);
-    auto session = std::unique_ptr<json>(storage.get_session());
+    auto session = storage.get_session();
 
     REQUIRE(session);
     REQUIRE("{\"previousSessionId\":null,\"storage\":\"SQLITE\"}" == session->dump());
@@ -103,7 +103,7 @@ TEST_CASE("SQLite storage") {
     for (int i = 0; i < 50; i++) {
       storage.set_session(j);
     }
-    session = std::unique_ptr<json>(storage.get_session());
+    session = storage.get_session();
 
     REQUIRE(session);
     REQUIRE("{\"previousSessionId\":null,\"storage\":\"SQLITE\"}" == session->dump());
@@ -111,7 +111,7 @@ TEST_CASE("SQLite storage") {
     // Check we can update the row values
     j = "{\"storage\":\"SQLITE\",\"previousSessionId\":\"a_value\"}"_json;
     storage.set_session(j);
-    session = std::unique_ptr<json>(storage.get_session());
+    session = storage.get_session();
 
     REQUIRE(session);
     REQUIRE("{\"previousSessionId\":\"a_value\",\"storage\":\"SQLITE\"}" == session->dump());

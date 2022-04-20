@@ -31,7 +31,7 @@ ClientSession::ClientSession(shared_ptr<SessionStore> session_store, unsigned lo
   this->m_is_new_session = true;
 
   // Check for existing session
-  auto session = unique_ptr<json>(m_session_store->get_session());
+  auto session = m_session_store->get_session();
 
   if (session) {
     try {

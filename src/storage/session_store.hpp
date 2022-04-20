@@ -18,6 +18,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <list>
 
 using std::list;
+using std::unique_ptr;
 using json = nlohmann::json;
 
 namespace snowplow {
@@ -32,7 +33,7 @@ struct SessionStore {
    * 
    * @return Pointer to session or nullptr if it doesn't exist
    */
-  virtual json *get_session() = 0;
+  virtual unique_ptr<json> get_session() = 0;
 
   /**
    * @brief Insert or replace the session.

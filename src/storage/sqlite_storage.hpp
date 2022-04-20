@@ -44,7 +44,7 @@ public:
   void delete_event_rows_with_ids(const list<int> &id_list);
 
   void set_session(const json &session_data);
-  json *get_session();
+  unique_ptr<json> get_session();
   void delete_session();
 
   string get_db_name();
