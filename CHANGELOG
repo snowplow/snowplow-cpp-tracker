@@ -1,3 +1,15 @@
+Version 0.3.0 (2022-04-19)
+--------------------------
+Add support for Linux in HTTP client (#5)
+Add CI build on Linux and update build instructions (#50)
+Add support for Linux in desktop context (#47)
+Add support for Linux when generating UUIDs (#46)
+Use a common Event base class for all event types (#51)
+Add emitter callback function (#7)
+Add customizable no-retry HTTP status codes (#54)
+Expose an interface for storage and make it configurable (#48)
+Add a header file that includes all the published APIs (#55)
+
 Version 0.2.0 (2022-02-24)
 --------------------------
 Update session when events are tracked (#35)

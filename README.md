@@ -178,7 +178,7 @@ limitations under the License.
 [travis-image]: https://travis-ci.org/snowplow/snowplow-cpp-tracker.png?branch=master
 [travis]: https://travis-ci.org/snowplow/snowplow-cpp-tracker
 
-[release-image]: https://img.shields.io/badge/release-0.2.0-6ad7e5.svg?style=flat
+[release-image]: https://img.shields.io/badge/release-0.3.0-6ad7e5.svg?style=flat
 [releases]: https://github.com/snowplow/snowplow-cpp-tracker/releases
 
 [license-image]: https://img.shields.io/badge/license-Apache--2-blue.svg?style=flat

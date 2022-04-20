@@ -21,7 +21,7 @@ using std::string;
 using std::set;
 
 namespace snowplow {
-const string SNOWPLOW_TRACKER_VERSION_LABEL = "cpp-0.2.0";
+const string SNOWPLOW_TRACKER_VERSION_LABEL = "cpp-0.3.0";
 
 // post requests
 const string SNOWPLOW_POST_PROTOCOL_VENDOR = "com.snowplowanalytics.snowplow";
