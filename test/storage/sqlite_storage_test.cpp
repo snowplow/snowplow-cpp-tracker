@@ -90,38 +90,33 @@ TEST_CASE("SQLite storage") {
 
   SECTION("should be able to insert only one session object into the database") {
     SqliteStorage storage("test1.db");
-    list<json> *session_rows = new list<json>;
 
     // Insert and check row
     json j = "{\"storage\":\"SQLITE\",\"previousSessionId\":null}"_json;
     storage.set_session(j);
-    storage.get_session(session_rows);
+    auto session = std::unique_ptr<json>(storage.get_session());
 
-    REQUIRE(1 == session_rows->size());
-    REQUIRE("{\"previousSessionId\":null,\"storage\":\"SQLITE\"}" == session_rows->front().dump());
-    session_rows->clear();
+    REQUIRE(session);
+    REQUIRE("{\"previousSessionId\":null,\"storage\":\"SQLITE\"}" == session->dump());
 
     // Check we can only insert one row
     for (int i = 0; i < 50; i++) {
       storage.set_session(j);
     }
-    storage.get_session(session_rows);
+    session = std::unique_ptr<json>(storage.get_session());
 
-    REQUIRE(1 == session_rows->size());
-    REQUIRE("{\"previousSessionId\":null,\"storage\":\"SQLITE\"}" == session_rows->front().dump());
-    session_rows->clear();
+    REQUIRE(session);
+    REQUIRE("{\"previousSessionId\":null,\"storage\":\"SQLITE\"}" == session->dump());
 
     // Check we can update the row values
     j = "{\"storage\":\"SQLITE\",\"previousSessionId\":\"a_value\"}"_json;
     storage.set_session(j);
-    storage.get_session(session_rows);
+    session = std::unique_ptr<json>(storage.get_session());
 
-    REQUIRE(1 == session_rows->size());
-    REQUIRE("{\"previousSessionId\":\"a_value\",\"storage\":\"SQLITE\"}" == session_rows->front().dump());
-    session_rows->clear();
+    REQUIRE(session);
+    REQUIRE("{\"previousSessionId\":\"a_value\",\"storage\":\"SQLITE\"}" == session->dump());
 
-    // Delete memory for list
-    delete (session_rows);
+    // Delete session
     storage.delete_session();
   }
 }

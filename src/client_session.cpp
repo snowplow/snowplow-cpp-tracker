@@ -19,6 +19,7 @@ using namespace snowplow;
 using std::lock_guard;
 using std::unique_lock;
 using std::shared_ptr;
+using std::unique_ptr;
 
 ClientSession::ClientSession(shared_ptr<SessionStore> session_store, unsigned long long foreground_timeout, unsigned long long background_timeout) {
   this->m_session_store = std::move(session_store);
@@ -30,16 +31,13 @@ ClientSession::ClientSession(shared_ptr<SessionStore> session_store, unsigned lo
   this->m_is_new_session = true;
 
   // Check for existing session
-  list<json> *session_rows = new list<json>;
-  m_session_store->get_session(session_rows);
+  auto session = unique_ptr<json>(m_session_store->get_session());
 
-  if (session_rows->size() == 1) {
+  if (session) {
     try {
-      json session_context = session_rows->front();
-
-      this->m_user_id = session_context[SNOWPLOW_SESSION_USER_ID].get<std::string>();
-      this->m_current_session_id = session_context[SNOWPLOW_SESSION_ID].get<std::string>();
-      this->m_session_index = session_context[SNOWPLOW_SESSION_INDEX].get<unsigned long long>();
+      this->m_user_id = (*session)[SNOWPLOW_SESSION_USER_ID].get<std::string>();
+      this->m_current_session_id = (*session)[SNOWPLOW_SESSION_ID].get<std::string>();
+      this->m_session_index = (*session)[SNOWPLOW_SESSION_INDEX].get<unsigned long long>();
     } catch (...) {
       this->m_user_id = Utils::get_uuid4();
       this->m_current_session_id = "";
@@ -52,9 +50,6 @@ ClientSession::ClientSession(shared_ptr<SessionStore> session_store, unsigned lo
     this->m_session_index = 0;
   }
   this->update_last_session_check_at();
-
-  session_rows->clear();
-  delete (session_rows);
 }
 
 // --- Public

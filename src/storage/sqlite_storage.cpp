@@ -250,20 +250,25 @@ static int select_session_callback(void *data, int argc, char **argv, char **az_
   return 0;
 }
 
-void SqliteStorage::get_session(list<json> *session_list) {
+json *SqliteStorage::get_session() {
   lock_guard<mutex> guard(this->m_db_access);
-
+  list<json> session_list;
   int rc;
   char *err_msg = 0;
 
   string select_all_query =
-      "SELECT * FROM " + db_table_session + ";";
+      "SELECT * FROM " + db_table_session + " WHERE " + db_column_session_id + " = 1;";
 
-  rc = sqlite3_exec(this->m_db, (const char *)select_all_query.c_str(), select_session_callback, (void *)session_list, &err_msg);
+  rc = sqlite3_exec(this->m_db, (const char *)select_all_query.c_str(), select_session_callback, (void *)&session_list, &err_msg);
   if (rc != SQLITE_OK) {
     cerr << "ERROR: Failed to execute select_all_query: " << rc << "; " << err_msg << endl;
     sqlite3_free(err_msg);
   }
+
+  if (!session_list.empty()) {
+    return new json(session_list.front());
+  }
+  return nullptr;
 }
 
 // --- DELETE

@@ -28,11 +28,11 @@ namespace snowplow {
  */
 struct SessionStore {
   /**
-   * @brief Select the current session into the list – there should be at most 1.
+   * @brief Return the current session.
    * 
-   * @param session_list Output list of sessions (of size 0 or 1)
+   * @return Pointer to session or nullptr if it doesn't exist
    */
-  virtual void get_session(list<json>* session_list) = 0;
+  virtual json *get_session() = 0;
 
   /**
    * @brief Insert or replace the session.
