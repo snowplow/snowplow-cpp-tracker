@@ -48,11 +48,11 @@ unique_ptr<HttpClient> createDefaultHttpClient() {
 #endif
 
 Emitter::Emitter(const string &uri, Method method, Protocol protocol, int send_limit,
-                 int byte_limit_post, int byte_limit_get, shared_ptr<EventStore> storage) : Emitter(uri, method, protocol, send_limit, byte_limit_post, byte_limit_get, std::move(storage), createDefaultHttpClient()) {
+                 int byte_limit_post, int byte_limit_get, shared_ptr<EventStore> event_store) : Emitter(uri, method, protocol, send_limit, byte_limit_post, byte_limit_get, std::move(event_store), createDefaultHttpClient()) {
 }
 
 Emitter::Emitter(const string &uri, Method method, Protocol protocol, int send_limit,
-                 int byte_limit_post, int byte_limit_get, shared_ptr<EventStore> storage, unique_ptr<HttpClient> http_client) : m_url(this->get_collector_url(uri, protocol, method)) {
+                 int byte_limit_post, int byte_limit_get, shared_ptr<EventStore> event_store, unique_ptr<HttpClient> http_client) : m_url(this->get_collector_url(uri, protocol, method)) {
 
   if (uri == "") {
     throw invalid_argument("FATAL: Emitter URI cannot be empty.");
@@ -77,7 +77,7 @@ Emitter::Emitter(const string &uri, Method method, Protocol protocol, int send_l
   this->m_send_limit = send_limit;
   this->m_byte_limit_post = byte_limit_post;
   this->m_byte_limit_get = byte_limit_get;
-  this->m_event_store = move(storage);
+  this->m_event_store = move(event_store);
   this->m_http_client = move(http_client);
 }
 
