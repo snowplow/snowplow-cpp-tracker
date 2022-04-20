@@ -84,7 +84,7 @@ This will create two executables - the first is the test-suite which can be exec
 The other is an example program which will send one of every type of event to an endpoint of your choosing like so:
 
 ```bash
- host> cd build
+ host> cd build/example
  host> ./tracker_example {{ your collector uri }}
 ```
 

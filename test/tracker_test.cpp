@@ -13,7 +13,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "../include/base64.hpp"
 #include "../include/json.hpp"
-#include "../src/emitter.hpp"
+#include "../src/emitter/emitter.hpp"
 #include "../src/tracker.hpp"
 #include "../src/events/structured_event.hpp"
 #include "../src/events/screen_view_event.hpp"

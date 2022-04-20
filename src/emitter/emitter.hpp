@@ -20,14 +20,15 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <future>
 #include <thread>
 #include <algorithm>
-#include "constants.hpp"
-#include "utils.hpp"
-#include "storage/event_store.hpp"
-#include "payload/payload.hpp"
-#include "payload/self_describing_json.hpp"
-#include "cracked_url.hpp"
-#include "http/http_request_result.hpp"
-#include "http/http_client.hpp"
+#include "../constants.hpp"
+#include "../utils.hpp"
+#include "../storage/event_store.hpp"
+#include "../payload/payload.hpp"
+#include "../payload/self_describing_json.hpp"
+#include "../cracked_url.hpp"
+#include "../http/http_request_result.hpp"
+#include "../http/http_client.hpp"
+#include "retry_delay.hpp"
 
 using std::string;
 using std::thread;
@@ -222,6 +223,7 @@ private:
   EmitterCallback m_callback;
   EmitStatus m_callback_emit_status;
   map<int, bool> m_custom_retry_for_status_codes;
+  RetryDelay m_retry_delay;
 
   void run();
   void do_send(const list<EventRow> &event_rows, list<HttpRequestResult> *results);

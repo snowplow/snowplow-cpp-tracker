@@ -26,22 +26,23 @@ using std::transform;
 using std::equal;
 using std::move;
 using std::future;
+using std::this_thread::sleep_for;
 
 const int post_wrapper_bytes = 88; // "schema":"iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-4","data":[]
 const int post_stm_bytes = 22;     // "stm":"1443452851000"
 
 #if defined(__APPLE__)
-#include "http/http_client_apple.hpp"
+#include "../http/http_client_apple.hpp"
 unique_ptr<HttpClient> createDefaultHttpClient() {
   return unique_ptr<HttpClient>(new HttpClientApple());
 }
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-#include "http/http_client_windows.hpp"
+#include "../http/http_client_windows.hpp"
 unique_ptr<HttpClient> createDefaultHttpClient() {
   return unique_ptr<HttpClient>(new HttpClientWindows());
 }
 #else
-#include "http/http_client_curl.hpp"
+#include "../http/http_client_curl.hpp"
 unique_ptr<HttpClient> createDefaultHttpClient() {
   return unique_ptr<HttpClient>(new HttpClientCurl());
 }
@@ -163,6 +164,19 @@ void Emitter::run() {
       delete_row_ids.splice(delete_row_ids.end(), success_row_ids);
       delete_row_ids.splice(delete_row_ids.end(), failed_wont_retry_row_ids);
       m_event_store->delete_event_rows_with_ids(delete_row_ids);
+
+      // update retry delay calculation based on whether the requests will be retried
+      if (!failed_will_retry_row_ids.empty()) {
+        m_retry_delay.will_retry_emit();
+      } else {
+        m_retry_delay.wont_retry_emit();
+      }
+
+      // sleep for the retry delay if there is one
+      auto retry_delay = m_retry_delay.get();
+      if (retry_delay.count() > 0) {
+        sleep_for(retry_delay);
+      }
     } else {
       m_check_fin.notify_all();
 

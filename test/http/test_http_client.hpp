@@ -44,10 +44,11 @@ public:
   static list<Request> requests_list;
   static int response_code;
   static int temporary_response_code;
+  static int temporary_response_code_remaining_attempts;
   static mutex log_read_write;
 
   static void set_http_response_code(int http_response_code);
-  static void set_temporary_response_code(int http_response_code);
+  static void set_temporary_response_code(int http_response_code, int number_of_attempts = 1);
   static list<Request> get_requests_list();
   static void reset();
 

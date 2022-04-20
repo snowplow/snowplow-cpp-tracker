@@ -24,6 +24,7 @@ list<TestHttpClient::Request> TestHttpClient::requests_list;
 mutex TestHttpClient::log_read_write;
 int TestHttpClient::response_code = 200;
 int TestHttpClient::temporary_response_code = -1;
+int TestHttpClient::temporary_response_code_remaining_attempts = 0;
 
 HttpRequestResult TestHttpClient::http_request(const RequestMethod method, CrackedUrl url, const string &query_string, const string &post_data, list<int> row_ids, bool oversize) {
   lock_guard<mutex> guard(log_read_write);
@@ -44,15 +45,16 @@ void TestHttpClient::set_http_response_code(int http_response_code) {
   response_code = http_response_code;
 }
 
-void TestHttpClient::set_temporary_response_code(int http_response_code) {
+void TestHttpClient::set_temporary_response_code(int http_response_code, int number_of_attempts) {
   lock_guard<mutex> guard(log_read_write);
   temporary_response_code = http_response_code;
+  temporary_response_code_remaining_attempts = number_of_attempts;
 }
 
 int TestHttpClient::fetch_response_code() {
-  if (temporary_response_code >= 0) {
+  if (temporary_response_code_remaining_attempts > 0) {
     int code = temporary_response_code;
-    temporary_response_code = -1;
+    temporary_response_code_remaining_attempts--;
     return code;
   }
   return response_code;

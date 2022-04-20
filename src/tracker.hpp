@@ -15,7 +15,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #define TRACKER_H
 
 #include <string>
-#include "emitter.hpp"
+#include "emitter/emitter.hpp"
 #include "subject.hpp"
 #include "client_session.hpp"
 #include "events/event.hpp"
