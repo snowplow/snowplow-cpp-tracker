@@ -12,28 +12,37 @@ Snowplow C++ tracker enables you to add analytics to your C++ applications, serv
 
 ## Quick Start
 
-The tracker currently supports macOS and Windows.
+The tracker supports macOS, Windows, and Linux.
 
 ### Installation
 
 Download the most recent release from the [releases section](https://github.com/snowplow/snowplow-cpp-tracker/releases). Everything in both the `src` and `include` folders will need to be included in your application. It is important to keep the same folder structure as references to the included headers have been done like so: `../include/json.hpp`.
 
+#### Requirements under Linux
+
+The following libraries need to be installed:
+
+* curl (using `apt install libcurl4-openssl-dev` on Ubuntu)
+* uuid (using `apt install uuid-dev` on Ubuntu)
+
 ### Using the tracker
 
-Import and initialize the tracker with your Snowplow collector endpoint and tracker configuration:
+Import using the `snowplow.hpp` header file and initialize the tracker with your Snowplow collector endpoint and tracker configuration:
 
 ```cpp
-#include "tracker.hpp"
+#include "snowplow.hpp"
 
 using namespace snowplow;
 
+// Storage for events to be sent and current session
+auto storage = std::make_shared<SqliteStorage>("sp.db");
 // Emitter is responsible for sending events to a Snowplow Collector
-Emitter emitter("com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 52000, "sp.db");
+Emitter emitter("com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 52000, storage);
 // Subject defines additional information about your application's environment and user
 Subject subject;
 subject.set_user_id("a-user-id");
 // Client session keeps track of user sessions
-ClientSession client_session("sp.db", 5000, 5000);
+ClientSession client_session(storage, 5000, 5000);
 
 string platform = "pc"; // platform the tracker is running on
 string app_id = "openage"; // application ID
@@ -48,21 +57,21 @@ Track custom events (see the documentation for the full list of supported event 
 
 ```cpp
 // structured event
-Tracker::StructuredEvent se("category", "action");
-tracker->track_struct_event(se);
+StructuredEvent se("category", "action");
+tracker->track(se);
 
 // screen view event
-Tracker::ScreenViewEvent sve;
+ScreenViewEvent sve;
 string name = "Screen ID - 5asd56";
 sve.name = &name;
-tracker->track_screen_view(sve);
+tracker->track(sve);
 ```
 
 Check the tracked events in a [Snowplow Micro](https://docs.snowplowanalytics.com/docs/understanding-your-pipeline/what-is-snowplow-micro/) or [Snowplow Mini](https://docs.snowplowanalytics.com/docs/understanding-your-pipeline/what-is-snowplow-mini/) instance.
 
 ## Developer Quick Start
 
-### Building on macOS
+### Building on macOS and Linux
 
 ```bash
  host> git clone https://github.com/snowplow/snowplow-cpp-tracker
@@ -92,7 +101,7 @@ To run the test suite:
  host> make unit-tests
 ```
 
-If you wish to generate a local code coverage report you will first need to install [lcov](http://ltp.sourceforge.net/coverage/lcov.php) on your host machine.  The easiest way to do this is using [brew](http://brew.sh/):
+If you wish to generate a local code coverage report you will first need to install [lcov](http://ltp.sourceforge.net/coverage/lcov.php) on your host machine.  The easiest way to do this is using [brew](http://brew.sh/) under macOS:
 
 ```bash
  host> brew install lcov 
@@ -169,7 +178,7 @@ limitations under the License.
 [travis-image]: https://travis-ci.org/snowplow/snowplow-cpp-tracker.png?branch=master
 [travis]: https://travis-ci.org/snowplow/snowplow-cpp-tracker
 
-[release-image]: https://img.shields.io/badge/release-0.2.0-6ad7e5.svg?style=flat
+[release-image]: https://img.shields.io/badge/release-0.3.0-6ad7e5.svg?style=flat
 [releases]: https://github.com/snowplow/snowplow-cpp-tracker/releases
 
 [license-image]: https://img.shields.io/badge/license-Apache--2-blue.svg?style=flat

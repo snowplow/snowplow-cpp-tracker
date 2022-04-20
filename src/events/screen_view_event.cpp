@@ -11,18 +11,29 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "../src/self_describing_json.hpp"
-#include "catch.hpp"
+#include "screen_view_event.hpp"
 
 using namespace snowplow;
+using std::invalid_argument;
 
-TEST_CASE("self_describing_json") {
-  json j = "{\"test\":\"event\"}"_json;
-  SelfDescribingJson sdj("iglu:com.acme/test/jsonschema/1-0-0", j);
+ScreenViewEvent::ScreenViewEvent() {
+  this->id = NULL;
+  this->name = NULL;
+}
 
-  REQUIRE("{\"data\":{\"test\":\"event\"},\"schema\":\"iglu:com.acme/test/jsonschema/1-0-0\"}" == sdj.to_string());
-  json sdj_raw = sdj.get();
-  REQUIRE("iglu:com.acme/test/jsonschema/1-0-0" == sdj_raw[SNOWPLOW_SCHEMA].get<std::string>());
-  json sdj_data = sdj_raw[SNOWPLOW_DATA];
-  REQUIRE("event" == sdj_data["test"].get<std::string>());
+EventPayload ScreenViewEvent::get_custom_event_payload(bool use_base64) const {
+  if (name == NULL && id == NULL) {
+    throw invalid_argument("Either name or id field must be set");
+  }
+
+  json data;
+  if (id != NULL) {
+    data[SNOWPLOW_SV_ID] = *id;
+  }
+  if (name != NULL) {
+    data[SNOWPLOW_SV_NAME] = *name;
+  }
+
+  SelfDescribingJson event = SelfDescribingJson(SNOWPLOW_SCHEMA_SCREEN_VIEW, data);
+  return get_self_describing_event_payload(event, use_base64);
 }

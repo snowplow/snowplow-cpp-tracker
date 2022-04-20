@@ -13,15 +13,16 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "client_session.hpp"
 #include "constants.hpp"
-#include "storage.hpp"
 #include "utils.hpp"
 
 using namespace snowplow;
 using std::lock_guard;
 using std::unique_lock;
+using std::shared_ptr;
+using std::unique_ptr;
 
-ClientSession::ClientSession(const string &db_name, unsigned long long foreground_timeout, unsigned long long background_timeout) {
-  Storage::init(db_name);
+ClientSession::ClientSession(shared_ptr<SessionStore> session_store, unsigned long long foreground_timeout, unsigned long long background_timeout) {
+  this->m_session_store = std::move(session_store);
   this->m_foreground_timeout = foreground_timeout;
   this->m_background_timeout = background_timeout;
 
@@ -30,21 +31,18 @@ ClientSession::ClientSession(const string &db_name, unsigned long long foregroun
   this->m_is_new_session = true;
 
   // Check for existing session
-  list<json> *session_rows = new list<json>;
-  Storage::instance()->select_all_session_rows(session_rows);
+  auto session = m_session_store->get_session();
 
-  if (session_rows->size() == 1) {
+  if (session) {
     try {
-      json session_context = session_rows->front();
-
-      this->m_user_id = session_context[SNOWPLOW_SESSION_USER_ID].get<std::string>();
-      this->m_current_session_id = session_context[SNOWPLOW_SESSION_ID].get<std::string>();
-      this->m_session_index = session_context[SNOWPLOW_SESSION_INDEX].get<unsigned long long>();
+      this->m_user_id = (*session)[SNOWPLOW_SESSION_USER_ID].get<std::string>();
+      this->m_current_session_id = (*session)[SNOWPLOW_SESSION_ID].get<std::string>();
+      this->m_session_index = (*session)[SNOWPLOW_SESSION_INDEX].get<unsigned long long>();
     } catch (...) {
       this->m_user_id = Utils::get_uuid4();
       this->m_current_session_id = "";
       this->m_session_index = 0;
-      Storage::instance()->delete_all_session_rows();
+      m_session_store->delete_session();
     }
   } else {
     this->m_user_id = Utils::get_uuid4();
@@ -52,9 +50,6 @@ ClientSession::ClientSession(const string &db_name, unsigned long long foregroun
     this->m_session_index = 0;
   }
   this->update_last_session_check_at();
-
-  session_rows->clear();
-  delete (session_rows);
 }
 
 // --- Public
@@ -79,7 +74,7 @@ SelfDescribingJson ClientSession::update_and_get_session_context(const string &e
   }
 
   if (save_to_storage) {
-    Storage::instance()->insert_update_session(session_context_data);
+    m_session_store->set_session(session_context_data);
   }
   SelfDescribingJson sdj(SNOWPLOW_SCHEMA_CLIENT_SESSION, session_context_data);
   return sdj;

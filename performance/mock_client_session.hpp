@@ -14,15 +14,18 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #ifndef MOCK_CLIENT_SESSION_H
 #define MOCK_CLIENT_SESSION_H
 
-#include "../src/client_session.hpp"
+#include "../src/snowplow.hpp"
 
 using snowplow::ClientSession;
 using snowplow::SelfDescribingJson;
+using snowplow::SessionStore;
 using std::string;
+using std::shared_ptr;
+using std::move;
 
 class MockClientSession : public ClientSession {
 public:
-   MockClientSession(const string &db_name) : ClientSession(db_name, 5000, 5000) {}
+   MockClientSession(shared_ptr<SessionStore> session_store) : ClientSession(move(session_store), 5000, 5000) {}
 
    void set_is_background(bool is_background) {}
    bool get_is_background() { return false; }

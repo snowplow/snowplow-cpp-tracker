@@ -15,8 +15,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #define SELF_DESCRIBING_JSON_H
 
 #include <string>
-#include "constants.hpp"
-#include "../include/json.hpp"
+#include "../constants.hpp"
+#include "../../include/json.hpp"
 
 using std::string;
 using json = nlohmann::json;
@@ -36,7 +36,7 @@ public:
    * @param schema Iglu schema (e.g., "iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0")
    * @param data Data payload with unstructured set of properties
    */
-  SelfDescribingJson(const string & schema, const json & data);
+  SelfDescribingJson(const string &schema, const json &data);
 
   /**
    * @brief Destroy the Self Describing Json object
@@ -48,14 +48,14 @@ public:
    * 
    * @return json Content as a JSON object
    */
-  json get();
+  json get() const;
 
   /**
    * @brief Return the content of the self-describing JSON as string.
    * 
    * @return string Content as a JSON string
    */
-  string to_string();
+  string to_string() const;
 };
 }
 

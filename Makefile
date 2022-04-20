@@ -18,9 +18,9 @@ cc-objects := $(patsubst %.c, %.o, $(cc-include-files))
 
 # C++ Files
 
-cxx-src-files := $(shell find src -maxdepth 1 -name "*.cpp")
+cxx-src-files := $(shell find src -maxdepth 2 -name "*.cpp")
 cxx-include-files := $(shell find include -maxdepth 1 -name "*.cpp")
-cxx-test-files := $(shell find test -maxdepth 1 -name "*.cpp")
+cxx-test-files := $(shell find test -maxdepth 2 -name "*.cpp")
 cxx-example-files := $(shell find examples -maxdepth 1 -name "*.cpp")
 cxx-performance-files := $(shell find performance -maxdepth 1 -name "*.cpp")
 
@@ -29,10 +29,16 @@ cxx-test-objects := $(patsubst %.cpp, %.o, $(cxx-test-files))
 cxx-example-objects := $(patsubst %.cpp, %.o, $(cxx-example-files))
 cxx-performance-objects := $(patsubst %.cpp, %.o, $(cxx-performance-files))
 
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S), Darwin)
 # Objective-C++ Files
 
 objcxx-src-files := $(shell find src -maxdepth 1 -name "*.mm")
 objcxx-objects := $(patsubst %.mm, %.o, $(objcxx-src-files))
+else
+objcxx-src-files :=
+objcxx-objects :=
+endif
 
 # Arguments
 
@@ -41,7 +47,13 @@ CXX := g++
 OBJCXX := c++
 CCFLAGS := -Werror -g
 CXXFLAGS := -std=c++11 -Werror -g -D SNOWPLOW_TEST_SUITE --coverage -O0
+ifeq ($(UNAME_S), Darwin)
 LDFLAGS := -framework CoreFoundation -framework CFNetwork -framework Foundation -framework CoreServices
+LDLIBS := -lcurl
+else
+LDLIBS := -lcurl -pthread -ldl -luuid
+LDFLAGS :=
+endif
 
 # Building
 

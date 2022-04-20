@@ -40,17 +40,14 @@ TEST_CASE("utils") {
   }
 
   SECTION("int_list_to_string will successfully convert a list of integers to a string") {
-    list<int> *int_list = new list<int>;
-    int_list->push_back(1);
-    int_list->push_back(2);
-    int_list->push_back(3);
-    int_list->push_back(4);
-    int_list->push_back(5);
+    list<int> int_list;
+    int_list.push_back(1);
+    int_list.push_back(2);
+    int_list.push_back(3);
+    int_list.push_back(4);
+    int_list.push_back(5);
 
     REQUIRE("1,2,3,4,5" == Utils::int_list_to_string(int_list, ","));
-
-    int_list->clear();
-    delete (int_list);
   }
 
   SECTION("map_to_query_string should correctly convert a map<string,string> to a query string") {
@@ -91,8 +88,15 @@ TEST_CASE("utils") {
   }
 
   SECTION("get_device_context should populate OS specific information correctly") {
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+    string os_type = Utils::get_os_type();
+    string os_version = Utils::get_os_version();
+    string os_service_pack = Utils::get_os_service_pack();
+    bool os_is_64bit = Utils::get_os_is_64bit();
+    string device_manufacturer = Utils::get_device_manufacturer();
+    string device_model = Utils::get_device_model();
+    int device_processor_count = Utils::get_device_processor_count();
 
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
     DWORD expected_proc_count = std::thread::hardware_concurrency();
 
     OSVERSIONINFOEX osviex;
@@ -100,47 +104,53 @@ TEST_CASE("utils") {
     osviex.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
     REQUIRE(::GetVersionEx((LPOSVERSIONINFO)&osviex) != 0);
 
-    string os_version = to_string(osviex.dwMajorVersion) + "." + to_string(osviex.dwMinorVersion) + "." + to_string(osviex.dwBuildNumber);
-    string service_pack = to_string(osviex.wServicePackMajor) + "." + to_string(osviex.wServicePackMinor);
+    string expected_os_version = to_string(osviex.dwMajorVersion) + "." + to_string(osviex.dwMinorVersion) + "." + to_string(osviex.dwBuildNumber);
+    string expected_service_pack = to_string(osviex.wServicePackMajor) + "." + to_string(osviex.wServicePackMinor);
 
-    bool is_64_bit_os;
+    bool expected_is_64_bit_os;
 
 #if defined(_WIN64)
-    is_64_bit_os = true;
+    expected_is_64_bit_os = true;
 #elif defined(_WIN32)
     BOOL f64 = FALSE;
-    is_64_bit_os = IsWow64Process(GetCurrentProcess(), &f64) && f64;
+    expected_is_64_bit_os = IsWow64Process(GetCurrentProcess(), &f64) && f64;
 #else
-    is_64_bit_os = false;
+    expected_is_64_bit_os = false;
 #endif
-    REQUIRE("Windows" == Utils::get_os_type());
-    REQUIRE(os_version == Utils::get_os_version());
-    REQUIRE(service_pack == Utils::get_os_service_pack());
-    REQUIRE(is_64_bit_os == Utils::get_os_is_64bit());
-    REQUIRE("" == Utils::get_device_manufacturer());
-    REQUIRE("" == Utils::get_device_model());
-    REQUIRE(expected_proc_count == Utils::get_device_processor_count());
+    REQUIRE("Windows" == os_type);
+    REQUIRE(expected_os_version == os_version);
+    REQUIRE(expected_service_pack == os_service_pack);
+    REQUIRE(expected_is_64_bit_os == os_is_64bit);
+    REQUIRE("" == device_manufacturer);
+    REQUIRE("" == device_model);
+    REQUIRE(expected_proc_count == device_processor_count);
 #elif defined(__APPLE__)
-    REQUIRE("macOS" == Utils::get_os_type());
-    REQUIRE("" != Utils::get_os_version());
-    REQUIRE("" == Utils::get_os_service_pack());
-    REQUIRE((true || false) == Utils::get_os_is_64bit());
-    REQUIRE("Apple Inc." == Utils::get_device_manufacturer());
-    REQUIRE("" != Utils::get_device_model());
-    REQUIRE(0 != Utils::get_device_processor_count());
+    REQUIRE("macOS" == os_type);
+    REQUIRE("" != os_version);
+    REQUIRE("" == os_service_pack);
+    REQUIRE("Apple Inc." == device_manufacturer);
+    REQUIRE("" != device_model);
+    REQUIRE(0 != device_processor_count);
+#else
+    REQUIRE("Linux" == os_type);
+    REQUIRE("" != os_version);
+    REQUIRE("" == os_service_pack);
+    REQUIRE("" == device_manufacturer);
+    REQUIRE("" == device_model);
+    REQUIRE(0 != device_processor_count);
+#endif
 
     SelfDescribingJson desktop_context = Utils::get_desktop_context();
     json desktop_context_json = desktop_context.get();
     json desktop_context_data = desktop_context_json[SNOWPLOW_DATA];
 
     REQUIRE(SNOWPLOW_SCHEMA_DESKTOP_CONTEXT == desktop_context_json[SNOWPLOW_SCHEMA].get<std::string>());
-    REQUIRE("macOS" == desktop_context_data[SNOWPLOW_DESKTOP_OS_TYPE].get<std::string>());
-    REQUIRE("" != desktop_context_data[SNOWPLOW_DESKTOP_OS_VERSION].get<std::string>());
-    REQUIRE("" == desktop_context_data[SNOWPLOW_DESKTOP_OS_SERVICE_PACK].get<std::string>());
-    REQUIRE((true || false) == desktop_context_data[SNOWPLOW_DESKTOP_OS_IS_64_BIT].get<bool>());
-    REQUIRE("Apple Inc." == desktop_context_data[SNOWPLOW_DESKTOP_DEVICE_MANU].get<std::string>());
-    REQUIRE("" != desktop_context_data[SNOWPLOW_DESKTOP_DEVICE_MODEL].get<std::string>());
-    REQUIRE(0 != desktop_context_data[SNOWPLOW_DESKTOP_DEVICE_PROC_COUNT].get<int>());
-#endif
+    REQUIRE(os_type == desktop_context_data[SNOWPLOW_DESKTOP_OS_TYPE].get<std::string>());
+    REQUIRE(os_version == desktop_context_data[SNOWPLOW_DESKTOP_OS_VERSION].get<std::string>());
+    REQUIRE(os_service_pack == desktop_context_data[SNOWPLOW_DESKTOP_OS_SERVICE_PACK].get<std::string>());
+    REQUIRE(os_is_64bit == desktop_context_data[SNOWPLOW_DESKTOP_OS_IS_64_BIT].get<bool>());
+    REQUIRE(device_manufacturer == desktop_context_data[SNOWPLOW_DESKTOP_DEVICE_MANU].get<std::string>());
+    REQUIRE(device_model == desktop_context_data[SNOWPLOW_DESKTOP_DEVICE_MODEL].get<std::string>());
+    REQUIRE(device_processor_count == desktop_context_data[SNOWPLOW_DESKTOP_DEVICE_PROC_COUNT].get<int>());
   }
 }

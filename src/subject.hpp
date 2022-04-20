@@ -16,7 +16,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include <map>
 #include <string>
-#include "payload.hpp"
+#include "payload/payload.hpp"
 #include "constants.hpp"
 
 using std::map;

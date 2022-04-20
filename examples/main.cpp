@@ -2,12 +2,17 @@
 #include <string>
 #include <time.h>
 
-#include "../src/tracker.hpp"
+#include "../src/snowplow.hpp"
 
 using snowplow::ClientSession;
 using snowplow::Emitter;
+using snowplow::EmitStatus;
 using snowplow::Subject;
 using snowplow::Tracker;
+using snowplow::StructuredEvent;
+using snowplow::ScreenViewEvent;
+using snowplow::TimingEvent;
+using snowplow::SqliteStorage;
 using std::cout;
 using std::endl;
 using std::string;
@@ -26,7 +31,23 @@ int main(int argc, char **argv) {
   string uri = argv[1];
   string db_name = "demo.db";
 
-  Emitter emitter(uri, Emitter::Method::POST, Emitter::Protocol::HTTP, 52000, 52000, 500, db_name);
+  auto storage = std::make_shared<SqliteStorage>(db_name);
+  Emitter emitter(uri, Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 52000, storage);
+  emitter.set_request_callback(
+      [](list<string> event_ids, EmitStatus emit_status) {
+        switch (emit_status) {
+        case EmitStatus::SUCCESS:
+          printf("Successfuly sent %lu events.\n", event_ids.size());
+          break;
+        case EmitStatus::FAILED_WILL_RETRY:
+          printf("Failed to send %lu events, but will retry.\n", event_ids.size());
+          break;
+        case EmitStatus::FAILED_WONT_RETRY:
+          printf("Failed to send %lu events and won't retry.\n", event_ids.size());
+          break;
+        }
+      },
+      EmitStatus::SUCCESS | EmitStatus::FAILED_WILL_RETRY | EmitStatus::FAILED_WONT_RETRY);
 
   Subject subject;
   subject.set_user_id("a-user-id");
@@ -37,7 +58,7 @@ int main(int argc, char **argv) {
   subject.set_language("EN");
   subject.set_useragent("Mozilla/5.0");
 
-  ClientSession client_session(db_name, 5000, 5000);
+  ClientSession client_session(storage, 5000, 5000);
 
   string platform = "mob";
   string app_id = "app-id";
@@ -52,21 +73,21 @@ int main(int argc, char **argv) {
   time(&start);
 
   for (int i = 0; i < 2000; i++) {
-    Tracker::TimingEvent te("timing-cat", "timing-var", 123);
+    TimingEvent te("timing-cat", "timing-var", 123);
 
-    Tracker::ScreenViewEvent sve;
+    ScreenViewEvent sve;
     string name = "Screen ID - 5asd56";
     sve.name = &name;
 
-    Tracker::StructuredEvent se("shop", "add-to-basket");
+    StructuredEvent se("shop", "add-to-basket");
     string property = "pcs";
     double value = 25.6;
     se.property = &property;
     se.value = &value;
 
-    t->track_timing(te);
-    t->track_screen_view(sve);
-    t->track_struct_event(se);
+    t->track(te);
+    t->track(sve);
+    t->track(se);
   }
 
   time(&end);

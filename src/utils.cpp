@@ -59,19 +59,31 @@ string Utils::get_uuid4() {
   return uuid;
 }
 
+#else
+
+#include <uuid/uuid.h>
+
+string Utils::get_uuid4() {
+  uuid_t uuid;
+  char str[200];
+  uuid_generate_random(uuid);
+  uuid_unparse(uuid, str);
+  return string(str);
+}
+
 #endif
 
-string Utils::int_list_to_string(list<int> *int_list, const string &delimiter) {
+string Utils::int_list_to_string(const list<int> &int_list, const string &delimiter) {
   stringstream s;
-  int i;
-  list<int>::iterator it;
+  int i = 0;
+  int length = int_list.size();
 
-  int length = int_list->size();
-  for (i = 0, it = int_list->begin(); it != int_list->end(); ++it, ++i) {
-    s << *it;
+  for (auto const &value : int_list) {
+    s << value;
     if (i < length - 1) {
       s << delimiter;
     }
+    i++;
   }
 
   return s.str();
@@ -203,30 +215,7 @@ int Utils::get_device_processor_count() {
   return sysinfo.dwNumberOfProcessors;
 }
 
-#elif defined(__APPLE__)
-
-string Utils::get_os_type() {
-  return "macOS";
-}
-
-string Utils::get_os_version() {
-  return get_os_version_objc();
-}
-
-string Utils::get_os_service_pack() {
-  return "";
-}
-
-string Utils::get_device_manufacturer() {
-  return "Apple Inc.";
-}
-
-string Utils::get_device_model() {
-  char str[256];
-  size_t size = sizeof(str);
-  int ret = sysctlbyname("hw.model", str, &size, NULL, 0);
-  return str;
-}
+#else
 
 bool Utils::get_os_is_64bit() {
 #if INTPTR_MAX == INT64_MAX
@@ -240,4 +229,54 @@ int Utils::get_device_processor_count() {
   return std::thread::hardware_concurrency();
 }
 
+string Utils::get_os_service_pack() {
+  return "";
+}
+
+#if defined(__APPLE__)
+
+string Utils::get_os_type() {
+  return "macOS";
+}
+
+string Utils::get_os_version() {
+  return get_os_version_objc();
+}
+
+string Utils::get_device_manufacturer() {
+  return "Apple Inc.";
+}
+
+string Utils::get_device_model() {
+  char str[256];
+  size_t size = sizeof(str);
+  int ret = sysctlbyname("hw.model", str, &size, NULL, 0);
+  return str;
+}
+
+#else
+
+#include <sys/utsname.h>
+
+string Utils::get_os_type() {
+  utsname info;
+  uname(&info);
+  return info.sysname; // e.g., Linux
+}
+
+string Utils::get_os_version() {
+  utsname info;
+  uname(&info);
+  return info.version; // e.g., #26~20.04.1-Ubuntu SMP Sat Jan 8 18:05:46 UTC 2022
+}
+
+string Utils::get_device_manufacturer() {
+  return "";
+}
+
+string Utils::get_device_model() {
+  return "";
+}
+
+#endif
 #endif

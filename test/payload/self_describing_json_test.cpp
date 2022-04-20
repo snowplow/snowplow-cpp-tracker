@@ -11,32 +11,18 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#ifndef HTTP_REQUEST_RESULT_H
-#define HTTP_REQUEST_RESULT_H
+#include "../../src/payload/self_describing_json.hpp"
+#include "../catch.hpp"
 
-#include <iostream>
-#include <list>
+using namespace snowplow;
 
-using std::list;
+TEST_CASE("self_describing_json") {
+  json j = "{\"test\":\"event\"}"_json;
+  SelfDescribingJson sdj("iglu:com.acme/test/jsonschema/1-0-0", j);
 
-namespace snowplow {
-/**
- * @brief Response from HTTP requests to collector. To be used internally within tracker only.
- */
-class HttpRequestResult {
-private:
-  int m_http_response_code;
-  int m_internal_error_code;
-  list<int> m_row_ids;
-  bool m_is_successful;
-
-public:
-  HttpRequestResult();
-  HttpRequestResult(int internal_error_code, int http_response_code, list<int> row_ids, bool oversize);
-  int get_http_response_code();
-  list<int> get_row_ids();
-  bool is_success();
-};
-} // namespace snowplow
-
-#endif
+  REQUIRE("{\"data\":{\"test\":\"event\"},\"schema\":\"iglu:com.acme/test/jsonschema/1-0-0\"}" == sdj.to_string());
+  json sdj_raw = sdj.get();
+  REQUIRE("iglu:com.acme/test/jsonschema/1-0-0" == sdj_raw[SNOWPLOW_SCHEMA].get<std::string>());
+  json sdj_data = sdj_raw[SNOWPLOW_DATA];
+  REQUIRE("event" == sdj_data["test"].get<std::string>());
+}
