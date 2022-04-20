@@ -12,6 +12,7 @@ using snowplow::Tracker;
 using snowplow::StructuredEvent;
 using snowplow::ScreenViewEvent;
 using snowplow::TimingEvent;
+using snowplow::SqliteStorage;
 using std::cout;
 using std::endl;
 using std::string;
@@ -30,7 +31,8 @@ int main(int argc, char **argv) {
   string uri = argv[1];
   string db_name = "demo.db";
 
-  Emitter emitter(uri, Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 52000, db_name);
+  auto storage = std::make_shared<SqliteStorage>(db_name);
+  Emitter emitter(uri, Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 52000, storage);
   emitter.set_request_callback(
       [](list<string> event_ids, EmitStatus emit_status) {
         switch (emit_status) {
@@ -56,7 +58,7 @@ int main(int argc, char **argv) {
   subject.set_language("EN");
   subject.set_useragent("Mozilla/5.0");
 
-  ClientSession client_session(db_name, 5000, 5000);
+  ClientSession client_session(storage, 5000, 5000);
 
   string platform = "mob";
   string app_id = "app-id";

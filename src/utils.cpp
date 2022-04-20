@@ -73,17 +73,17 @@ string Utils::get_uuid4() {
 
 #endif
 
-string Utils::int_list_to_string(list<int> *int_list, const string &delimiter) {
+string Utils::int_list_to_string(const list<int> &int_list, const string &delimiter) {
   stringstream s;
-  int i;
-  list<int>::iterator it;
+  int i = 0;
+  int length = int_list.size();
 
-  int length = int_list->size();
-  for (i = 0, it = int_list->begin(); it != int_list->end(); ++it, ++i) {
-    s << *it;
+  for (auto const &value : int_list) {
+    s << value;
     if (i < length - 1) {
       s << delimiter;
     }
+    i++;
   }
 
   return s.str();

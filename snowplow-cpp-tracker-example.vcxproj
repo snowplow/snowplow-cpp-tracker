@@ -113,7 +113,7 @@
     <ClCompile Include="src\events\self_describing_event.cpp" />
     <ClCompile Include="src\events\structured_event.cpp" />
     <ClCompile Include="src\events\timing_event.cpp" />
-    <ClCompile Include="src\storage.cpp" />
+    <ClCompile Include="src\storage\sqlite_storage.cpp" />
     <ClCompile Include="src\subject.cpp" />
     <ClCompile Include="src\tracker.cpp" />
     <ClCompile Include="src\utils.cpp" />
@@ -137,7 +137,9 @@
     <ClInclude Include="src\events\self_describing_event.hpp" />
     <ClInclude Include="src\events\structured_event.hpp" />
     <ClInclude Include="src\events\timing_event.hpp" />
-    <ClInclude Include="src\storage.hpp" />
+    <ClInclude Include="src\storage\event_store.hpp" />
+    <ClInclude Include="src\storage\session_store.hpp" />
+    <ClInclude Include="src\storage\sqlite_storage.hpp" />
     <ClInclude Include="src\subject.hpp" />
     <ClInclude Include="src\tracker.hpp" />
     <ClInclude Include="src\utils.hpp" />

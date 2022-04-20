@@ -40,17 +40,14 @@ TEST_CASE("utils") {
   }
 
   SECTION("int_list_to_string will successfully convert a list of integers to a string") {
-    list<int> *int_list = new list<int>;
-    int_list->push_back(1);
-    int_list->push_back(2);
-    int_list->push_back(3);
-    int_list->push_back(4);
-    int_list->push_back(5);
+    list<int> int_list;
+    int_list.push_back(1);
+    int_list.push_back(2);
+    int_list.push_back(3);
+    int_list.push_back(4);
+    int_list.push_back(5);
 
     REQUIRE("1,2,3,4,5" == Utils::int_list_to_string(int_list, ","));
-
-    int_list->clear();
-    delete (int_list);
   }
 
   SECTION("map_to_query_string should correctly convert a map<string,string> to a query string") {

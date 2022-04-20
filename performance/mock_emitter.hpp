@@ -18,11 +18,14 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 using snowplow::Emitter;
 using snowplow::Payload;
+using snowplow::EventStore;
 using std::string;
+using std::shared_ptr;
+using std::move;
 
 class MockEmitter : public Emitter {
 public:
-   MockEmitter(const string &db_name) : Emitter("127.0.0.1:9090", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 52000, db_name) {}
+   MockEmitter(shared_ptr<EventStore> event_store) : Emitter("127.0.0.1:9090", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 52000, move(event_store)) {}
 
    void start() {}
    void stop() {}

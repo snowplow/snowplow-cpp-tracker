@@ -20,9 +20,14 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "client_session.hpp"
 #include "emitter.hpp"
-#include "storage.hpp"
 #include "subject.hpp"
 #include "tracker.hpp"
+
+// storage
+#include "storage/event_row.hpp"
+#include "storage/event_store.hpp"
+#include "storage/session_store.hpp"
+#include "storage/sqlite_storage.hpp"
 
 // http
 #include "http/http_client.hpp"
@@ -31,6 +36,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "http/http_client_windows.hpp"
 
 // payload
+#include "payload/payload.hpp"
 #include "payload/self_describing_json.hpp"
 
 // events

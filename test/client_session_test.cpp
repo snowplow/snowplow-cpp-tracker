@@ -12,7 +12,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 */
 
 #include "../src/client_session.hpp"
-#include "../src/storage.hpp"
+#include "../src/storage/sqlite_storage.hpp"
 #include "catch.hpp"
 #include <thread>
 
@@ -22,9 +22,10 @@ using std::this_thread::sleep_for;
 
 TEST_CASE("client_session") {
   SECTION("The Session doesn't change for subsequent tracked events") {
-    Storage::init("test1.db")->delete_all_session_rows();
+    auto storage = std::make_shared<SqliteStorage>("test1.db");
+    storage->delete_session();
 
-    ClientSession cs("test1.db", 500, 500);
+    ClientSession cs(storage, 500, 500);
 
     SelfDescribingJson session_json_1 = cs.update_and_get_session_context("event-id-1");
     SelfDescribingJson session_json_2 = cs.update_and_get_session_context("event-id-2");
@@ -38,9 +39,10 @@ TEST_CASE("client_session") {
   }
 
   SECTION("The Session must persist and update in the background") {
-    Storage::init("test1.db")->delete_all_session_rows();
+    auto storage = std::make_shared<SqliteStorage>("test1.db");
+    storage->delete_session();
 
-    ClientSession cs("test1.db", 500, 500);
+    ClientSession cs(storage, 500, 500);
 
     REQUIRE(false == cs.get_is_background());
     cs.set_is_background(true);
@@ -71,15 +73,16 @@ TEST_CASE("client_session") {
   }
 
   SECTION("The Session must fetch information from previous sessions") {
-    Storage::init("test2.db")->delete_all_session_rows();
+    auto storage = std::make_shared<SqliteStorage>("test2.db");
+    storage->delete_session();
 
-    ClientSession cs("test2.db", 10000, 10000);
+    ClientSession cs(storage, 10000, 10000);
     SelfDescribingJson session_json = cs.update_and_get_session_context("event-id2");
 
     json data = session_json.get()[SNOWPLOW_DATA];
     REQUIRE(1 == data[SNOWPLOW_SESSION_INDEX].get<unsigned long long>());
 
-    ClientSession cs1("test2.db", 500, 500);
+    ClientSession cs1(storage, 500, 500);
 
     SelfDescribingJson session_json1 = cs1.update_and_get_session_context("event-id2");
     REQUIRE("iglu:com.snowplowanalytics.snowplow/client_session/jsonschema/1-0-1" == session_json1.get()[SNOWPLOW_SCHEMA].get<std::string>());
@@ -106,9 +109,10 @@ TEST_CASE("client_session") {
   }
 
   SECTION("If corrupted data makes it into the session database entry use defaults") {
-    Storage::init("test3.db")->insert_update_session("{}"_json);
+    auto storage = std::make_shared<SqliteStorage>("test3.db");
+    storage->set_session("{}"_json);
 
-    ClientSession cs("test3.db", 500, 500);
+    ClientSession cs(storage, 500, 500);
 
     SelfDescribingJson session_json = cs.update_and_get_session_context("event-id3");
     REQUIRE("iglu:com.snowplowanalytics.snowplow/client_session/jsonschema/1-0-1" == session_json.get()[SNOWPLOW_SCHEMA].get<std::string>());
@@ -135,9 +139,10 @@ TEST_CASE("client_session") {
   }
 
   SECTION("The Session updates using background timeout in background") {
-    Storage::init("test1.db")->delete_all_session_rows();
+    auto storage = std::make_shared<SqliteStorage>("test1.db");
+    storage->delete_session();
 
-    ClientSession cs("test1.db", 500, 1);
+    ClientSession cs(storage, 500, 1);
     cs.set_is_background(true);
 
     SelfDescribingJson session_json_1 = cs.update_and_get_session_context("event-id-1");
@@ -162,9 +167,10 @@ TEST_CASE("client_session") {
   }
 
   SECTION("The Session updates using background timeout after transition to foreground") {
-    Storage::init("test1.db")->delete_all_session_rows();
+    auto storage = std::make_shared<SqliteStorage>("test1.db");
+    storage->delete_session();
 
-    ClientSession cs("test1.db", 500, 1);
+    ClientSession cs(storage, 500, 1);
 
     SelfDescribingJson session_json_1 = cs.update_and_get_session_context("event-id-1");
     cs.set_is_background(true);

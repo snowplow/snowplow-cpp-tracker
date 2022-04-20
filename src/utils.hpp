@@ -54,11 +54,11 @@ namespace snowplow {
 class Utils {
 public:
   static string get_uuid4();
-  static string int_list_to_string(list<int>* int_list, const string & delimiter);
+  static string int_list_to_string(const list<int> &int_list, const string &delimiter);
   static string map_to_query_string(map<string, string> m);
   static string url_encode(string value);
   static string serialize_payload(Payload payload);
-  static Payload deserialize_json_str(const string & json_str);
+  static Payload deserialize_json_str(const string &json_str);
   static unsigned long long get_unix_epoch_ms();
   static SelfDescribingJson get_desktop_context();
   static string get_os_type();
@@ -68,9 +68,10 @@ public:
   static string get_device_manufacturer();
   static string get_device_model();
   static int get_device_processor_count();
+
 private:
   static SelfDescribingJson *m_desktop_context;
 };
-}
+} // namespace snowplow
 
 #endif

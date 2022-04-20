@@ -117,7 +117,7 @@
     <ClCompile Include="src\events\self_describing_event.cpp" />
     <ClCompile Include="src\events\structured_event.cpp" />
     <ClCompile Include="src\events\timing_event.cpp" />
-    <ClCompile Include="src\storage.cpp" />
+    <ClCompile Include="src\storage\sqlite_storage.cpp" />
     <ClCompile Include="src\subject.cpp" />
     <ClCompile Include="src\tracker.cpp" />
     <ClCompile Include="src\utils.cpp" />
@@ -131,7 +131,7 @@
     <ClCompile Include="test\payload\payload_test.cpp" />
     <ClCompile Include="test\payload\event_payload_test.cpp" />
     <ClCompile Include="test\payload\self_describing_json_test.cpp" />
-    <ClCompile Include="test\storage_test.cpp" />
+    <ClCompile Include="test\storage\sqlite_storage_test.cpp" />
     <ClCompile Include="test\subject_test.cpp" />
     <ClCompile Include="test\tracker_test.cpp" />
     <ClCompile Include="test\utils_test.cpp" />
@@ -155,7 +155,9 @@
     <ClInclude Include="src\events\self_describing_event.hpp" />
     <ClInclude Include="src\events\structured_event.hpp" />
     <ClInclude Include="src\events\timing_event.hpp" />
-    <ClInclude Include="src\storage.hpp" />
+    <ClInclude Include="src\storage\event_store.hpp" />
+    <ClInclude Include="src\storage\session_store.hpp" />
+    <ClInclude Include="src\storage\sqlite_storage.hpp" />
     <ClInclude Include="src\subject.hpp" />
     <ClInclude Include="src\tracker.hpp" />
     <ClInclude Include="src\utils.hpp" />
