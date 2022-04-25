@@ -47,11 +47,11 @@ unique_ptr<HttpClient> createDefaultHttpClient() {
 }
 #endif
 
-Emitter::Emitter(const string &uri, Method method, Protocol protocol, int send_limit,
-                 int byte_limit_post, int byte_limit_get, shared_ptr<EventStore> event_store) : Emitter(uri, method, protocol, send_limit, byte_limit_post, byte_limit_get, std::move(event_store), createDefaultHttpClient()) {
+Emitter::Emitter(const string &uri, Method method, Protocol protocol, int batch_size,
+                 int byte_limit_post, int byte_limit_get, shared_ptr<EventStore> event_store) : Emitter(uri, method, protocol, batch_size, byte_limit_post, byte_limit_get, std::move(event_store), createDefaultHttpClient()) {
 }
 
-Emitter::Emitter(const string &uri, Method method, Protocol protocol, int send_limit,
+Emitter::Emitter(const string &uri, Method method, Protocol protocol, int batch_size,
                  int byte_limit_post, int byte_limit_get, shared_ptr<EventStore> event_store, unique_ptr<HttpClient> http_client) : m_url(this->get_collector_url(uri, protocol, method)) {
 
   if (uri == "") {
@@ -74,7 +74,7 @@ Emitter::Emitter(const string &uri, Method method, Protocol protocol, int send_l
 
   this->m_running = false;
   this->m_method = method;
-  this->m_send_limit = send_limit;
+  this->m_batch_size = batch_size;
   this->m_byte_limit_post = byte_limit_post;
   this->m_byte_limit_get = byte_limit_get;
   this->m_event_store = move(event_store);
@@ -133,7 +133,7 @@ void Emitter::flush() {
 void Emitter::run() {
   do {
     list<EventRow> event_rows;
-    m_event_store->get_event_rows_batch(&event_rows, m_send_limit);
+    m_event_store->get_event_rows_batch(&event_rows, m_batch_size);
 
     if (event_rows.size() > 0) {
       // emit the events
