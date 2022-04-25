@@ -45,6 +45,10 @@ void Subject::set_useragent(const string &useragent) {
   this->m_payload.add(SNOWPLOW_USERAGENT, useragent);
 }
 
+void Subject::set_ip_address(const string &ip_address) {
+  this->m_payload.add(SNOWPLOW_IP_ADDRESS, ip_address);
+}
+
 map<string, string> Subject::get_map() {
   return this->m_payload.get();
 }

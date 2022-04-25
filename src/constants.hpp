@@ -70,6 +70,7 @@ const string SNOWPLOW_COLOR_DEPTH = "cd";
 const string SNOWPLOW_TIMEZONE = "tz";
 const string SNOWPLOW_LANGUAGE = "lang";
 const string SNOWPLOW_USERAGENT = "ua";
+const string SNOWPLOW_IP_ADDRESS = "ip";
 
 // structured event
 const string SNOWPLOW_SE_CATEGORY = "se_ca";
