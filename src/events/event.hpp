@@ -16,11 +16,13 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "../payload/self_describing_json.hpp"
 #include "../payload/event_payload.hpp"
+#include "../subject.hpp"
 #include <string>
 #include <vector>
 
 using std::string;
 using std::vector;
+using std::shared_ptr;
 
 namespace snowplow {
 /**
@@ -61,6 +63,13 @@ public:
    */
   void set_true_timestamp(unsigned long long *true_timestamp);
 
+  /**
+   * @brief Set the optional subject object to supply additional information to the event.
+   * 
+   * @param subject Shared pointer to Subject instance
+   */
+  void set_subject(shared_ptr<Subject> subject);
+
 protected:
   /**
    * @brief This function is overriden by concrete event classes and returns payload with properties for the event types.
@@ -80,9 +89,12 @@ protected:
   EventPayload get_self_describing_event_payload(const SelfDescribingJson &event, bool use_base64) const;
 
 private:
+  EventPayload get_payload(bool use_base64) const;
+  shared_ptr<Subject> get_subject() const;
+
   unsigned long long *m_true_timestamp;
   vector<SelfDescribingJson> m_context;
-  EventPayload get_payload(bool use_base64) const;
+  shared_ptr<Subject> m_subject;
 
   friend class Tracker;
 };
