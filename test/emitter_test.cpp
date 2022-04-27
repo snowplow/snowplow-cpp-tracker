@@ -81,7 +81,7 @@ TEST_CASE("emitter") {
     REQUIRE(false == emitter.is_running());
     REQUIRE("http://com.acme.collector/com.snowplowanalytics.snowplow/tp2" == emitter.get_cracked_url().to_string());
     REQUIRE(Emitter::Method::POST == emitter.get_method());
-    REQUIRE(500 == emitter.get_send_limit());
+    REQUIRE(500 == emitter.get_batch_size());
     REQUIRE(52000 == emitter.get_byte_limit_post());
     REQUIRE(51000 == emitter.get_byte_limit_get());
 
@@ -106,7 +106,7 @@ TEST_CASE("emitter") {
     REQUIRE(false == emitter_1.is_running());
     REQUIRE("https://com.acme.collector/i" == emitter_1.get_cracked_url().to_string());
     REQUIRE(Emitter::Method::GET == emitter_1.get_method());
-    REQUIRE(500 == emitter_1.get_send_limit());
+    REQUIRE(500 == emitter_1.get_batch_size());
     REQUIRE(52000 == emitter_1.get_byte_limit_post());
     REQUIRE(51000 == emitter_1.get_byte_limit_get());
 

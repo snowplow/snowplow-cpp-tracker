@@ -91,12 +91,12 @@ public:
    * @param uri The URI to send events to
    * @param method The request type to use (GET or POST)
    * @param protocol The protocol to use (http or https)
-   * @param send_limit The maximum amount of events to send at a time
+   * @param batch_size The maximum amount of events to send at a time
    * @param byte_limit_post The byte limit when sending a POST request
    * @param byte_limit_get The byte limit when sending a GET request
    * @param event_store Defines the database to use for event queue
    */
-  Emitter(const string & uri, Method method, Protocol protocol, int send_limit, 
+  Emitter(const string & uri, Method method, Protocol protocol, int batch_size, 
     int byte_limit_post, int byte_limit_get, shared_ptr<EventStore> event_store);
 
   /**
@@ -105,13 +105,13 @@ public:
    * @param uri The URI to send events to
    * @param method The request type to use (GET or POST)
    * @param protocol The protocol to use (http or https)
-   * @param send_limit The maximum amount of events to send at a time
+   * @param batch_size The maximum amount of events to send at a time
    * @param byte_limit_post The byte limit when sending a POST request
    * @param byte_limit_get The byte limit when sending a GET request
    * @param event_store Defines the database to use for event queue
    * @param http_client Unique pointer to a custom HTTP client to send GET and POST requests with
    */
-  Emitter(const string & uri, Method method, Protocol protocol, int send_limit, 
+  Emitter(const string & uri, Method method, Protocol protocol, int batch_size, 
     int byte_limit_post, int byte_limit_get, shared_ptr<EventStore> event_store, unique_ptr<HttpClient> http_client);
   ~Emitter();
 
@@ -152,11 +152,11 @@ public:
   Method get_method() const { return m_method; }
 
   /**
-   * @brief Get the send limit.
+   * @brief Get the batch size.
    * 
    * @return unsigned int The maximum amount of events to send at a time
    */
-  unsigned int get_send_limit() const { return m_send_limit; }
+  unsigned int get_batch_size() const { return m_batch_size; }
 
   /**
    * @brief Get the byte limit for GET.
@@ -208,7 +208,7 @@ private:
   Method m_method;
   shared_ptr<EventStore> m_event_store;
   unique_ptr<HttpClient> m_http_client;
-  unsigned int m_send_limit;
+  unsigned int m_batch_size;
   unsigned int m_byte_limit_get;
   unsigned int m_byte_limit_post;
 
