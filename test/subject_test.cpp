@@ -55,4 +55,9 @@ TEST_CASE("subject") {
     sub.set_useragent(useragent);
     REQUIRE(sub.get_map()["ua"] == useragent);
   }
+
+  SECTION("set_ip_address adds a value for key ip") {
+    sub.set_ip_address("192.168.0.1");
+    REQUIRE(sub.get_map()["ip"] == "192.168.0.1");
+  }
 }

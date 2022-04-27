@@ -21,7 +21,10 @@
     <ClCompile Include="src\cracked_url.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\emitter.cpp">
+    <ClCompile Include="src\emitter\emitter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\emitter\retry_delay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\http\http_client_windows.cpp">
@@ -81,7 +84,10 @@
     <ClCompile Include="test\cracked_url_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="test\emitter_test.cpp">
+    <ClCompile Include="test\emitter\emitter_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test\emitter\retry_delay_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="test\http\http_client_test.cpp">
@@ -125,7 +131,10 @@
     <ClInclude Include="src\cracked_url.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\emitter.hpp">
+    <ClInclude Include="src\emitter\emitter.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\emitter\retry_delay.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\http\http_client.hpp">

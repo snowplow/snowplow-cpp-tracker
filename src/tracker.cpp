@@ -95,6 +95,7 @@ void Tracker::set_subject(Subject *subject) {
 string Tracker::track(const Event &event) {
   EventPayload payload = event.get_payload(m_use_base64);
   vector<SelfDescribingJson> context = event.get_context();
+  auto event_subject = event.get_subject();
 
   // Add standard KV Pairs
   payload.add(SNOWPLOW_TRACKER_VERSION, SNOWPLOW_TRACKER_VERSION_LABEL);
@@ -105,6 +106,11 @@ string Tracker::track(const Event &event) {
   // Add Subject KV Pairs
   if (this->m_subject != NULL) {
     payload.add_map(this->m_subject->get_map());
+  }
+
+  // Add event subject pairs
+  if (event_subject) {
+    payload.add_map(event_subject->get_map());
   }
 
   // Add Client Session if available

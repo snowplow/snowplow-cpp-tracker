@@ -13,7 +13,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "../include/base64.hpp"
 #include "../include/json.hpp"
-#include "../src/emitter.hpp"
+#include "../src/emitter/emitter.hpp"
 #include "../src/tracker.hpp"
 #include "../src/events/structured_event.hpp"
 #include "../src/events/screen_view_event.hpp"
@@ -507,6 +507,58 @@ TEST_CASE("tracker") {
     const unsigned char *str = (const unsigned char *)json.c_str();
 
     REQUIRE(payload[SNOWPLOW_UNSTRUCTURED_ENCODED] == base64_encode(str, json.length()));
+
+    Tracker::close();
+  }
+
+  SECTION("adds payload from event Subject instance") {
+    MockEmitter e(storage);
+
+    bool desktop_context = false;
+    Tracker *t = Tracker::init(e, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+
+    SelfDescribingJson sdj("schema", "{ \"hello\":\"world\" }"_json);
+    SelfDescribingEvent sde(sdj);
+
+    shared_ptr<Subject> subject = std::make_shared<Subject>();
+    subject->set_user_id("the_user");
+    sde.set_subject(subject);
+    t->track(sde);
+
+    REQUIRE(e.get_added_payloads().size() == 1);
+
+    auto payload = e.get_added_payloads()[0].get();
+
+    REQUIRE(payload[SNOWPLOW_UID] == "the_user");
+
+    Tracker::close();
+  }
+
+  SECTION("event-level subject overries tracker subject properties") {
+    MockEmitter e(storage);
+
+    bool desktop_context = false;
+    Subject trackerSubject;
+    trackerSubject.set_user_id("u1");
+    trackerSubject.set_language("en");
+    Tracker *t = Tracker::init(e, &trackerSubject, NULL, NULL, NULL, NULL, NULL, NULL);
+
+    SelfDescribingJson sdj("schema", "{ \"hello\":\"world\" }"_json);
+    SelfDescribingEvent sde(sdj);
+
+    shared_ptr<Subject> eventSubject = std::make_shared<Subject>();
+    eventSubject->set_user_id("u2");
+    eventSubject->set_timezone("GMT");
+    sde.set_subject(eventSubject);
+    t->track(sde);
+
+    REQUIRE(e.get_added_payloads().size() == 1);
+
+    auto payload = e.get_added_payloads()[0].get();
+
+    REQUIRE(payload[SNOWPLOW_UID] == "u2");
+    REQUIRE(payload[SNOWPLOW_LANGUAGE] == "en");
+    REQUIRE(payload[SNOWPLOW_TIMEZONE] == "GMT");
 
     Tracker::close();
   }

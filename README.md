@@ -84,7 +84,7 @@ This will create two executables - the first is the test-suite which can be exec
 The other is an example program which will send one of every type of event to an endpoint of your choosing like so:
 
 ```bash
- host> cd build
+ host> cd build/example
  host> ./tracker_example {{ your collector uri }}
 ```
 
@@ -178,7 +178,7 @@ limitations under the License.
 [travis-image]: https://travis-ci.org/snowplow/snowplow-cpp-tracker.png?branch=master
 [travis]: https://travis-ci.org/snowplow/snowplow-cpp-tracker
 
-[release-image]: https://img.shields.io/badge/release-0.3.0-6ad7e5.svg?style=flat
+[release-image]: https://img.shields.io/badge/release-0.4.0-6ad7e5.svg?style=flat
 [releases]: https://github.com/snowplow/snowplow-cpp-tracker/releases
 
 [license-image]: https://img.shields.io/badge/license-Apache--2-blue.svg?style=flat

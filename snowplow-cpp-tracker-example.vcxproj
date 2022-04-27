@@ -102,7 +102,8 @@
     <ClCompile Include="include\sqlite3.c" />
     <ClCompile Include="src\client_session.cpp" />
     <ClCompile Include="src\cracked_url.cpp" />
-    <ClCompile Include="src\emitter.cpp" />
+    <ClCompile Include="src\emitter\emitter.cpp" />
+    <ClCompile Include="src\emitter\retry_delay.cpp" />
     <ClCompile Include="src\http\http_client_windows.cpp" />
     <ClCompile Include="src\http\http_request_result.cpp" />
     <ClCompile Include="src\payload\payload.cpp" />
@@ -125,7 +126,8 @@
     <ClInclude Include="src\client_session.hpp" />
     <ClInclude Include="src\constants.hpp" />
     <ClInclude Include="src\cracked_url.hpp" />
-    <ClInclude Include="src\emitter.hpp" />
+    <ClInclude Include="src\emitter\emitter.hpp" />
+    <ClInclude Include="src\emitter\retry_delay.hpp" />
     <ClInclude Include="src\http\http_client.hpp" />
     <ClInclude Include="src\http\http_client_windows.hpp" />
     <ClInclude Include="src\http\http_request_result.hpp" />

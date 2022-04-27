@@ -14,10 +14,10 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #ifndef SUBJECT_H
 #define SUBJECT_H
 
+#include "constants.hpp"
+#include "payload/payload.hpp"
 #include <map>
 #include <string>
-#include "payload/payload.hpp"
-#include "constants.hpp"
 
 using std::map;
 using std::string;
@@ -33,14 +33,14 @@ private:
 public:
   /**
    * @brief Set the business user ID string
-   * 
+   *
    * @param user_id Business user ID
    */
-  void set_user_id(const string & user_id);
+  void set_user_id(const string &user_id);
 
   /**
    * @brief Set the device screen resolution
-   * 
+   *
    * @param width Device screen resolution width
    * @param height Device screen resolution height
    */
@@ -48,7 +48,7 @@ public:
 
   /**
    * @brief Set the device viewport dimensions
-   * 
+   *
    * @param width Device viewport width
    * @param height Device viewport height
    */
@@ -56,39 +56,46 @@ public:
 
   /**
    * @brief Set the bit depth of the device’s color palette for displaying images
-   * 
+   *
    * @param depth Device color depth
    */
   void set_color_depth(int depth);
 
   /**
    * @brief Set the user’s timezone.
-   * 
+   *
    * @param timezone User's timezone (e.g., "Europe/London")
    */
-  void set_timezone(const string & timezone);
+  void set_timezone(const string &timezone);
 
   /**
    * @brief Set the user's language
-   * 
+   *
    * @param language User's language (e.g., "en")
    */
-  void set_language(const string & language);
+  void set_language(const string &language);
 
   /**
    * @brief Set the useragent string for the event
-   * 
+   *
    * @param user_agent Standard formatted useragent string (e.g., "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_4)...")
    */
-  void set_useragent(const string & user_agent);
+  void set_useragent(const string &user_agent);
+
+  /**
+   * @brief Set the user's IP address
+   *
+   * @param user_agent IP address as string
+   */
+  void set_ip_address(const string &ip_address);
 
   /**
    * @brief Get the subject properties as a map of strings
-   * 
+   *
    * @return map<string, string> Subject properties to be added to events
    */
   map<string, string> get_map();
 };
-}
+} // namespace snowplow
 
 #endif

@@ -21,7 +21,7 @@ using std::string;
 using std::set;
 
 namespace snowplow {
-const string SNOWPLOW_TRACKER_VERSION_LABEL = "cpp-0.3.0";
+const string SNOWPLOW_TRACKER_VERSION_LABEL = "cpp-0.4.0";
 
 // post requests
 const string SNOWPLOW_POST_PROTOCOL_VENDOR = "com.snowplowanalytics.snowplow";
@@ -70,6 +70,7 @@ const string SNOWPLOW_COLOR_DEPTH = "cd";
 const string SNOWPLOW_TIMEZONE = "tz";
 const string SNOWPLOW_LANGUAGE = "lang";
 const string SNOWPLOW_USERAGENT = "ua";
+const string SNOWPLOW_IP_ADDRESS = "ip";
 
 // structured event
 const string SNOWPLOW_SE_CATEGORY = "se_ca";
