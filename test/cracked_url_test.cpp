@@ -46,19 +46,12 @@ TEST_CASE("cracked_url") {
     REQUIRE(c.get_use_default_port() == false);
   }
 
-  SECTION("URL cracking defaults hosts to http if no protocol (e.g. http://) is specified") {
+  SECTION("URL cracking defaults hosts to https if no protocol (e.g. https://) is specified") {
     CrackedUrl c("google.com");
     REQUIRE(c.get_is_valid() == true);
     REQUIRE(c.get_hostname() == "google.com");
-    REQUIRE(c.get_is_https() == false);
+    REQUIRE(c.get_is_https() == true);
     REQUIRE(c.get_use_default_port() == true);
-  }
-
-  SECTION("URL cracking defaults hosts to http if no protocol (e.g. http://) is specified") {
-    CrackedUrl c("google.com");
-    REQUIRE(c.get_is_valid() == true);
-    REQUIRE(c.get_hostname() == "google.com");
-    REQUIRE(c.get_is_https() == false);
   }
 
   SECTION("URL cracks multiple slashes and port") {

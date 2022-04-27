@@ -19,6 +19,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "payload/self_describing_json.hpp"
 #include "../include/json.hpp"
 #include "storage/session_store.hpp"
+#include "configuration/session_configuration.hpp"
+#include "constants.hpp"
 
 using std::string;
 using std::mutex;
@@ -39,11 +41,18 @@ public:
   /**
    * @brief Construct a new Client Session object
    * 
-   * @param session_store Defines the database where session data will be read and stored
-   * @param foreground_timeout Timeout in ms for updating the session when the app is in background
-   * @param background_timeout Timeout in ms for updating the session when the app is in foreground
+   * @param session_config Session configuration with timeouts and session store.
    */
-  ClientSession(shared_ptr<SessionStore> session_store, unsigned long long foreground_timeout, unsigned long long background_timeout);
+  ClientSession(const SessionConfiguration &session_config);
+
+  /**
+   * @brief Construct a new Client Session object
+   * 
+   * @param session_store Defines the database where session data will be read and stored
+   * @param foreground_timeout Timeout in ms for updating the session when the app is in foreground
+   * @param background_timeout Timeout in ms for updating the session when the app is in background
+   */
+  ClientSession(shared_ptr<SessionStore> session_store, unsigned long long foreground_timeout = SNOWPLOW_SESSION_DEFAULT_TIMEOUT, unsigned long long background_timeout = SNOWPLOW_SESSION_DEFAULT_TIMEOUT);
 
   /**
    * @brief Forces a new session to be started when next event is tracked.
@@ -83,6 +92,20 @@ public:
    * @return SelfDescribingJson JSON with the session context
    */
   SelfDescribingJson update_and_get_session_context(const string &event_id);
+
+  /**
+   * @brief Get the background timeout setting
+   * 
+   * @return unsigned long long Background timeout in ms
+   */
+  unsigned long long get_background_timeout() const { return m_background_timeout; }
+  
+  /**
+   * @brief Get the foreground timeout setting
+   * 
+   * @return unsigned long long Foreground timeout in ms
+   */
+  unsigned long long get_foreground_timeout() const { return m_foreground_timeout; }
 
 private:
   // Constructor

@@ -21,6 +21,13 @@ using std::chrono::milliseconds;
 using std::this_thread::sleep_for;
 
 TEST_CASE("client_session") {
+  SECTION("Correctly initialized using SessionConfiguration") {
+    SessionConfiguration session_config("test1.db", 101, 102);
+    ClientSession session(session_config);
+    REQUIRE(session.get_foreground_timeout() == 101);
+    REQUIRE(session.get_background_timeout() == 102);
+  }
+
   SECTION("The Session doesn't change for subsequent tracked events") {
     auto storage = std::make_shared<SqliteStorage>("test1.db");
     storage->delete_session();

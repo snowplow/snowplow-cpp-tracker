@@ -4,18 +4,22 @@
 
 #include "../src/snowplow.hpp"
 
-using snowplow::ClientSession;
-using snowplow::Emitter;
+using snowplow::NetworkConfiguration;
+using snowplow::EmitterConfiguration;
+using snowplow::TrackerConfiguration;
+using snowplow::SessionConfiguration;
 using snowplow::EmitStatus;
 using snowplow::Subject;
-using snowplow::Tracker;
 using snowplow::StructuredEvent;
 using snowplow::ScreenViewEvent;
 using snowplow::TimingEvent;
 using snowplow::SqliteStorage;
+using snowplow::Method;
+using snowplow::Snowplow;
 using std::cout;
 using std::endl;
 using std::string;
+using std::make_shared;
 
 void usage(char *program_name) {
   cout << "Usage: " << program_name << " [COLLECTOR_URI]" << endl;
@@ -31,9 +35,11 @@ int main(int argc, char **argv) {
   string uri = argv[1];
   string db_name = "demo.db";
 
-  auto storage = std::make_shared<SqliteStorage>(db_name);
-  Emitter emitter(uri, Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 52000, storage);
-  emitter.set_request_callback(
+  EmitterConfiguration emitter_config(db_name);
+  emitter_config.set_batch_size(500);
+  emitter_config.set_byte_limit_get(5200);
+  emitter_config.set_byte_limit_post(5200);
+  emitter_config.set_request_callback(
       [](list<string> event_ids, EmitStatus emit_status) {
         switch (emit_status) {
         case EmitStatus::SUCCESS:
@@ -49,25 +55,28 @@ int main(int argc, char **argv) {
       },
       EmitStatus::SUCCESS | EmitStatus::FAILED_WILL_RETRY | EmitStatus::FAILED_WONT_RETRY);
 
-  Subject subject;
-  subject.set_user_id("a-user-id");
-  subject.set_screen_resolution(1920, 1080);
-  subject.set_viewport(1080, 1080);
-  subject.set_color_depth(32);
-  subject.set_timezone("GMT");
-  subject.set_language("EN");
-  subject.set_useragent("Mozilla/5.0");
+  auto subject = make_shared<Subject>();
+  subject->set_user_id("a-user-id");
+  subject->set_screen_resolution(1920, 1080);
+  subject->set_viewport(1080, 1080);
+  subject->set_color_depth(32);
+  subject->set_timezone("GMT");
+  subject->set_language("EN");
+  subject->set_useragent("Mozilla/5.0");
 
-  ClientSession client_session(storage, 5000, 5000);
+  TrackerConfiguration tracker_config("namespace", "app-id", "mob");
+  tracker_config.set_use_base64(false);
+  tracker_config.set_desktop_context(true);
 
-  string platform = "mob";
-  string app_id = "app-id";
-  string name_space = "namespace";
-  bool base64 = false;
-  bool desktop_context = true;
+  SessionConfiguration session_config(db_name, 5000, 5000);
 
   // Create Tracker
-  Tracker *t = Tracker::init(emitter, &subject, &client_session, &platform, &app_id, &name_space, &base64, &desktop_context);
+  auto tracker = Snowplow::create_tracker(
+      tracker_config,
+      NetworkConfiguration(uri, Method::POST),
+      emitter_config,
+      session_config,
+      subject);
 
   time_t start, end;
   time(&start);
@@ -85,9 +94,9 @@ int main(int argc, char **argv) {
     se.property = &property;
     se.value = &value;
 
-    t->track(te);
-    t->track(sve);
-    t->track(se);
+    tracker->track(te);
+    tracker->track(sve);
+    tracker->track(se);
   }
 
   time(&end);
@@ -95,8 +104,7 @@ int main(int argc, char **argv) {
   printf("It took me %f seconds to build and store 6000 events.\n", diff);
 
   // Flush and close
-  t->flush();
-  Tracker::close();
+  tracker->flush();
 
   time(&end);
   diff = difftime(end, start);

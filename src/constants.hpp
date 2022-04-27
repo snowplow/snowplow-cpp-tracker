@@ -101,6 +101,17 @@ const string SNOWPLOW_SESSION_PREVIOUS_ID = "previousSessionId";
 const string SNOWPLOW_SESSION_INDEX = "sessionIndex";
 const string SNOWPLOW_SESSION_STORAGE = "storageMechanism";
 const string SNOWPLOW_SESSION_FIRST_ID = "firstEventId";
+const unsigned long long SNOWPLOW_SESSION_DEFAULT_TIMEOUT = 30 * 1000 * 1000; // 30 minutes
+
+// emitter defaults
+const int SNOWPLOW_EMITTER_DEFAULT_BATCH_SIZE = 250;
+const int SNOWPLOW_EMITTER_DEFAULT_BYTE_LIMIT_GET = 40000;
+const int SNOWPLOW_EMITTER_DEFAULT_BYTE_LIMIT_POST = 40000;
+
+// tracker defaults
+const string SNOWPLOW_DEFAULT_APP_ID = "";
+const string SNOWPLOW_DEFAULT_PLATFORM = "srv";
+const string SNOWPLOW_DEFAULT_NAMESPACE = "";
 
 // desktop context
 const string SNOWPLOW_DESKTOP_OS_TYPE = "osType";
