@@ -11,12 +11,12 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "../src/emitter.hpp"
-#include "../src/payload/event_payload.hpp"
-#include "http/test_http_client.hpp"
-#include "../src/storage/sqlite_storage.hpp"
-#include "catch.hpp"
-#include "http/test_http_client.hpp"
+#include "../../src/emitter/emitter.hpp"
+#include "../../src/payload/event_payload.hpp"
+#include "../http/test_http_client.hpp"
+#include "../../src/storage/sqlite_storage.hpp"
+#include "../catch.hpp"
+#include "../http/test_http_client.hpp"
 
 using namespace snowplow;
 using std::invalid_argument;
@@ -333,6 +333,21 @@ TEST_CASE("emitter") {
     TestHttpClient::set_temporary_response_code(422); // retry
     track_sample_event(emitter);
     REQUIRE(2 == TestHttpClient::get_requests_list().size());
+    TestHttpClient::reset();
+
+    emitter.stop();
+  }
+
+  SECTION("Emitter sleeps in between retries") {
+    Emitter emitter("com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 500, 500, storage, unique_ptr<HttpClient>(new TestHttpClient()));
+
+    TestHttpClient::set_temporary_response_code(501, 5); // retry with 5 failures
+    auto t_start = std::chrono::high_resolution_clock::now();
+    track_sample_event(emitter);
+    auto t_end = std::chrono::high_resolution_clock::now();
+    double elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end - t_start).count();
+    REQUIRE(6 == TestHttpClient::get_requests_list().size());
+    REQUIRE(1000 < elapsed_time_ms);
     TestHttpClient::reset();
 
     emitter.stop();

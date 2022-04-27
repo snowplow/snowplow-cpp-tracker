@@ -19,9 +19,11 @@ See the Apache License Version 2.0 for the specific language governing permissio
  */
 
 #include "client_session.hpp"
-#include "emitter.hpp"
 #include "subject.hpp"
 #include "tracker.hpp"
+
+// emitter
+#include "emitter/emitter.hpp"
 
 // storage
 #include "storage/event_row.hpp"
