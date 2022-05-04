@@ -36,3 +36,6 @@
 *.gcov
 *.gcno
 *.gcda
+
+# Documentation
+docs/html

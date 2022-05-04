@@ -1,0 +1,49 @@
+name: Documentation
+
+on:
+  push:
+    tags:
+    - '*.*.*'
+
+jobs:
+  test:
+      runs-on: macos-latest
+      steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Make
+        run: make
+
+      - name: Run tests
+        run: make unit-tests
+
+  docs:
+    needs: ["test"]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: install Doxygen 1.9.3
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y graphviz libclang-cpp1-9 libclang1-9
+          wget https://www.doxygen.nl/files/doxygen-1.9.3.linux.bin.tar.gz
+          tar -xvzf doxygen-1.9.3.linux.bin.tar.gz
+          ln -s doxygen-1.9.3/bin/doxygen doxygen
+
+      - name: Set version
+        run: echo "PROJECT_NUMBER = `git describe --tags`" >> Doxyfile
+
+      - name: Generate Documentation
+        run: ./doxygen Doxyfile
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/html/
