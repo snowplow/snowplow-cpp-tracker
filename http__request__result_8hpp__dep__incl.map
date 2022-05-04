@@ -1,0 +1,12 @@
+<map id="src/http/http_request_result.hpp" name="src/http/http_request_result.hpp">
+<area shape="rect" id="node1" title=" " alt="" coords="371,5,528,47"/>
+<area shape="rect" id="node2" href="$emitter_8hpp.html" title=" " alt="" coords="195,191,367,218"/>
+<area shape="rect" id="node7" href="$http__client_8hpp.html" title=" " alt="" coords="363,102,535,129"/>
+<area shape="rect" id="node10" href="$http__request__result_8cpp.html" title=" " alt="" coords="560,95,717,136"/>
+<area shape="rect" id="node3" href="$emitter_8cpp.html" title=" " alt="" coords="197,281,368,307"/>
+<area shape="rect" id="node4" href="$snowplow_8hpp.html" title=" " alt="" coords="325,363,462,389"/>
+<area shape="rect" id="node5" href="$tracker_8hpp.html" title=" " alt="" coords="5,281,123,307"/>
+<area shape="rect" id="node6" href="$tracker_8cpp.html" title=" " alt="" coords="6,363,122,389"/>
+<area shape="rect" id="node8" href="$http__client__curl_8hpp.html" title=" " alt="" coords="392,184,536,225"/>
+<area shape="rect" id="node9" href="$http__client__curl_8cpp.html" title=" " alt="" coords="392,273,536,315"/>
+</map>

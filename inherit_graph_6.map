@@ -1,0 +1,4 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classsnowplow_1_1_http_client.html" title="Abstract base class for HTTP client for making requests to Snowplow Collector. It is used by Emitter." alt="" coords="5,5,165,32"/>
+<area shape="rect" id="node2" href="$classsnowplow_1_1_http_client_curl.html" title="HTTP client that uses the Curl library for making requests to Snowplow Collector." alt="" coords="213,5,400,32"/>
+</map>

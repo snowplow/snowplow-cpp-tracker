@@ -1,0 +1,4 @@
+<map id="snowplow::EventStore" name="snowplow::EventStore">
+<area shape="rect" id="node1" title="Storage interface used by the Emitter to store and access events." alt="" coords="13,5,179,32"/>
+<area shape="rect" id="node2" href="$classsnowplow_1_1_sqlite_storage.html" title="Tracker SQLite storage for events and session information." alt="" coords="5,80,187,107"/>
+</map>

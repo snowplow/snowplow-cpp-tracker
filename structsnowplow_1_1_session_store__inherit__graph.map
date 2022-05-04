@@ -1,0 +1,4 @@
+<map id="snowplow::SessionStore" name="snowplow::SessionStore">
+<area shape="rect" id="node1" title="Storage interface used by the ClientSession to store and access sessions." alt="" coords="7,5,185,32"/>
+<area shape="rect" id="node2" href="$classsnowplow_1_1_sqlite_storage.html" title="Tracker SQLite storage for events and session information." alt="" coords="5,80,187,107"/>
+</map>

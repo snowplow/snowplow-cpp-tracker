@@ -1,0 +1,7 @@
+<map id="snowplow::Event" name="snowplow::Event">
+<area shape="rect" id="node1" title="Base class for all event types that concrete event types inherit from." alt="" coords="5,93,136,120"/>
+<area shape="rect" id="node2" href="$classsnowplow_1_1_screen_view_event.html" title="Event to track user viewing a screen within the application." alt="" coords="184,5,391,32"/>
+<area shape="rect" id="node3" href="$classsnowplow_1_1_self_describing_event.html" title="Event to track custom information that does not fit into the out&#45;of&#45;the box events." alt="" coords="193,57,381,98"/>
+<area shape="rect" id="node4" href="$classsnowplow_1_1_structured_event.html" title="Event to capture custom consumer interactions without the need to define a custom schema." alt="" coords="188,123,387,149"/>
+<area shape="rect" id="node5" href="$classsnowplow_1_1_timing_event.html" title="Event used to track user timing events such as how long resources take to load." alt="" coords="199,173,375,200"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="snowplow::EventPayload" name="snowplow::EventPayload">
+<area shape="rect" id="node1" title="Payload with event properties that is created for tracked events." alt="" coords="5,80,188,107"/>
+<area shape="rect" id="node2" href="$classsnowplow_1_1_payload.html" title="Snowplow event payload with event properties." alt="" coords="24,5,169,32"/>
+</map>
