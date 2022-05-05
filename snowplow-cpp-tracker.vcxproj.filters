@@ -90,6 +90,12 @@
     <ClCompile Include="test\http\test_http_client.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="test\integration\integration_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test\integration\micro.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="test\client_session_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -240,6 +246,9 @@
       <filter>header files</filter>
     </clinclude>
     <clinclude include="test\http\test_http_client.hpp">
+      <filter>header files</filter>
+    </clinclude>
+    <clinclude include="test\integration\micro.hpp">
       <filter>header files</filter>
     </clinclude>
   </ItemGroup>

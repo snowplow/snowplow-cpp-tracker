@@ -10,11 +10,34 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+    - uses: actions/setup-java@v1
+      with:
+        java-version: "11.x"
+
+    # -- Micro --
+    - name: Cache Micro
+      id: cache-micro
+      uses: actions/cache@v2
+      with:
+        path: micro.jar
+        key: ${{ runner.os }}-micro
+
+    - name: Get micro
+      if: steps.cache-micro.outputs.cache-hit != 'true'
+      run: curl -o micro.jar -L https://github.com/snowplow-incubator/snowplow-micro/releases/download/micro-1.1.2/snowplow-micro-1.1.2.jar
+
+    - name: Run Micro in background
+      run: java -jar micro.jar --collector-config test/integration/micro.conf --iglu test/integration/iglu.json &
+
+    - name: Wait on Micro endpoint
+      timeout-minutes: 2
+      run: while ! nc -z '0.0.0.0' 9090; do sleep 1; done
+
     - name: Make
       run: make
 
     - name: Run tests
-      run: make unit-tests
+      run: make tests
 
   test-windows:
     runs-on: windows-latest
@@ -23,20 +46,59 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+    - uses: actions/setup-java@v1
+      with:
+        java-version: "11.x"
+
+    # -- Micro --
+    - name: Cache Micro
+      id: cache-micro
+      uses: actions/cache@v2
+      with:
+        path: micro.jar
+        key: ${{ runner.os }}-micro
+
+    - name: Get micro
+      if: steps.cache-micro.outputs.cache-hit != 'true'
+      run: curl -o micro.jar -L https://github.com/snowplow-incubator/snowplow-micro/releases/download/micro-1.1.2/snowplow-micro-1.1.2.jar
+
     - name: Setup MSBuild and add to PATH
       uses: microsoft/setup-msbuild@v1.1
 
     - name: Run MSBuild
       run: msbuild .\snowplow-cpp-tracker.sln
 
-    - name: Run tests
-      run: .\x64\Debug\snowplow-cpp-tracker.exe
+    - name: Start Micro and run tests
+      run: javaw -jar micro.jar --collector-config test/integration/micro.conf --iglu test/integration/iglu.json; sleep 15; .\x64\Debug\snowplow-cpp-tracker.exe
 
   test-linux:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+
+    - uses: actions/setup-java@v1
+      with:
+        java-version: "11.x"
+
+    # -- Micro --
+    - name: Cache Micro
+      id: cache-micro
+      uses: actions/cache@v2
+      with:
+        path: micro.jar
+        key: ${{ runner.os }}-micro
+
+    - name: Get micro
+      if: steps.cache-micro.outputs.cache-hit != 'true'
+      run: curl -o micro.jar -L https://github.com/snowplow-incubator/snowplow-micro/releases/download/micro-1.1.2/snowplow-micro-1.1.2.jar
+
+    - name: Run Micro in background
+      run: java -jar micro.jar --collector-config test/integration/micro.conf --iglu test/integration/iglu.json &
+
+    - name: Wait on Micro endpoint
+      timeout-minutes: 2
+      run: while ! nc -z '0.0.0.0' 9090; do sleep 1; done
 
     - name: Install packages
       run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev uuid-dev
@@ -45,4 +107,4 @@ jobs:
       run: make
 
     - name: Run tests
-      run: make unit-tests
+      run: make tests

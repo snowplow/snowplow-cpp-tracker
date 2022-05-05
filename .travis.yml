@@ -1,9 +1,0 @@
-language: cpp
-os:
-  - osx
-before_install:
-  - sudo pip install cpp-coveralls
-script: 
-  - make unit-tests
-after_success:
-  - coveralls --include src --gcov-options '\-lp'

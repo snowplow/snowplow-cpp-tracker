@@ -64,7 +64,7 @@ Check the tracked events in a [Snowplow Micro](https://docs.snowplowanalytics.co
  host> make
 ```
 
-This will create two executables - the first is the test-suite which can be executed with `make unit-tests`.
+This will create two executables - the first is the test-suite which can be executed with `make tests`.
 
 The other is an example program which will send one of every type of event to an endpoint of your choosing like so:
 
@@ -80,10 +80,10 @@ If you make changes only to a header file there is a chance it won't be picked u
  host> make
 ```
 
-To run the test suite:
+To run the test suite, first start a [Snowplow Micro](https://github.com/snowplow-incubator/snowplow-micro) instance and run:
 
 ```bash
- host> make unit-tests
+ host> make tests
 ```
 
 If you wish to generate a local code coverage report you will first need to install [lcov](http://ltp.sourceforge.net/coverage/lcov.php) on your host machine.  The easiest way to do this is using [brew](http://brew.sh/) under macOS:
