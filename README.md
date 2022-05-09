@@ -61,16 +61,21 @@ Check the tracked events in a [Snowplow Micro](https://docs.snowplowanalytics.co
 ```bash
  host> git clone https://github.com/snowplow/snowplow-cpp-tracker
  host> cd snowplow-cpp-tracker
+ host> cmake -D SNOWPLOW_BUILD_TESTS=1 -D SNOWPLOW_BUILD_EXAMPLE=1 -B build .
+ host> cd build
  host> make
 ```
 
-This will create two executables - the first is the test-suite which can be executed with `make tests`.
+This will create two executables - the first is the test suite. To run the test suite, first start a [Snowplow Micro](https://github.com/snowplow-incubator/snowplow-micro) instance and run:
+
+```bash
+ host> ./snowplow-tests
+```
 
 The other is an example program which will send one of every type of event to an endpoint of your choosing like so:
 
 ```bash
- host> cd build/example
- host> ./tracker_example {{ your collector uri }}
+ host> ./snowplow-example {{ your collector uri }}
 ```
 
 If you make changes only to a header file there is a chance it won't be picked up by make in which case you will need to:
@@ -80,34 +85,16 @@ If you make changes only to a header file there is a chance it won't be picked u
  host> make
 ```
 
-To run the test suite, first start a [Snowplow Micro](https://github.com/snowplow-incubator/snowplow-micro) instance and run:
-
-```bash
- host> make tests
-```
-
-If you wish to generate a local code coverage report you will first need to install [lcov](http://ltp.sourceforge.net/coverage/lcov.php) on your host machine.  The easiest way to do this is using [brew](http://brew.sh/) under macOS:
-
-```bash
- host> brew install lcov 
-```
-
-Then run the following:
-
-```bash
- host> make lcov-genhtml
-```
-
-The above runs the test suite and then generates a full code coverage report which can be accessed by opening the `index.html` in the `build` directory.
-
 #### Performance testing
 
 The project also provides performance tests to measure changes in performance of the tracker. The tests measure performance under a few scenarios in which they vary the emitter and session.
 
-To run performance tests on your machine:
+Build and run the performance using the following steps from the root of the project:
 
 ```bash
- host> ./build/performance/tracker_performance
+ host> cmake -D SNOWPLOW_BUILD_PERFORMANCE=1 -B build .
+ host> cd build && make && cd ..
+ host> ./build/snowplow-performance
 ```
 
 To compare with historical performance measurements (logged in the `performance/logs.txt` file), run the following Python script that will output a table with the performance comparison:
