@@ -127,6 +127,8 @@
     <ClCompile Include="src\tracker.cpp" />
     <ClCompile Include="src\utils.cpp" />
     <ClCompile Include="test\http\test_http_client.cpp" />
+    <ClCompile Include="test\integration\integration_test.cpp" />
+    <ClCompile Include="test\integration\micro.cpp" />
     <ClCompile Include="test\client_session_test.cpp" />
     <ClCompile Include="test\configuration\emitter_configuration_test.cpp" />
     <ClCompile Include="test\configuration\network_configuration_test.cpp" />
@@ -178,6 +180,7 @@
     <ClInclude Include="src\tracker.hpp" />
     <ClInclude Include="src\utils.hpp" />
     <ClInclude Include="test\http\test_http_client.hpp" />
+    <ClInclude Include="test\integration\micro.hpp" />
     <ClInclude Include="test\catch.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -16,7 +16,7 @@ jobs:
         run: make
 
       - name: Run tests
-        run: make unit-tests
+        run: make tests
 
   release:
     needs: ["test"]
