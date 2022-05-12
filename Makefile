@@ -1,4 +1,4 @@
-.PHONY: all unit-tests lcov-genhtml clean test-clean dist-clean
+.PHONY: all tests lcov-genhtml clean test-clean dist-clean
 
 build-dir = build/
 test-dir = $(build-dir)test/
@@ -73,12 +73,12 @@ $(performance-dir)$(performance-name): $(objcxx-objects) $(cxx-common-objects) $
 
 # Testing
 
-unit-tests: test-clean all
+tests: test-clean all
 	(cd $(test-dir); ./$(test-name))
 
 # Coverage
 
-lcov-genhtml: unit-tests
+lcov-genhtml: tests
 	mkdir -p $(coverage-dir)
 	lcov --capture --directory src --output-file $(coverage-dir)$(coverage-name)
 	genhtml $(coverage-dir)$(coverage-name) --output-directory $(coverage-dir) --demangle-cpp
