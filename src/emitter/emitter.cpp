@@ -48,13 +48,24 @@ unique_ptr<HttpClient> createDefaultHttpClient() {
 }
 #endif
 
-Emitter::Emitter(const string &uri, Method method, Protocol protocol, int batch_size,
-                 int byte_limit_post, int byte_limit_get, shared_ptr<EventStore> event_store) : Emitter(uri, method, protocol, batch_size, byte_limit_post, byte_limit_get, std::move(event_store), createDefaultHttpClient()) {
+Emitter::Emitter(NetworkConfiguration &network_config, const EmitterConfiguration &emitter_config) :
+  Emitter(
+    move(emitter_config.get_event_store()),
+    network_config.get_collector_hostname(),
+    network_config.get_method(),
+    network_config.get_protocol(),
+    emitter_config.get_batch_size(),
+    emitter_config.get_byte_limit_post(),
+    emitter_config.get_byte_limit_get(),
+    move(network_config.move_http_client())
+  ) {
+  m_callback = emitter_config.get_request_callback();
+  m_callback_emit_status = emitter_config.get_request_callback_emit_status();
+  m_custom_retry_for_status_codes = emitter_config.get_custom_retry_for_status_codes();
 }
 
-Emitter::Emitter(const string &uri, Method method, Protocol protocol, int batch_size,
-                 int byte_limit_post, int byte_limit_get, shared_ptr<EventStore> event_store, unique_ptr<HttpClient> http_client) : m_url(this->get_collector_url(uri, protocol, method)) {
-
+Emitter::Emitter(shared_ptr<EventStore> event_store, const string &uri, Method method, Protocol protocol, int batch_size,
+                 int byte_limit_post, int byte_limit_get, unique_ptr<HttpClient> http_client) : m_url(this->get_collector_url(uri, protocol, method)) {
   if (uri == "") {
     throw invalid_argument("FATAL: Emitter URI cannot be empty.");
   }
@@ -79,7 +90,11 @@ Emitter::Emitter(const string &uri, Method method, Protocol protocol, int batch_
   this->m_byte_limit_post = byte_limit_post;
   this->m_byte_limit_get = byte_limit_get;
   this->m_event_store = move(event_store);
-  this->m_http_client = move(http_client);
+  if (http_client) {
+    this->m_http_client = move(http_client);
+  } else {
+    this->m_http_client = createDefaultHttpClient();
+  }
 }
 
 Emitter::~Emitter() {

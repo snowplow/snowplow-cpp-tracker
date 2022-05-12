@@ -27,9 +27,10 @@ using namespace snowplow;
 using std::invalid_argument;
 using std::runtime_error;
 using std::to_string;
+using std::make_shared;
 
 TEST_CASE("tracker") {
-  auto storage = std::make_shared<SqliteStorage>("test-tracker.db");
+  auto storage = make_shared<SqliteStorage>("test-tracker.db");
 
   // --- Emitter Mock
 
@@ -39,7 +40,7 @@ TEST_CASE("tracker") {
     vector<Payload> m_payloads;
 
   public:
-    MockEmitter(std::shared_ptr<EventStore> event_store) : Emitter("com.acme", Emitter::Method::POST, Emitter::Protocol::HTTP, 0, 0, 0, move(event_store), unique_ptr<HttpClient>(new TestHttpClient())) {}
+    MockEmitter(std::shared_ptr<EventStore> event_store) : Emitter(move(event_store), "com.acme", Method::POST, Protocol::HTTP, 0, 0, 0, unique_ptr<HttpClient>(new TestHttpClient())) {}
     void start() { m_started = true; }
     void stop() { m_started = false; }
     void add(Payload payload) { m_payloads.push_back(payload); }
@@ -59,68 +60,39 @@ TEST_CASE("tracker") {
     REQUIRE(e.get_added_payloads().size() == 1);
   }
 
-  // --- Tracker Controls
-
-  SECTION("Tracker singleton controls provide expected behaviour") {
-    bool runtime_exception_on_not_init = false;
-    try {
-      Tracker *t = Tracker::instance();
-    } catch (runtime_error) {
-      runtime_exception_on_not_init = true;
-    }
-    REQUIRE(runtime_exception_on_not_init == true);
-
-    MockEmitter e(storage);
-    Tracker *t = Tracker::init(e, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-
-    runtime_exception_on_not_init = false;
-    try {
-      Tracker *t = Tracker::instance();
-    } catch (runtime_error) {
-      runtime_exception_on_not_init = true;
-    }
-    REQUIRE(runtime_exception_on_not_init == false);
-
-    Tracker::close();
+  SECTION("Correctly initialized from TrackerConfiguration") {
+    auto emitter = make_shared<MockEmitter>(storage);
+    TrackerConfiguration tracker_config("ns1", "app1", mob);
+    REQUIRE(tracker_config.get_platform() == "mob");
+    Tracker tracker(tracker_config, emitter);
+    REQUIRE(tracker.get_namespace() == "ns1");
   }
 
-  SECTION("Tracker returns unique event ID") {
-    MockEmitter e(storage);
-    ClientSession cs(storage, 5000, 5000);
-    string platform = "pc";
-    string app_id = "snowplow-test-suite";
-    string name_space = "snowplow-testing";
-    bool base64 = false;
-    bool desktop_context = false;
+  // --- Tracker Controls
 
-    Tracker *t = Tracker::init(e, NULL, &cs, &platform, &app_id, &name_space, &base64, &desktop_context);
+  SECTION("Tracker returns unique event ID") {
+    auto emitter = make_shared<MockEmitter>(storage);
+    auto session = make_shared<ClientSession>(storage, 5000, 5000);
+    Tracker tracker(emitter, nullptr, session, "pc", "snowplow-test-suite", "snowplow-testing", false, false);
 
     StructuredEvent sv("hello", "world");
-    string sv_id_1 = t->track(sv);
+    string sv_id_1 = tracker.track(sv);
     REQUIRE(sv_id_1.size() > 5);
 
-    string sv_id_2 = t->track(sv);
+    string sv_id_2 = tracker.track(sv);
     REQUIRE(sv_id_2.size() > 5);
     REQUIRE(sv_id_1 != sv_id_2);
-
-    Tracker::close();
   }
 
   SECTION("Tracker controls should provide expected behaviour") {
-    MockEmitter e(storage);
-    ClientSession cs(storage, 5000, 5000);
-    string platform = "pc";
-    string app_id = "snowplow-test-suite";
-    string name_space = "snowplow-testing";
-    bool base64 = false;
-    bool desktop_context = false;
-
-    Tracker *t = Tracker::init(e, NULL, &cs, &platform, &app_id, &name_space, &base64, &desktop_context);
+    auto emitter = make_shared<MockEmitter>(storage);
+    auto session = make_shared<ClientSession>(storage, 5000, 5000);
+    Tracker tracker(emitter, nullptr, session, "pc", "snowplow-test-suite", "snowplow-testing", false, false);
 
     StructuredEvent sv("hello", "world");
-    t->track(sv);
+    tracker.track(sv);
 
-    vector<Payload> payloads = e.get_added_payloads();
+    vector<Payload> payloads = emitter->get_added_payloads();
     REQUIRE(payloads.size() == 1);
 
     auto payload = payloads[0].get();
@@ -132,12 +104,12 @@ TEST_CASE("tracker") {
     REQUIRE(payload[SNOWPLOW_SE_ACTION] == "world");
     REQUIRE(payload[SNOWPLOW_SE_CATEGORY] == "hello");
 
-    Subject s;
-    s.set_screen_resolution(1920, 1080);
-    Tracker::instance()->set_subject(&s);
-    t->track(sv);
+    auto subject = make_shared<Subject>();
+    subject->set_screen_resolution(1920, 1080);
+    tracker.set_subject(subject);
+    tracker.track(sv);
 
-    payloads = e.get_added_payloads();
+    payloads = emitter->get_added_payloads();
     REQUIRE(payloads.size() == 2);
 
     payload = payloads[1].get();
@@ -150,11 +122,11 @@ TEST_CASE("tracker") {
     REQUIRE(payload[SNOWPLOW_SE_CATEGORY] == "hello");
     REQUIRE(payload[SNOWPLOW_RESOLUTION] == "1920x1080");
 
-    s.set_screen_resolution(1080, 1920);
-    Tracker::instance()->set_subject(&s);
-    t->track(sv);
+    subject->set_screen_resolution(1080, 1920);
+    tracker.set_subject(subject);
+    tracker.track(sv);
 
-    payloads = e.get_added_payloads();
+    payloads = emitter->get_added_payloads();
     REQUIRE(payloads.size() == 3);
 
     payload = payloads[2].get();
@@ -167,23 +139,21 @@ TEST_CASE("tracker") {
     REQUIRE(payload[SNOWPLOW_SE_CATEGORY] == "hello");
     REQUIRE(payload[SNOWPLOW_RESOLUTION] == "1080x1920");
 
-    Tracker::instance()->flush();
-    REQUIRE(e.get_added_payloads().size() == 0);
-
-    Tracker::close();
+    tracker.flush();
+    REQUIRE(emitter->get_added_payloads().size() == 0);
   }
 
   // --- Tracker Defaults
 
   SECTION("Tracker adds default fields to each payload") {
-    MockEmitter e(storage);
-    Tracker *t = Tracker::init(e, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+    auto emitter = make_shared<MockEmitter>(storage);
+    Tracker tracker(emitter);
 
-    REQUIRE(e.is_started() == true);
+    REQUIRE(emitter->is_started() == true);
 
-    t->track(StructuredEvent("c", "a"));
+    tracker.track(StructuredEvent("c", "a"));
 
-    vector<Payload> payloads = e.get_added_payloads();
+    vector<Payload> payloads = emitter->get_added_payloads();
     REQUIRE(payloads.size() == 1);
 
     auto payload = payloads[0].get();
@@ -191,12 +161,10 @@ TEST_CASE("tracker") {
     REQUIRE(payload[SNOWPLOW_PLATFORM] == "srv");
     REQUIRE(payload[SNOWPLOW_APP_ID] == "");
     REQUIRE(payload[SNOWPLOW_SP_NAMESPACE] == "");
-
-    Tracker::close();
   }
 
   SECTION("Tracker can change default fields") {
-    MockEmitter e(storage);
+    auto emitter = make_shared<MockEmitter>(storage);
 
     string plat = "mob";
     string app_id = "app-id";
@@ -204,12 +172,12 @@ TEST_CASE("tracker") {
     bool base64 = false;
     bool desktop_context = true;
 
-    Tracker *t = Tracker::init(e, NULL, NULL, &plat, &app_id, &name_space, &base64, &desktop_context);
+    Tracker tracker(emitter, nullptr, nullptr, "mob", "app-id", "namespace", false, true);
 
-    REQUIRE(e.is_started() == true);
+    REQUIRE(emitter->is_started() == true);
 
-    t->track(StructuredEvent("c", "a"));
-    vector<Payload> payloads = e.get_added_payloads();
+    tracker.track(StructuredEvent("c", "a"));
+    vector<Payload> payloads = emitter->get_added_payloads();
 
     REQUIRE(payloads.size() == 1);
 
@@ -219,8 +187,6 @@ TEST_CASE("tracker") {
     REQUIRE(payload[SNOWPLOW_PLATFORM] == "mob");
     REQUIRE(payload[SNOWPLOW_APP_ID] == "app-id");
     REQUIRE(payload[SNOWPLOW_SP_NAMESPACE] == "namespace");
-
-    Tracker::close();
   }
 
   // --- Event Builders
@@ -267,13 +233,13 @@ TEST_CASE("tracker") {
     bool is_arg_exception_empty_category;
     bool is_arg_exception_empty_action;
 
-    MockEmitter e(storage);
-    Tracker *t = Tracker::init(e, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+    auto emitter = make_shared<MockEmitter>(storage);
+    Tracker tracker(emitter);
 
     StructuredEvent sv("", "hello");
 
     try {
-      t->track(sv);
+      tracker.track(sv);
     } catch (invalid_argument) {
       is_arg_exception_empty_category = true;
     }
@@ -282,23 +248,23 @@ TEST_CASE("tracker") {
     sv.category = "hello";
 
     try {
-      t->track(sv);
+      tracker.track(sv);
     } catch (invalid_argument) {
       is_arg_exception_empty_action = true;
     }
 
     REQUIRE(is_arg_exception_empty_action);
     REQUIRE(is_arg_exception_empty_category);
-    REQUIRE(e.get_added_payloads().size() == 0);
+    REQUIRE(emitter->get_added_payloads().size() == 0);
 
     sv.action = "action";
     sv.category = "category";
 
-    t->track(sv);
+    tracker.track(sv);
 
-    REQUIRE(e.get_added_payloads().size() == 1);
+    REQUIRE(emitter->get_added_payloads().size() == 1);
 
-    auto payload = e.get_added_payloads()[0].get();
+    auto payload = emitter->get_added_payloads()[0].get();
 
     REQUIRE(payload[SNOWPLOW_TRACKER_VERSION] == SNOWPLOW_TRACKER_VERSION_LABEL);
     REQUIRE(payload[SNOWPLOW_PLATFORM] == "srv");
@@ -324,8 +290,8 @@ TEST_CASE("tracker") {
     unsigned long long ts = Utils::get_unix_epoch_ms();
     sv.set_true_timestamp(&ts);
 
-    t->track(sv);
-    auto new_payload = e.get_added_payloads()[1].get();
+    tracker.track(sv);
+    auto new_payload = emitter->get_added_payloads()[1].get();
 
     REQUIRE(new_payload[SNOWPLOW_TIMESTAMP].size() > 10);
     REQUIRE(new_payload[SNOWPLOW_EID].size() > 5);
@@ -337,21 +303,19 @@ TEST_CASE("tracker") {
     REQUIRE(new_payload[SNOWPLOW_SE_PROPERTY] == "property");
     REQUIRE(new_payload[SNOWPLOW_SE_VALUE] == to_string(11.11));
     REQUIRE(new_payload[SNOWPLOW_TRUE_TIMESTAMP] == to_string(ts));
-
-    Tracker::close();
   }
 
   SECTION("track ScreenViewEvent generates sane event") {
-    MockEmitter e(storage);
-    Tracker *t = Tracker::init(e, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+    auto emitter = make_shared<MockEmitter>(storage);
+    Tracker tracker(emitter);
 
     ScreenViewEvent se;
     string id = "123";
     se.id = &id;
-    t->track(se);
+    tracker.track(se);
 
-    REQUIRE(e.get_added_payloads().size() == 1);
-    auto payload = e.get_added_payloads()[0].get();
+    REQUIRE(emitter->get_added_payloads().size() == 1);
+    auto payload = emitter->get_added_payloads()[0].get();
 
     REQUIRE(payload[SNOWPLOW_TRACKER_VERSION] == SNOWPLOW_TRACKER_VERSION_LABEL);
     REQUIRE(payload[SNOWPLOW_PLATFORM] == "srv");
@@ -377,8 +341,8 @@ TEST_CASE("tracker") {
     unsigned long long ttm = Utils::get_unix_epoch_ms();
     se.set_true_timestamp(&ttm);
 
-    t->track(se);
-    auto new_payload = e.get_added_payloads()[1].get();
+    tracker.track(se);
+    auto new_payload = emitter->get_added_payloads()[1].get();
 
     REQUIRE(new_payload[SNOWPLOW_TRUE_TIMESTAMP] == to_string(ttm));
 
@@ -396,26 +360,24 @@ TEST_CASE("tracker") {
     se.name = NULL;
     bool arg_exception_on_no_id_or_name = false;
     try {
-      t->track(se);
+      tracker.track(se);
     } catch (invalid_argument) {
       arg_exception_on_no_id_or_name = true;
     }
 
     REQUIRE(arg_exception_on_no_id_or_name == true);
-
-    Tracker::close();
   }
 
   SECTION("track TimingEvent generates a sane event") {
-    MockEmitter e(storage);
-    Tracker *t = Tracker::init(e, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+    auto emitter = make_shared<MockEmitter>(storage);
+    Tracker tracker(emitter);
 
     TimingEvent te("category", "variable", 123);
-    t->track(te);
+    tracker.track(te);
 
-    REQUIRE(e.get_added_payloads().size() == 1);
+    REQUIRE(emitter->get_added_payloads().size() == 1);
 
-    auto payload = e.get_added_payloads()[0].get();
+    auto payload = emitter->get_added_payloads()[0].get();
 
     REQUIRE(payload[SNOWPLOW_TRACKER_VERSION] == SNOWPLOW_TRACKER_VERSION_LABEL);
     REQUIRE(payload[SNOWPLOW_PLATFORM] == "srv");
@@ -442,10 +404,10 @@ TEST_CASE("tracker") {
     unsigned long long ts = Utils::get_unix_epoch_ms();
     te.set_true_timestamp(&ts);
 
-    t->track(te);
+    tracker.track(te);
 
     expected[SNOWPLOW_UT_LABEL] = "hello world";
-    auto new_payload = e.get_added_payloads()[1].get();
+    auto new_payload = emitter->get_added_payloads()[1].get();
 
     REQUIRE(new_payload[SNOWPLOW_TRUE_TIMESTAMP] == to_string(ts));
 
@@ -458,7 +420,7 @@ TEST_CASE("tracker") {
     TimingEvent te1("", "", 123);
     bool arg_exception_on_no_category = false;
     try {
-      t->track(te1);
+      tracker.track(te1);
     } catch (invalid_argument) {
       arg_exception_on_no_category = true;
     }
@@ -468,29 +430,27 @@ TEST_CASE("tracker") {
     TimingEvent te2("category", "", 123);
     bool arg_exception_on_no_variable = false;
     try {
-      t->track(te2);
+      tracker.track(te2);
     } catch (invalid_argument) {
       arg_exception_on_no_variable = true;
     }
 
     REQUIRE(arg_exception_on_no_variable == true);
-
-    Tracker::close();
   }
 
   SECTION("track SelfDescribingEvent generates a sane event") {
-    MockEmitter e(storage);
+    auto emitter = make_shared<MockEmitter>(storage);
 
     bool desktop_context = false;
-    Tracker *t = Tracker::init(e, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+    Tracker tracker(emitter);
 
     SelfDescribingJson sdj("schema", "{ \"hello\":\"world\" }"_json);
     SelfDescribingEvent sde(sdj);
-    t->track(sde);
+    tracker.track(sde);
 
-    REQUIRE(e.get_added_payloads().size() == 1);
+    REQUIRE(emitter->get_added_payloads().size() == 1);
 
-    auto payload = e.get_added_payloads()[0].get();
+    auto payload = emitter->get_added_payloads()[0].get();
 
     REQUIRE(payload[SNOWPLOW_TRACKER_VERSION] == SNOWPLOW_TRACKER_VERSION_LABEL);
     REQUIRE(payload[SNOWPLOW_PLATFORM] == "srv");
@@ -507,15 +467,13 @@ TEST_CASE("tracker") {
     const unsigned char *str = (const unsigned char *)json.c_str();
 
     REQUIRE(payload[SNOWPLOW_UNSTRUCTURED_ENCODED] == base64_encode(str, json.length()));
-
-    Tracker::close();
   }
 
   SECTION("adds payload from event Subject instance") {
-    MockEmitter e(storage);
+    auto emitter = make_shared<MockEmitter>(storage);
 
     bool desktop_context = false;
-    Tracker *t = Tracker::init(e, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+    Tracker tracker(emitter);
 
     SelfDescribingJson sdj("schema", "{ \"hello\":\"world\" }"_json);
     SelfDescribingEvent sde(sdj);
@@ -523,25 +481,23 @@ TEST_CASE("tracker") {
     shared_ptr<Subject> subject = std::make_shared<Subject>();
     subject->set_user_id("the_user");
     sde.set_subject(subject);
-    t->track(sde);
+    tracker.track(sde);
 
-    REQUIRE(e.get_added_payloads().size() == 1);
+    REQUIRE(emitter->get_added_payloads().size() == 1);
 
-    auto payload = e.get_added_payloads()[0].get();
+    auto payload = emitter->get_added_payloads()[0].get();
 
     REQUIRE(payload[SNOWPLOW_UID] == "the_user");
-
-    Tracker::close();
   }
 
   SECTION("event-level subject overries tracker subject properties") {
-    MockEmitter e(storage);
+    auto emitter = make_shared<MockEmitter>(storage);
 
     bool desktop_context = false;
-    Subject trackerSubject;
-    trackerSubject.set_user_id("u1");
-    trackerSubject.set_language("en");
-    Tracker *t = Tracker::init(e, &trackerSubject, NULL, NULL, NULL, NULL, NULL, NULL);
+    auto trackerSubject = make_shared<Subject>();
+    trackerSubject->set_user_id("u1");
+    trackerSubject->set_language("en");
+    Tracker tracker(emitter, trackerSubject);
 
     SelfDescribingJson sdj("schema", "{ \"hello\":\"world\" }"_json);
     SelfDescribingEvent sde(sdj);
@@ -550,16 +506,14 @@ TEST_CASE("tracker") {
     eventSubject->set_user_id("u2");
     eventSubject->set_timezone("GMT");
     sde.set_subject(eventSubject);
-    t->track(sde);
+    tracker.track(sde);
 
-    REQUIRE(e.get_added_payloads().size() == 1);
+    REQUIRE(emitter->get_added_payloads().size() == 1);
 
-    auto payload = e.get_added_payloads()[0].get();
+    auto payload = emitter->get_added_payloads()[0].get();
 
     REQUIRE(payload[SNOWPLOW_UID] == "u2");
     REQUIRE(payload[SNOWPLOW_LANGUAGE] == "en");
     REQUIRE(payload[SNOWPLOW_TIMEZONE] == "GMT");
-
-    Tracker::close();
   }
 }

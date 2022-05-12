@@ -1,24 +1,15 @@
 # Emitters
 
-The Tracker instance must be initialized with an emitter. This section will go into more depth about the Emitter and how it works under the hood.
+Emitters are responsible for sending events to the collector. Each tracker is given a single emitter. Once the emitter receives an event from the Tracker a few things start to happen:
 
-```cpp
-auto storage = std::make_shared<SqliteStorage>("sp.db"); // or custom EventStore
-Emitter emitter("com.acme", Emitter::Method::POST, Emitter::Protocol::HTTP, 52000, 52000, 500, storage);
-```
+* The event is added to a local SQLite3 database or custom event store (blocking execution).
+* A long running daemon thread is started which will continue to send events as long as they can be found in the database (asynchronous).
+* The emitter loop will grab a range of events from the database up until the `batch_size` passed to it as configuration.
+* The emitter will send all of these events as determined by the Request, Protocol and ByteLimits.
+  * Each request is sent in its thread.
+* Once sent, it will process the results of all the requests sent and will remove all successfully sent events from the database. If the request failed, the events will be retried after a retry delay (see below).
 
-There are other optional arguments:
-
-| **Argument Name** | **Description** | **Required?** |
-| --- | --- | --- |
-| `uri` | The URI to send events to | Yes |
-| `method` | The request type to use (GET or POST) | Yes |
-| `protocol` | The protocol to use (http or https) | Yes |
-| `batch_size` | The maximum amount of events to send at a time | Yes |
-| `byte_limit_post` | The byte limit when sending a POST request | Yes |
-| `byte_limit_get` | The byte limit when sending a GET request | Yes |
-| `event_store` | Implementation of the `EventStore` struct to persist an event queue with events to send | Yes |
-| `http_client` | Unique pointer to a custom HTTP client to send GET and POST requests with | No |
+In [Initialisation](02-initialisation.md), we discussed how to create a tracker with an emitter configured using `EmitterConfiguration` or by instantiating an `Emitter` instance directly. Both of these options provide the same configuration functionality (e.g., storage options, byte limits, setting custom HTTP clients) that were discussed previously. This page will go into more detail on some of the configurable emitter properties.
 
 ## Event store
 
@@ -46,7 +37,7 @@ The `EventStore` struct defines functions to insert, retrieve, and remove events
 
 ## Emitter request callback
 
-The Emitter enables you to set a callback function to be called after events are attempted to be sent to the Collector. This callback is fired after HTTP requests are made and you can subscribe for specific emit statuses. The following statuses can be subscribed to:
+The emitter enables you to set a callback function to be called after events are attempted to be sent to the Collector. This callback is fired after HTTP requests are made and you can subscribe for specific emit statuses. The following statuses can be subscribed to:
 
 * `EmitStatus::SUCCESS` – events were successfuly sent to the Collector.
 * `EmitStatus::FAILED_WILL_RETRY` – events failed to be sent to the Collector but will be retried later.
@@ -55,7 +46,7 @@ The Emitter enables you to set a callback function to be called after events are
 The callback is given two arguments – list of event IDs, and their emit status. You can only set one callback at once but you can subscribe to multiple emit statuses using binary operations. The following example shows how to set a callback that is called for all three emit statuses and prints to standard output.
 
 ```cpp
-emitter.set_request_callback(
+emitter_configuration.set_request_callback(
     [](list<string> event_ids, EmitStatus emit_status) {
       switch (emit_status) {
       case EmitStatus::SUCCESS:
@@ -74,25 +65,14 @@ emitter.set_request_callback(
 
 The callback is executed in a new thread. The `set_request_callback` function can't be called when the Emitter is running.
 
-## Under the hood
-
-Once the emitter receives an event from the Tracker a few things start to happen:
-
-* The event is added to a local Sqlite3 database (blocking execution)
-* A long running daemon thread is started which will continue to send events as long as they can be found in the database (asynchronous)
-* The emitter loop will grab a range of events from the database up until the `SendLimit` as noted __above_
-* The emitter will send all of these events as determined by the Request, Protocol and ByteLimits
-  * Each request is sent in its thread.
-* Once sent it will process the results of all the requests sent and will remove all successfully sent events from the database
-
 ## HTTP request retry behavior
 
 The Emitter has a retry functionality that repeatedly sends the same events to the Collector in case HTTP requests fail to get through. Requests are retried in case the connection to the Collector fails to be estabilished. They are also retried for all 3xx and 5xx HTTP status codes in server response and most 4xx status codes with the following exceptions – 400, 401, 403, 410, and 422. These status codes signal a rejection of the events being sent to the Collector and, therefore, the events in the requests are dropped and not sent again.
 
-The Emitter provides an option to set custom retry behavior for 3xx, 4xx and 5xx HTTP status codes. You can call the `set_retry_for_status_code` function on the Emitter instance to define whether to retry or not for a given HTTP status code. Here is an example that overrides the default behavior and enables retries on 422 status code:
+The `Emitter` and `EmitterConfiguration` provide an option to set custom retry behavior for 3xx, 4xx and 5xx HTTP status codes. You can call the `set_retry_for_status_code` function on the `Emitter` or `EmitterConfiguration` instance to define whether to retry or not for a given HTTP status code. Here is an example that overrides the default behavior and enables retries on 422 status code:
 
 ```cpp
-emitter.set_retry_for_status_code(422, true);
+emitter_configuration.set_retry_for_status_code(422, true);
 ```
 
 ## Request retry delay (back-off)

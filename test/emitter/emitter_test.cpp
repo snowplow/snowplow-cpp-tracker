@@ -39,6 +39,28 @@ string track_sample_event(Emitter &emitter) {
 TEST_CASE("emitter") {
   auto storage = std::make_shared<SqliteStorage>("test-emitter.db");
 
+  SECTION("Correctly initialized using NetworkConfiguration and EmitterConfiguration") {
+    NetworkConfiguration network_config("http://127.0.0.1:9090", GET);
+    network_config.set_http_client(unique_ptr<HttpClient>(new TestHttpClient()));
+    REQUIRE(network_config.get_collector_hostname() == "127.0.0.1:9090");
+    EmitterConfiguration emitter_config(storage);
+    emitter_config.set_batch_size(101);
+    emitter_config.set_byte_limit_get(102);
+    emitter_config.set_byte_limit_post(103);
+    emitter_config.set_custom_retry_for_status_code(403, true);
+    emitter_config.set_request_callback(
+        [&](list<string> event_ids, EmitStatus status) {},
+        EmitStatus::SUCCESS);
+
+    Emitter emitter(network_config, emitter_config);
+    REQUIRE(emitter.get_batch_size() == 101);
+    REQUIRE(emitter.get_byte_limit_get() == 102);
+    REQUIRE(emitter.get_byte_limit_post() == 103);
+    REQUIRE(emitter.get_cracked_url().get_hostname() == "127.0.0.1");
+    REQUIRE(emitter.get_cracked_url().get_port() == 9090);
+    REQUIRE(emitter.get_method() == GET);
+  }
+
   SECTION("Emitter rejects urls (starting with http:// or https://)") {
     bool inv_arg_http = false;
     bool inv_arg_https = false;
@@ -46,25 +68,25 @@ TEST_CASE("emitter") {
     bool inv_arg_https_case = false;
 
     try {
-      Emitter emitter("http://com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 51000, storage, unique_ptr<HttpClient>(new TestHttpClient()));
+      Emitter emitter(storage, "http://com.acme.collector", Method::POST, Protocol::HTTP, 500, 52000, 51000, unique_ptr<HttpClient>(new TestHttpClient()));
     } catch (invalid_argument) {
       inv_arg_http = true;
     }
 
     try {
-      Emitter emitter("https://com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 51000, storage, unique_ptr<HttpClient>(new TestHttpClient()));
+      Emitter emitter(storage, "https://com.acme.collector", Method::POST, Protocol::HTTP, 500, 52000, 51000, unique_ptr<HttpClient>(new TestHttpClient()));
     } catch (invalid_argument) {
       inv_arg_https = true;
     }
 
     try {
-      Emitter emitter("HTTP://com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 51000, storage, unique_ptr<HttpClient>(new TestHttpClient()));
+      Emitter emitter(storage, "HTTP://com.acme.collector", Method::POST, Protocol::HTTP, 500, 52000, 51000, unique_ptr<HttpClient>(new TestHttpClient()));
     } catch (invalid_argument) {
       inv_arg_http_case = true;
     }
 
     try {
-      Emitter emitter("HTTPS://com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 51000, storage, unique_ptr<HttpClient>(new TestHttpClient()));
+      Emitter emitter(storage, "HTTPS://com.acme.collector", Method::POST, Protocol::HTTP, 500, 52000, 51000, unique_ptr<HttpClient>(new TestHttpClient()));
     } catch (invalid_argument) {
       inv_arg_https_case = true;
     }
@@ -76,11 +98,11 @@ TEST_CASE("emitter") {
   }
 
   SECTION("Emitter setup confirmation") {
-    Emitter emitter("com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 51000, storage, unique_ptr<HttpClient>(new TestHttpClient()));
+    Emitter emitter(storage, "com.acme.collector", Method::POST, Protocol::HTTP, 500, 52000, 51000, unique_ptr<HttpClient>(new TestHttpClient()));
 
     REQUIRE(false == emitter.is_running());
     REQUIRE("http://com.acme.collector/com.snowplowanalytics.snowplow/tp2" == emitter.get_cracked_url().to_string());
-    REQUIRE(Emitter::Method::POST == emitter.get_method());
+    REQUIRE(Method::POST == emitter.get_method());
     REQUIRE(500 == emitter.get_batch_size());
     REQUIRE(52000 == emitter.get_byte_limit_post());
     REQUIRE(51000 == emitter.get_byte_limit_get());
@@ -101,18 +123,18 @@ TEST_CASE("emitter") {
     emitter.flush();
     REQUIRE(false == emitter.is_running());
 
-    Emitter emitter_1("com.acme.collector", Emitter::Method::GET, Emitter::Protocol::HTTPS, 500, 52000, 51000, storage, unique_ptr<HttpClient>(new TestHttpClient()));
+    Emitter emitter_1(storage, "com.acme.collector", Method::GET, Protocol::HTTPS, 500, 52000, 51000, unique_ptr<HttpClient>(new TestHttpClient()));
 
     REQUIRE(false == emitter_1.is_running());
     REQUIRE("https://com.acme.collector/i" == emitter_1.get_cracked_url().to_string());
-    REQUIRE(Emitter::Method::GET == emitter_1.get_method());
+    REQUIRE(Method::GET == emitter_1.get_method());
     REQUIRE(500 == emitter_1.get_batch_size());
     REQUIRE(52000 == emitter_1.get_byte_limit_post());
     REQUIRE(51000 == emitter_1.get_byte_limit_get());
 
     bool inv_argument_empty_uri = false;
     try {
-      Emitter emitter_2("", Emitter::Method::GET, Emitter::Protocol::HTTPS, 500, 52000, 51000, storage, unique_ptr<HttpClient>(new TestHttpClient()));
+      Emitter emitter_2(storage, "", Method::GET, Protocol::HTTPS, 500, 52000, 51000, unique_ptr<HttpClient>(new TestHttpClient()));
     } catch (invalid_argument) {
       inv_argument_empty_uri = true;
     }
@@ -120,7 +142,7 @@ TEST_CASE("emitter") {
 
     bool inv_argument_bad_url = false;
     try {
-      Emitter emitter_3("../:random../gibber", Emitter::Method::GET, Emitter::Protocol::HTTPS, 500, 52000, 51000, storage, unique_ptr<HttpClient>(new TestHttpClient()));
+      Emitter emitter_3(storage, "../:random../gibber", Method::GET, Protocol::HTTPS, 500, 52000, 51000, unique_ptr<HttpClient>(new TestHttpClient()));
     } catch (invalid_argument) {
       inv_argument_bad_url = true;
     }
@@ -128,7 +150,7 @@ TEST_CASE("emitter") {
   }
 
   SECTION("Emitter should track and remove only successful events from the database for GET requests") {
-    Emitter emitter("com.acme.collector", Emitter::Method::GET, Emitter::Protocol::HTTPS, 500, 52000, 52000, storage, unique_ptr<HttpClient>(new TestHttpClient()));
+    Emitter emitter(storage, "com.acme.collector", Method::GET, Protocol::HTTPS, 500, 52000, 52000, unique_ptr<HttpClient>(new TestHttpClient()));
     emitter.start();
 
     Payload payload;
@@ -165,7 +187,7 @@ TEST_CASE("emitter") {
   }
 
   SECTION("Emitter should track and remove only successful events from the database for POST requests") {
-    Emitter emitter("com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 500, 500, storage, unique_ptr<HttpClient>(new TestHttpClient()));
+    Emitter emitter(storage, "com.acme.collector", Method::POST, Protocol::HTTP, 500, 500, 500, unique_ptr<HttpClient>(new TestHttpClient()));
     emitter.start();
 
     Payload payload;
@@ -230,7 +252,7 @@ TEST_CASE("emitter") {
   }
 
   SECTION("triggers callback for all emit statuses") {
-    Emitter emitter("com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 500, 500, storage, unique_ptr<HttpClient>(new TestHttpClient()));
+    Emitter emitter(storage, "com.acme.collector", Method::POST, Protocol::HTTP, 500, 500, 500, unique_ptr<HttpClient>(new TestHttpClient()));
     vector<tuple<list<string>, EmitStatus>> calls;
     emitter.set_request_callback(
         [&](list<string> event_ids, EmitStatus status) {
@@ -272,7 +294,7 @@ TEST_CASE("emitter") {
   }
 
   SECTION("doesn't trigger callbacks for not subscribed emit statuses") {
-    Emitter emitter("com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 500, 500, storage, unique_ptr<HttpClient>(new TestHttpClient()));
+    Emitter emitter(storage, "com.acme.collector", Method::POST, Protocol::HTTP, 500, 500, 500, unique_ptr<HttpClient>(new TestHttpClient()));
     vector<tuple<list<string>, EmitStatus>> calls;
     emitter.set_request_callback(
         [&](list<string> event_ids, EmitStatus status) {
@@ -305,7 +327,7 @@ TEST_CASE("emitter") {
   }
 
   SECTION("Emitter should not retry failed events for no-retry status codes") {
-    Emitter emitter("com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 500, 500, storage, unique_ptr<HttpClient>(new TestHttpClient()));
+    Emitter emitter(storage, "com.acme.collector", Method::POST, Protocol::HTTP, 500, 500, 500, unique_ptr<HttpClient>(new TestHttpClient()));
 
     TestHttpClient::set_http_response_code(200); // success, don't retry
     track_sample_event(emitter);
@@ -339,7 +361,7 @@ TEST_CASE("emitter") {
   }
 
   SECTION("Emitter sleeps in between retries") {
-    Emitter emitter("com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 500, 500, storage, unique_ptr<HttpClient>(new TestHttpClient()));
+    Emitter emitter(storage, "com.acme.collector", Method::POST, Protocol::HTTP, 500, 500, 500, unique_ptr<HttpClient>(new TestHttpClient()));
 
     TestHttpClient::set_temporary_response_code(501, 5); // retry with 5 failures
     auto t_start = std::chrono::high_resolution_clock::now();

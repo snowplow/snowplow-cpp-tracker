@@ -1,4 +1,4 @@
-# C++ web analytics for Snowplow
+# C++ Analytics for Snowplow
 
 [![early-release]][tracker-classificiation] [![Build Status][travis-image]][travis] [![Coverage Status][coverage-image]][coverage] [![Release][release-image]][releases] [![License][license-image]][license]
 
@@ -34,23 +34,8 @@ Import using the `snowplow.hpp` header file and initialize the tracker with your
 
 using namespace snowplow;
 
-// Storage for events to be sent and current session
-auto storage = std::make_shared<SqliteStorage>("sp.db");
-// Emitter is responsible for sending events to a Snowplow Collector
-Emitter emitter("com.acme.collector", Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 52000, storage);
-// Subject defines additional information about your application's environment and user
-Subject subject;
-subject.set_user_id("a-user-id");
-// Client session keeps track of user sessions
-ClientSession client_session(storage, 5000, 5000);
-
-string platform = "pc"; // platform the tracker is running on
-string app_id = "openage"; // application ID
-string name_space = "sp-pc"; // the name of the tracker instance
-bool base64 = false; // whether to enable base 64 encoding
-bool desktop_context = true; // add a context entity to events with information about the device
-
-Tracker *tracker = Tracker::init(emitter, &subject, &client_session, &platform, &app_id, &name_space, &base64, &desktop_context);
+// Initialize tracker with namespace, collector URI, HTTP method, and SQLite database path (see docs for other options)
+auto tracker = Snowplow::create_tracker("ns", "https://collector.com", POST, "sp.db");
 ```
 
 Track custom events (see the documentation for the full list of supported event types):

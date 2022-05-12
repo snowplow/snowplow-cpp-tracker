@@ -36,6 +36,7 @@ HttpRequestResult TestHttpClient::http_request(const RequestMethod method, Crack
   r.row_ids = row_ids;
   r.oversize = oversize;
   requests_list.push_back(r);
+  m_requests_list.push_back(r);
 
   return HttpRequestResult(0, fetch_response_code(), row_ids, oversize);
 }
@@ -65,8 +66,14 @@ list<TestHttpClient::Request> TestHttpClient::get_requests_list() {
   return requests_list;
 }
 
+list<TestHttpClient::Request> TestHttpClient::get_instance_requests_list() {
+  lock_guard<mutex> guard(log_read_write);
+  return m_requests_list;
+}
+
 void TestHttpClient::reset() {
   lock_guard<mutex> guard(log_read_write);
   requests_list.clear();
   response_code = 200;
+  temporary_response_code_remaining_attempts = 0;
 }

@@ -15,49 +15,60 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #define TRACKER_H
 
 #include <string>
+#include <map>
 #include "emitter/emitter.hpp"
 #include "subject.hpp"
 #include "client_session.hpp"
 #include "events/event.hpp"
+#include "configuration/tracker_configuration.hpp"
 
 using std::string;
-using std::vector;
+using std::map;
+using std::shared_ptr;
 
 namespace snowplow {
 /**
- * @brief Singleton object that provides an interface to track Snowplow events.
+ * @brief Instance of the Snowplow tracker that provides an interface to track Snowplow events.
+ * 
+ * You may construct and manage a Tracker instance directly or use the `Snowplow` interface for easy construction and management of Tracker instances.
  */
 class Tracker {
 public:
   /**
-   * @brief Initializes and returns the singleton tracker instance.
+   * @brief Construct a new Tracker.
    * 
+   * @param tracker_config Tracker configuration object with tracker settings.
    * @param emitter The emitter to which events are sent (required).
-   * @param subject The user being tracked (optional).
-   * @param client_session Client session object responsible for tracking user sessions (optional). Attach a ClientSession context to each event.
+   * @param subject The user and device being tracked (optional).
+   * @param client_session Optional client session object responsible for tracking user sessions (optional). Attach a ClientSession context to each event.
+   */
+  Tracker(const TrackerConfiguration &tracker_config, shared_ptr<Emitter> emitter, shared_ptr<Subject> subject = nullptr, shared_ptr<ClientSession> client_session = nullptr);
+
+  /**
+   * @brief Construct a new Tracker.
+   *
+   * @param emitter The emitter to which events are sent (required).
+   * @param subject The user and device being tracked (optional).
+   * @param client_session Optional client session object responsible for tracking user sessions (optional). Attach a ClientSession context to each event.
    * @param platform The platform the Tracker is running on, can be one of: web, mob, pc, app, srv, tv, cnsl, iot (defaults to srv).
    * @param app_id Application ID (defaults to empty string).
    * @param name_space The name of the tracker instance attached to every event (defaults to empty string).
    * @param use_base64 Whether to enable base 64 encoding (defaults to true).
    * @param desktop_context Whether to add a desktop_context, which gathers information about the device the tracker is running on, to each event (defaults to true).
-   * @return Tracker* 
    */
-  static Tracker *init(Emitter &emitter, Subject *subject, ClientSession *client_session, string *platform, 
-    string *app_id, string *name_space, bool *use_base64, bool *desktop_context);
+  Tracker(shared_ptr<Emitter> emitter, shared_ptr<Subject> subject = nullptr, shared_ptr<ClientSession> client_session = nullptr, const string &platform = SNOWPLOW_DEFAULT_PLATFORM,
+          const string &app_id = SNOWPLOW_DEFAULT_APP_ID, const string &name_space = SNOWPLOW_DEFAULT_NAMESPACE, bool use_base64 = true, bool desktop_context = true);
+
+  ~Tracker();
 
   /**
-   * @brief Returns the initialized singleton tracker instance.
-   * 
-   * @return Tracker* Tracker instance.
+   * @brief Start sending events by the Emitter if not already started. Triggered automatically when tracker is initialized.
    */
-  static Tracker *instance();
-
-  /**
-   * @brief Clean up the tracker to be used in main destructor.
-   */
-  static void close();
-
   void start();
+
+  /**
+   * @brief Stop sending events by the Emitter.
+   */
   void stop();
 
   /**
@@ -72,7 +83,7 @@ public:
    * 
    * @param subject Instance of subject
    */
-  void set_subject(Subject *subject);
+  void set_subject(shared_ptr<Subject> subject);
 
   /**
    * @brief Track a Snowplow event (e.g., an instance of `SelfDescribingEvent`, or `ScreenViewEvent`).
@@ -86,23 +97,30 @@ public:
    */
   string track(const Event &event);
 
+  /**
+   * @brief Get the tracker namespace
+   * 
+   * @return string Tracker namespace
+   */
+  string get_namespace() const { return m_namespace; }
+
+  /**
+   * @brief Get the optional client session object
+   * 
+   * @return shared_ptr<ClientSession> Shared pointer to the client session or nullptr if not initialized
+   */
+  shared_ptr<ClientSession> get_client_session() const { return m_client_session; }
+
 private:
-  static Tracker *m_instance;
-  static mutex m_tracker_get;
-
-  Tracker(Emitter &emitter, Subject *subject, ClientSession *client_session, string *platform, 
-    string *app_id, string *name_space, bool *use_base64, bool *desktop_context);
-  ~Tracker();
-
-  Emitter &m_emitter;
-  Subject *m_subject;
-  ClientSession *m_client_session;
+  shared_ptr<Emitter> m_emitter;
+  shared_ptr<Subject> m_subject;
+  shared_ptr<ClientSession> m_client_session;
   string m_namespace;
   string m_app_id;
   string m_platform;
   bool m_use_base64;
   bool m_desktop_context;
 };
-}
+} // namespace snowplow
 
 #endif
