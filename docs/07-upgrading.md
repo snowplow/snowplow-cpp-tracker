@@ -2,6 +2,12 @@
 
 This page gives instructions for upgrading to newer versions of the C++ tracker.
 
+## Upgrading to v0.5.0
+
+This version changed how the `Tracker` and `Emitter` instances are initialized and introduced the `Snowplow::create_tracker()` API. Please refer to the [page about initialization](02-initialisation.md) to learn more about the new API. The `Tracker::init()` calls should be replaced with `Snowplow::create_tracker()` and `Tracker::instance()` with `Snowplow::get_tracker(namespace)` or `Snowplow::get_default_tracker()`.
+
+Also note that the default protocol has changed from HTTP to HTTPS.
+
 ## Upgrading to v0.3.0
 
 There are a few breaking changes in this release. Please make sure to:

@@ -4,16 +4,11 @@ You can optionally decide to include Client Sessionization. This object will kee
 
 Activity is determined by how often events are sent with the Tracker – so you will need to send events to keep the current session active. Sessions are updated when new events are tracked. There are two timeouts that are checked: foreground and background timeout. Depending on whether the app is in foreground or backgroud, the relevant timeout is used to compare the time difference since previous event and, in case it surpasses the timeout, a new session is started.
 
-```cpp
-auto storage = std::make_shared<SqliteStorage>("sp.db"); // or custom SessionStore
-ClientSession client_session(storage, 5000, 5000);
-```
+In [Initialisation](02-initialisation.md), we discussed how to create a tracker with optional session tracking enabled and configurable foreground and background timeouts. If you enabled session tracking when creating the tracker, you can access a `ClientSession` instance using the tracker:
 
-| **Argument Name** | **Description** | **Required?** |
-| --- | --- | --- |
-| `session_store` | Implementation of the `SessionStore` struct to persist the current session | Yes |
-| `foreground_timeout` | The timeout in milliseconds when the app is in focus | Yes |
-| `background_timeout` | The timeout in milliseconds when the app is backgrounded | Yes |
+```cpp
+auto client_session = Snowplow::get_default_tracker()->get_client_session();
+```
 
 To set the background/foreground state you will need to detect this and then set this on the `ClientSession` object like so:
 
