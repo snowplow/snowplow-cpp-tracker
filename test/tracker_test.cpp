@@ -62,7 +62,9 @@ TEST_CASE("tracker") {
 
   SECTION("Correctly initialized from TrackerConfiguration") {
     auto emitter = make_shared<MockEmitter>(storage);
-    Tracker tracker(TrackerConfiguration("ns1", "app1", "mob"), emitter);
+    TrackerConfiguration tracker_config("ns1", "app1", mob);
+    REQUIRE(tracker_config.get_platform() == "mob");
+    Tracker tracker(tracker_config, emitter);
     REQUIRE(tracker.get_namespace() == "ns1");
   }
 

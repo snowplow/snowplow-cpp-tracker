@@ -68,7 +68,7 @@ There are a number of settings that you may want to customize when creating a tr
 TrackerConfiguration tracker_config(
     "namespace", // tracker namespace
     "app-id", // application ID
-    "mob" // platform that the tracker runs on
+    mob // platform that the tracker runs on
 );
 tracker_config.set_desktop_context(false); // do not attach a desktop context entity to events (on by default)
 
@@ -94,7 +94,7 @@ auto tracker = Snowplow::create_tracker(tracker_config, network_config, emitter_
 |---|---|---|
 | `name_space` | Tracker namespace to identify the tracker and also attach as a property to tracked events. | None |
 | `app_id` | Application ID. | "" |
-| `platform` | The platform the Tracker is running on, can be one of: web, mob, pc, app, srv, tv, cnsl, iot | "srv" |
+| `platform` | Enum of the platform the Tracker is running on, can be one of: web, mob, pc, app, srv, tv, cnsl, iot | srv |
 
 It further provides 2 optional setter functions:
 

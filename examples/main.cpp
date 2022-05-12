@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
   subject->set_language("EN");
   subject->set_useragent("Mozilla/5.0");
 
-  TrackerConfiguration tracker_config("namespace", "app-id", "mob");
+  TrackerConfiguration tracker_config("namespace", "app-id", snowplow::mob);
   tracker_config.set_use_base64(false);
   tracker_config.set_desktop_context(true);
 

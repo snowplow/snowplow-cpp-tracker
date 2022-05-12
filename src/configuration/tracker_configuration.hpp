@@ -20,9 +20,24 @@ using std::shared_ptr;
 using std::string;
 
 namespace snowplow {
+
+/**
+ * @brief Device platform that the app is run on.
+ */
+enum Platform {
+  web, // Web (including Mobile Web)
+  mob, // Mobile/Tablet
+  pc, // Desktop/Laptop/Netbook
+  srv, // Server-Side App
+  app, // General App
+  tv, // Connected TV
+  cnsl, // Games Console
+  iot // Internet of Things
+};
+
 /**
  * @brief Configuration object containing settings used to initialize a Snowplow tracker.
- * 
+ *
  * The tracker namespace is the only required property.
  */
 class TrackerConfiguration {
@@ -34,7 +49,7 @@ public:
    * @param app_id Application ID (defaults to empty string).
    * @param platform The platform the Tracker is running on, can be one of: web, mob, pc, app, srv, tv, cnsl, iot (defaults to srv).
    */
-  TrackerConfiguration(const string &name_space, const string &app_id = SNOWPLOW_DEFAULT_APP_ID, const string &platform = SNOWPLOW_DEFAULT_PLATFORM) : m_namespace(name_space), m_app_id(app_id), m_platform(platform), m_use_base64(true), m_desktop_context(true) {}
+  TrackerConfiguration(const string &name_space, const string &app_id = SNOWPLOW_DEFAULT_APP_ID, Platform platform = srv) : m_namespace(name_space), m_app_id(app_id), m_platform(platform), m_use_base64(true), m_desktop_context(true) {}
 
   /**
    * @brief Set whether to use base64 encoding in events (defaults to true).
@@ -59,11 +74,32 @@ public:
    * @return string Application ID (or empty string if not set).
    */
   string get_app_id() const { return m_app_id; }
-  
+
   /**
    * @return string Platform that the tracker is running on.
    */
-  string get_platform() const { return m_platform; }
+  string get_platform() const {
+    switch (m_platform) {
+    case web:
+      return "web";
+    case mob:
+      return "mob";
+    case pc:
+      return "pc";
+    case srv:
+      return "srv";
+    case app:
+      return "app";
+    case tv:
+      return "tv";
+    case cnsl:
+      return "cnsl";
+    case iot:
+      return "iot";
+    default:
+      return "srv";
+    }
+  }
 
   /**
    * @return bool Whether to use base64 encoding
@@ -78,7 +114,7 @@ public:
 private:
   string m_namespace;
   string m_app_id;
-  string m_platform;
+  Platform m_platform;
   bool m_use_base64;
   bool m_desktop_context;
 };
