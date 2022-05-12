@@ -18,6 +18,15 @@
     <ClCompile Include="src\client_session.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\configuration\emitter_configuration.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\network_configuration.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration\session_configuration.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\cracked_url.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -63,6 +72,9 @@
     <ClCompile Include="src\subject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\snowplow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\tracker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -83,6 +95,18 @@
     <ClInclude Include="src\client_session.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\configuration\emitter_configuration.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\network_configuration.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\session_configuration.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\configuration\tracker_configuration.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\constants.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -92,10 +116,16 @@
     <ClInclude Include="src\emitter\emitter.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\emitter\emit_status.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\emitter\retry_delay.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\http\http_client.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\http\http_enums.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\http\http_client_windows.hpp">

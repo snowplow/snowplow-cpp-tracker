@@ -105,6 +105,9 @@
     <ClCompile Include="include\base64.cpp" />
     <ClCompile Include="include\sqlite3.c" />
     <ClCompile Include="src\client_session.cpp" />
+    <ClCompile Include="src\configuration\emitter_configuration.cpp" />
+    <ClCompile Include="src\configuration\network_configuration.cpp" />
+    <ClCompile Include="src\configuration\session_configuration.cpp" />
     <ClCompile Include="src\cracked_url.cpp" />
     <ClCompile Include="src\emitter\emitter.cpp" />
     <ClCompile Include="src\emitter\retry_delay.cpp" />
@@ -120,10 +123,13 @@
     <ClCompile Include="src\events\timing_event.cpp" />
     <ClCompile Include="src\storage\sqlite_storage.cpp" />
     <ClCompile Include="src\subject.cpp" />
+    <ClCompile Include="src\snowplow.cpp" />
     <ClCompile Include="src\tracker.cpp" />
     <ClCompile Include="src\utils.cpp" />
     <ClCompile Include="test\http\test_http_client.cpp" />
     <ClCompile Include="test\client_session_test.cpp" />
+    <ClCompile Include="test\configuration\emitter_configuration_test.cpp" />
+    <ClCompile Include="test\configuration\network_configuration_test.cpp" />
     <ClCompile Include="test\cracked_url_test.cpp" />
     <ClCompile Include="test\emitter\emitter_test.cpp" />
     <ClCompile Include="test\emitter\retry_delay_test.cpp" />
@@ -135,6 +141,7 @@
     <ClCompile Include="test\payload\self_describing_json_test.cpp" />
     <ClCompile Include="test\storage\sqlite_storage_test.cpp" />
     <ClCompile Include="test\subject_test.cpp" />
+    <ClCompile Include="test\snowplow_test.cpp" />
     <ClCompile Include="test\tracker_test.cpp" />
     <ClCompile Include="test\utils_test.cpp" />
   </ItemGroup>
@@ -143,12 +150,18 @@
     <ClInclude Include="include\json.hpp" />
     <ClInclude Include="include\sqlite3.h" />
     <ClInclude Include="src\client_session.hpp" />
+    <ClInclude Include="src\configuration\emitter_configuration.hpp" />
+    <ClInclude Include="src\configuration\network_configuration.hpp" />
+    <ClInclude Include="src\configuration\session_configuration.hpp" />
+    <ClInclude Include="src\configuration\tracker_configuration.hpp" />
     <ClInclude Include="src\constants.hpp" />
     <ClInclude Include="src\cracked_url.hpp" />
     <ClInclude Include="src\emitter\emitter.hpp" />
+    <ClInclude Include="src\emitter\emit_status.hpp" />
     <ClInclude Include="src\emitter\retry_delay.hpp" />
     <ClInclude Include="src\http\http_client.hpp" />
     <ClInclude Include="src\http\http_client_windows.hpp" />
+    <ClInclude Include="src\http\http_enums.hpp" />
     <ClInclude Include="src\http\http_request_result.hpp" />
     <ClInclude Include="src\payload\payload.hpp" />
     <ClInclude Include="src\payload\event_payload.hpp" />

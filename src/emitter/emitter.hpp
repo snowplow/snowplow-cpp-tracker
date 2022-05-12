@@ -28,7 +28,11 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../cracked_url.hpp"
 #include "../http/http_request_result.hpp"
 #include "../http/http_client.hpp"
+#include "../configuration/network_configuration.hpp"
+#include "../configuration/emitter_configuration.hpp"
+#include "../emitter/emit_status.hpp"
 #include "retry_delay.hpp"
+#include "../http/http_enums.hpp"
 
 using std::string;
 using std::thread;
@@ -39,18 +43,6 @@ using std::list;
 using std::shared_ptr;
 
 namespace snowplow {
-
-enum EmitStatus {
-  SUCCESS = 1,
-  FAILED_WILL_RETRY = 2,
-  FAILED_WONT_RETRY = 4
-};
-
-inline EmitStatus operator|(EmitStatus a, EmitStatus b) {
-  return static_cast<EmitStatus>(static_cast<int>(a) | static_cast<int>(b));
-}
-
-typedef std::function<void(list<string>, EmitStatus)> EmitterCallback;
 
 /**
  * @brief Emitter is responsible for sending events to a Snowplow Collector.
@@ -71,49 +63,28 @@ typedef std::function<void(list<string>, EmitStatus)> EmitterCallback;
 class Emitter {
 public:
   /**
-   * @brief HTTP method used to send events to Snowplow Collector.
+   * @brief Construct a new Emitter using the configuration
+   * 
+   * @param network_config Network configuration to access the collector
+   * @param emitter_config Configuration settings for the emitter
    */
-  enum Method {
-    POST,
-    GET
-  };
-
-  /**
-   * @brief HTTP protocol used to send events to Snowplow Collector.
-   */
-  enum Protocol {
-    HTTP,
-    HTTPS
-  };
-
-  /**
-   * @brief Construct a new Emitter object
-   *
-   * @param uri The URI to send events to
-   * @param method The request type to use (GET or POST)
-   * @param protocol The protocol to use (http or https)
-   * @param batch_size The maximum amount of events to send at a time
-   * @param byte_limit_post The byte limit when sending a POST request
-   * @param byte_limit_get The byte limit when sending a GET request
-   * @param event_store Defines the database to use for event queue
-   */
-  Emitter(const string & uri, Method method, Protocol protocol, int batch_size, 
-    int byte_limit_post, int byte_limit_get, shared_ptr<EventStore> event_store);
+  Emitter(const NetworkConfiguration &network_config, EmitterConfiguration &emitter_config);
 
   /**
    * @brief Construct a new Emitter object with a custom HTTP client
    *
+   * @param event_store Defines the database to use for event queue
    * @param uri The URI to send events to
    * @param method The request type to use (GET or POST)
-   * @param protocol The protocol to use (http or https)
+   * @param protocol The protocol to use (HTTP or HTTPS)
    * @param batch_size The maximum amount of events to send at a time
    * @param byte_limit_post The byte limit when sending a POST request
    * @param byte_limit_get The byte limit when sending a GET request
-   * @param event_store Defines the database to use for event queue
    * @param http_client Unique pointer to a custom HTTP client to send GET and POST requests with
    */
-  Emitter(const string & uri, Method method, Protocol protocol, int batch_size, 
-    int byte_limit_post, int byte_limit_get, shared_ptr<EventStore> event_store, unique_ptr<HttpClient> http_client);
+  Emitter(shared_ptr<EventStore> event_store, const string & uri, Method method = POST, Protocol protocol = HTTPS, int batch_size = SNOWPLOW_EMITTER_DEFAULT_BATCH_SIZE, 
+    int byte_limit_post = SNOWPLOW_EMITTER_DEFAULT_BYTE_LIMIT_POST, int byte_limit_get = SNOWPLOW_EMITTER_DEFAULT_BYTE_LIMIT_GET, unique_ptr<HttpClient> http_client = nullptr);
+
   ~Emitter();
 
   /**

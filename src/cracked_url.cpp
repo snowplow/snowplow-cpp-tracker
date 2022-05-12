@@ -22,7 +22,7 @@ using std::stringstream;
 CrackedUrl::CrackedUrl(const string &url) {
   string cleaned_url = url;
   if (regex_match(cleaned_url, regex("^https?://.+")) == false) {
-    cleaned_url = string("http://") + url;
+    cleaned_url = string("https://") + url;
   }
 
   regex r_host("(https?)://([^\\s\\.]+\\.[^\\s/]+)(/.*)?");

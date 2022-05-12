@@ -34,6 +34,11 @@ namespace snowplow {
  */
 class SqliteStorage : public EventStore, public SessionStore {
 public:
+  /**
+   * @brief Construct a new Sqlite Storage object
+   * 
+   * @param db_name Relative path to the SQLite database
+   */
   SqliteStorage(const string &db_name);
   ~SqliteStorage();
 

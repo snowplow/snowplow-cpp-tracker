@@ -11,27 +11,21 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#ifndef MOCK_EMITTER_H
-#define MOCK_EMITTER_H
+#ifndef EMIT_STATUS_H
+#define EMIT_STATUS_H
 
-#include "../src/snowplow.hpp"
+namespace snowplow {
 
-using snowplow::Emitter;
-using snowplow::Payload;
-using snowplow::EventStore;
-using snowplow::Method;
-using snowplow::Protocol;
-using std::string;
-using std::shared_ptr;
-using std::move;
-
-class MockEmitter : public Emitter {
-public:
-   MockEmitter(shared_ptr<EventStore> event_store) : Emitter(move(event_store), "127.0.0.1:9090", Method::POST, Protocol::HTTP, 500, 52000, 52000) {}
-
-   void start() {}
-   void stop() {}
-   void add(Payload payload) {}
+enum EmitStatus {
+  SUCCESS = 1,
+  FAILED_WILL_RETRY = 2,
+  FAILED_WONT_RETRY = 4
 };
+
+inline EmitStatus operator|(EmitStatus a, EmitStatus b) {
+  return static_cast<EmitStatus>(static_cast<int>(a) | static_cast<int>(b));
+}
+
+} // namespace snowplow
 
 #endif

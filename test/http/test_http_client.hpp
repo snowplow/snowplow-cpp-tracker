@@ -52,11 +52,15 @@ public:
   static list<Request> get_requests_list();
   static void reset();
 
+  list<Request> get_instance_requests_list();
+
 protected:
   HttpRequestResult http_request(const RequestMethod method, const CrackedUrl url, const string & query_string, const string & post_data, list<int> row_ids, bool oversize);
   
 private:
   static int fetch_response_code();
+
+  list<Request> m_requests_list;
 };
 }
 

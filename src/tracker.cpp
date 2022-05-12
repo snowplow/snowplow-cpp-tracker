@@ -14,53 +14,33 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "tracker.hpp"
 
 using namespace snowplow;
-using std::invalid_argument;
-using std::lock_guard;
-using std::runtime_error;
 using std::to_string;
-
-// --- Static Singleton Access
-
-Tracker *Tracker::m_instance = 0;
-mutex Tracker::m_tracker_get;
-
-Tracker *Tracker::init(Emitter &emitter, Subject *subject, ClientSession *client_session, string *platform, string *app_id,
-                       string *name_space, bool *use_base64, bool *desktop_context) {
-
-  lock_guard<mutex> guard(m_tracker_get);
-  if (!m_instance) {
-    m_instance = new Tracker(emitter, subject, client_session, platform, app_id, name_space, use_base64, desktop_context);
-  }
-  return m_instance;
-}
-
-Tracker *Tracker::instance() {
-  lock_guard<mutex> guard(m_tracker_get);
-  if (!m_instance) {
-    throw runtime_error("FATAL: Tracker must be initialized first.");
-  }
-  return m_instance;
-}
-
-void Tracker::close() {
-  lock_guard<mutex> guard(m_tracker_get);
-  if (m_instance) {
-    delete (m_instance);
-  }
-  m_instance = 0;
-}
 
 // --- Constructor & Destructor
 
-Tracker::Tracker(Emitter &emitter, Subject *subject, ClientSession *client_session, string *platform, string *app_id,
-                 string *name_space, bool *use_base64, bool *desktop_context) : m_emitter(emitter), m_client_session(client_session) {
+Tracker::Tracker(const TrackerConfiguration &tracker_config, shared_ptr<Emitter> emitter, shared_ptr<Subject> subject, shared_ptr<ClientSession> client_session) :
+  Tracker(
+    move(emitter),
+    move(subject),
+    move(client_session),
+    tracker_config.get_platform(),
+    tracker_config.get_app_id(),
+    tracker_config.get_namespace(),
+    tracker_config.get_use_base64(),
+    tracker_config.get_desktop_context()
+  ) {
+}
 
-  this->m_subject = subject;
-  this->m_platform = (platform != NULL ? *platform : "srv");
-  this->m_app_id = (app_id != NULL ? *app_id : "");
-  this->m_namespace = (name_space != NULL ? *name_space : "");
-  this->m_use_base64 = (use_base64 != NULL ? *use_base64 : true);
-  this->m_desktop_context = (desktop_context != NULL ? *desktop_context : true);
+Tracker::Tracker(shared_ptr<Emitter> emitter, shared_ptr<Subject> subject, shared_ptr<ClientSession> client_session, const string &platform, const string &app_id,
+                 const string &name_space, bool use_base64, bool desktop_context) {
+  this->m_emitter = move(emitter);
+  this->m_client_session = move(client_session);
+  this->m_subject = move(subject);
+  this->m_platform = platform;
+  this->m_app_id = app_id;
+  this->m_namespace = name_space;
+  this->m_use_base64 = use_base64;
+  this->m_desktop_context = desktop_context;
 
   // Start daemon threads
   this->start();
@@ -73,21 +53,21 @@ Tracker::~Tracker() {
 // --- Controls
 
 void Tracker::start() {
-  this->m_emitter.start();
+  this->m_emitter->start();
 }
 
 void Tracker::stop() {
-  this->m_emitter.stop();
+  this->m_emitter->stop();
 }
 
 void Tracker::flush() {
-  this->m_emitter.flush();
+  this->m_emitter->flush();
 }
 
 // --- Setters
 
-void Tracker::set_subject(Subject *subject) {
-  this->m_subject = subject;
+void Tracker::set_subject(shared_ptr<Subject> subject) {
+  this->m_subject = move(subject);
 }
 
 // --- Event Tracking
@@ -104,7 +84,7 @@ string Tracker::track(const Event &event) {
   payload.add(SNOWPLOW_SP_NAMESPACE, this->m_namespace);
 
   // Add Subject KV Pairs
-  if (this->m_subject != NULL) {
+  if (this->m_subject) {
     payload.add_map(this->m_subject->get_map());
   }
 
@@ -134,7 +114,7 @@ string Tracker::track(const Event &event) {
   }
 
   // Add the event to the Emitter
-  this->m_emitter.add(payload);
+  this->m_emitter->add(payload);
 
   return payload.get_event_id();
 }

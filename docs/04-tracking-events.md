@@ -50,7 +50,7 @@ This is how to fire a structured event with the above custom context entity:
 StructuredEvent se("category", "action");
 se.set_context(context);
 
-Tracker::instance()->track(se);
+Snowplow::get_default_tracker()->track(se);
 ```
 
 Note that even though there is only one custom context entity attached to the event, it still needs to be placed in a list.
@@ -70,7 +70,7 @@ StructuredEvent se("category", "action");
 unsigned long long true_tstamp = "1368725287000";
 se.set_true_timestamp(&true_tstamp);
 
-Tracker::instance()->track(se);
+Snowplow::get_default_tracker()->track(se);
 ```
 
 ## Track SelfDescribing/Unstructured events with "SelfDescribingEvent"
@@ -102,7 +102,7 @@ json data = "{\"level\":5,\"saveId\":\"ju302\",\"hardMode\":true}"_json;
 SelfDescribingJson sdj("iglu:com.example_company/save-game/jsonschema/1-0-2", data);
 
 SelfDescribingEvent sde(sdj);
-Tracker::instance()->track(sde);
+Snowplow::get_default_tracker()->track(sde);
 ```
 
 For more on JSON schema, refer to [this page](https://docs.snowplowanalytics.com/docs/understanding-tracking-design/understanding-schemas-and-validation/).
@@ -128,10 +128,10 @@ string name = "Screen ID - 5asd56";
 ScreenViewEvent sve;
 sve.name = &name;
 
-Tracker::instance()->track(sve);
+Snowplow::get_default_tracker()->track(sve);
 ```
 
-## Track structured events with "StructuredEvent"
+## Track structured events with `StructuredEvent`[](#track-structured-events-with-trackstructevent)
 
 Use the `StructuredEvent` type to track a custom event happening in your app which fits the Google Analytics-style structure of having up to five fields (with only the first two required).  This method provides a halfway-house between tracking fully user-defined self-describing events and out-of-the box predefined events. This event type can be used to track many types of user activity, as it is somewhat customizable.
 
@@ -152,7 +152,7 @@ StructuredEvent se("shop", "add-to-basket"); // constructor takes category and a
 se.property = "pcs";
 se.value = 25.6;
 
-Tracker::instance()->track(se);
+Snowplow::get_default_tracker()->track(se);
 ```
 
 ## Track timing events with "TimingEvent"
@@ -174,5 +174,5 @@ Example:
 
 ```cpp
 TimingEvent te("category", "variable", 123);
-Tracker::instance()->track(te);
+Snowplow::get_default_tracker()->track(te);
 ```
