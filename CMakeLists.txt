@@ -7,6 +7,9 @@ message(STATUS "Tracker version: ${SNOWPLOW_TRACKER_VERSION}")
 
 project(snowplow VERSION ${SNOWPLOW_TRACKER_VERSION} LANGUAGES CXX C)
 
+set(SNOWPLOW_CMAKE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake" CACHE INTERNAL "")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${SNOWPLOW_CMAKE_DIR}")
+
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 option(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS  "Create a module definition (.def) on Windows." ON)
 option(SNOWPLOW_BUILD_TESTS "Build test program" OFF)
@@ -100,6 +103,12 @@ if (NOT WIN32)
     target_link_libraries(snowplow ${CURL_LIBRARIES})
     target_link_libraries(snowplow ${CMAKE_DL_LIBS})
 endif()
+
+if (NOT APPLE AND NOT WIN32)
+    find_package(UUID REQUIRED)
+    include_directories("${UUID_INCLUDE_DIR}")
+    target_link_libraries(snowplow "${UUID_LIBRARY}")
+endif ()
 
 target_include_directories(snowplow PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
