@@ -14,7 +14,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "sqlite_storage.hpp"
 
 #include <iostream>
-#include "../utils.hpp"
+#include "../detail/utils/utils.hpp"
 
 using namespace snowplow;
 using std::cerr;

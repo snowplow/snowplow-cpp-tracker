@@ -21,7 +21,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <thread>
 #include <algorithm>
 #include "../constants.hpp"
-#include "../utils.hpp"
+#include "../detail/utils/utils.hpp"
 #include "../storage/event_store.hpp"
 #include "../payload/payload.hpp"
 #include "../payload/self_describing_json.hpp"

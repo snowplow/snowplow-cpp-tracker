@@ -13,7 +13,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "../../include/snowplow/thirdparty/json.hpp"
 #include "../../include/snowplow/payload/payload.hpp"
-#include "../../include/snowplow/utils.hpp"
+#include "../../include/snowplow/detail/utils/utils.hpp"
 #include "../catch.hpp"
 #include <map>
 #include <string>

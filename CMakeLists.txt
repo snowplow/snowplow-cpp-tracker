@@ -39,7 +39,7 @@ add_library(snowplow
     ${CMAKE_CURRENT_SOURCE_DIR}/include/snowplow/storage/sqlite_storage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/snowplow/subject.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/snowplow/tracker.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/snowplow/utils.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/snowplow/detail/utils/utils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/snowplow/configuration/emitter_configuration.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/snowplow/configuration/network_configuration.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/snowplow/configuration/session_configuration.cpp
@@ -86,7 +86,7 @@ find_package(Threads)
 target_link_libraries(snowplow Threads::Threads)
 
 if (APPLE)
-    target_sources(snowplow PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/snowplow/utils_macos.mm)
+    target_sources(snowplow PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/snowplow/detail/utils/utils_macos.mm)
     find_library(COREFOUNDATION CoreFoundation)
     target_link_libraries(snowplow ${COREFOUNDATION})
     find_library(CFNETWORK CFNetwork)

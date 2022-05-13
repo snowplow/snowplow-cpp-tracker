@@ -11,7 +11,7 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "../include/snowplow/utils.hpp"
+#include "../include/snowplow/detail/utils/utils.hpp"
 #include "catch.hpp"
 #include <algorithm>
 #include <regex>

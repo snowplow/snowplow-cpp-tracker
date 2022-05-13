@@ -13,7 +13,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "client_session.hpp"
 #include "constants.hpp"
-#include "utils.hpp"
+#include "detail/utils/utils.hpp"
 
 using namespace snowplow;
 using std::lock_guard;

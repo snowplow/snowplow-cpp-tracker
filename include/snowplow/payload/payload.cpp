@@ -12,7 +12,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 */
 
 #include "payload.hpp"
-#include "../utils.hpp"
+#include "../detail/utils/utils.hpp"
 
 using namespace snowplow;
 using std::to_string;
