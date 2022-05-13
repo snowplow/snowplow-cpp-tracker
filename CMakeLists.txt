@@ -37,7 +37,6 @@ add_library(snowplow
     ${CMAKE_CURRENT_SOURCE_DIR}/include/snowplow/subject.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/snowplow/tracker.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/snowplow/utils.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/snowplow/utils_macos.mm
     ${CMAKE_CURRENT_SOURCE_DIR}/include/snowplow/configuration/emitter_configuration.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/snowplow/configuration/network_configuration.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/snowplow/configuration/session_configuration.cpp
@@ -84,6 +83,7 @@ find_package(Threads)
 target_link_libraries(snowplow Threads::Threads)
 
 if (APPLE)
+    target_sources(snowplow PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/snowplow/utils_macos.mm)
     find_library(COREFOUNDATION CoreFoundation)
     target_link_libraries(snowplow ${COREFOUNDATION})
     find_library(CFNETWORK CFNetwork)
@@ -98,6 +98,7 @@ if (NOT WIN32)
     find_package(CURL REQUIRED)
     target_include_directories(snowplow PRIVATE ${CURL_INCLUDE_DIRS})
     target_link_libraries(snowplow ${CURL_LIBRARIES})
+    target_link_libraries(snowplow ${CMAKE_DL_LIBS})
 endif()
 
 target_include_directories(snowplow PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
