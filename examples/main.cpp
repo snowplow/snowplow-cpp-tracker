@@ -2,7 +2,7 @@
 #include <string>
 #include <time.h>
 
-#include "../src/snowplow.hpp"
+#include "../include/snowplow/snowplow.hpp"
 
 using snowplow::NetworkConfiguration;
 using snowplow::EmitterConfiguration;

@@ -11,15 +11,15 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "../include/base64.hpp"
-#include "../include/json.hpp"
-#include "../src/emitter/emitter.hpp"
-#include "../src/tracker.hpp"
-#include "../src/events/structured_event.hpp"
-#include "../src/events/screen_view_event.hpp"
-#include "../src/events/self_describing_event.hpp"
-#include "../src/events/timing_event.hpp"
-#include "../src/storage/sqlite_storage.hpp"
+#include "../include/snowplow/detail/base64/base64.hpp"
+#include "../include/snowplow/thirdparty/json.hpp"
+#include "../include/snowplow/emitter/emitter.hpp"
+#include "../include/snowplow/tracker.hpp"
+#include "../include/snowplow/events/structured_event.hpp"
+#include "../include/snowplow/events/screen_view_event.hpp"
+#include "../include/snowplow/events/self_describing_event.hpp"
+#include "../include/snowplow/events/timing_event.hpp"
+#include "../include/snowplow/storage/sqlite_storage.hpp"
 #include "http/test_http_client.hpp"
 #include "catch.hpp"
 

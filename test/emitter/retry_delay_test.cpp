@@ -11,7 +11,7 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "../../src/emitter/retry_delay.hpp"
+#include "../../include/snowplow/emitter/retry_delay.hpp"
 #include "../catch.hpp"
 #include "../http/test_http_client.hpp"
 

@@ -7,7 +7,7 @@ Designing how and what to track in your app is an important decision. Check out 
 Import the C++ Tracker library and use the `snowplow` namespace like so:
 
 ```cpp
-#include "snowplow.hpp"
+#include "snowplow/snowplow.hpp"
 
 using namespace snowplow;
 ```
@@ -156,7 +156,7 @@ The third option to initialise a new tracker is to instantiate it and the relate
 The following example takes you through the steps needed to initialize a storage, emitter, subject, client session, and tracker:
 
 ```cpp
-#include "snowplow.hpp"
+#include "snowplow/snowplow.hpp"
 
 // 1. create storage for event queue and session information
 auto storage = std::make_shared<SqliteStorage>("sp.db");

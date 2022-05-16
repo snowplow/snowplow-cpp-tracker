@@ -33,11 +33,14 @@ jobs:
       timeout-minutes: 2
       run: while ! nc -z '0.0.0.0' 9090; do sleep 1; done
 
-    - name: Make
+    - name: cmake build
+      run: cmake -D SNOWPLOW_BUILD_TESTS=1 -D SNOWPLOW_BUILD_EXAMPLE=1 -D SNOWPLOW_BUILD_PERFORMANCE=1 .
+
+    - name: make
       run: make
 
     - name: Run tests
-      run: make tests
+      run: ./snowplow-tests
 
   test-windows:
     runs-on: windows-latest
@@ -65,11 +68,14 @@ jobs:
     - name: Setup MSBuild and add to PATH
       uses: microsoft/setup-msbuild@v1.1
 
+    - name: cmake build
+      run: cmake -D SNOWPLOW_BUILD_TESTS=1 -D SNOWPLOW_BUILD_EXAMPLE=1 -D SNOWPLOW_BUILD_PERFORMANCE=1 .
+
     - name: Run MSBuild
-      run: msbuild .\snowplow-cpp-tracker.sln
+      run: msbuild .\snowplow.sln
 
     - name: Start Micro and run tests
-      run: javaw -jar micro.jar --collector-config test/integration/micro.conf --iglu test/integration/iglu.json; sleep 15; .\x64\Debug\snowplow-cpp-tracker.exe
+      run: javaw -jar micro.jar --collector-config test/integration/micro.conf --iglu test/integration/iglu.json; sleep 15; .\Debug\snowplow-tests.exe
 
   test-linux:
     runs-on: ubuntu-latest
@@ -103,8 +109,11 @@ jobs:
     - name: Install packages
       run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev uuid-dev
 
-    - name: Make
+    - name: cmake build
+      run: cmake -D SNOWPLOW_BUILD_TESTS=1 -D SNOWPLOW_BUILD_EXAMPLE=1 -D SNOWPLOW_BUILD_PERFORMANCE=1 .
+
+    - name: make
       run: make
 
     - name: Run tests
-      run: make tests
+      run: ./snowplow-tests

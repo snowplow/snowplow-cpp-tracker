@@ -14,7 +14,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <chrono>
 #include <string>
 
-#include "../src/snowplow.hpp"
+#include "../include/snowplow/snowplow.hpp"
 #include "mock_client_session.hpp"
 #include "mock_emitter.hpp"
 #include "mute_emitter.hpp"

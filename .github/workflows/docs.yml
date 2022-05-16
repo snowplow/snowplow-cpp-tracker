@@ -6,20 +6,7 @@ on:
     - '*.*.*'
 
 jobs:
-  test:
-      runs-on: macos-latest
-      steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Make
-        run: make
-
-      - name: Run tests
-        run: make unit-tests
-
   docs:
-    needs: ["test"]
     runs-on: ubuntu-latest
 
     steps:

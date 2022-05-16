@@ -16,7 +16,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include <string>
 #include <list>
-#include "../../include/json.hpp"
+#include "../../include/snowplow/thirdparty/json.hpp"
 
 using std::string;
 using std::tuple;

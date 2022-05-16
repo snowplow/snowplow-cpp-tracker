@@ -11,9 +11,9 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "../../include/json.hpp"
-#include "../../src/payload/payload.hpp"
-#include "../../src/utils.hpp"
+#include "../../include/snowplow/thirdparty/json.hpp"
+#include "../../include/snowplow/payload/payload.hpp"
+#include "../../include/snowplow/detail/utils/utils.hpp"
 #include "../catch.hpp"
 #include <map>
 #include <string>

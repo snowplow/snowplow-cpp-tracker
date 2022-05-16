@@ -11,7 +11,7 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "../../src/storage/sqlite_storage.hpp"
+#include "../../include/snowplow/storage/sqlite_storage.hpp"
 #include "../catch.hpp"
 
 using namespace snowplow;
