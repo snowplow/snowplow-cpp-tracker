@@ -78,7 +78,14 @@ tracker->track(sve);
 
 Check the tracked events in a [Snowplow Micro](https://docs.snowplowanalytics.com/docs/understanding-your-pipeline/what-is-snowplow-micro/) or [Snowplow Mini](https://docs.snowplowanalytics.com/docs/understanding-your-pipeline/what-is-snowplow-mini/) instance.
 
-## Developer Quick Start
+## Find out more
+
+| Technical Docs                  | API Docs               | Contributing                      |
+|---------------------------------|---------------------------|-----------------------------------|
+| [![i1][techdocs-image]][techdocs]          | [![i2][techdocs-image]][apidocs]       | [![i4][contributing-image]][contributing]        |
+| **[Technical Docs][techdocs]** | **[API Docs][apidocs]** | **[Contributing][contributing]** |
+
+## Maintainer Quick Start
 
 ### Building on macOS and Linux
 
@@ -147,13 +154,6 @@ In the cloned directory two [Visual Studio 2015](https://www.visualstudio.com/en
 
 To run the tests under windows, you need to open the `snowplow-cpp-tracker.sln` solution, build it for your target platform *and run the resulting executable*.
 
-## Find out more
-
-| Technical Docs                  | Setup Guide               | Roadmap                 | Contributing                      |
-|---------------------------------|---------------------------|-------------------------|-----------------------------------|
-| ![i1][techdocs-image]          | ![i2][setup-image]       | ![i3][roadmap-image]   | ![i4][contributing-image]        |
-| **[Technical Docs][techdocs]** | **[Setup Guide][setup]** | **[Roadmap][roadmap]** | **[Contributing][contributing]** |
-
 ## Copyright and license
 
 The Snowplow C++ Tracker is copyright 2022 Snowplow Analytics Ltd.
@@ -184,14 +184,13 @@ limitations under the License.
 [coverage]: https://coveralls.io/github/snowplow/snowplow-cpp-tracker?branch=master
 
 [techdocs-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/techdocs.png
-[setup-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/setup.png
 [roadmap-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/roadmap.png
 [contributing-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/contributing.png
 
 [techdocs]: https://docs.snowplowanalytics.com/docs/collecting-data/collecting-from-own-applications/c-tracker/
-[setup]: https://docs.snowplowanalytics.com/docs/collecting-data/collecting-from-own-applications/c-tracker/setup/
 [roadmap]: https://github.com/snowplow/snowplow/projects/7
 [contributing]: https://github.com/snowplow/snowplow-cpp-tracker/blob/master/CONTRIBUTING.md
+[apidocs]: https://snowplow.github.io/snowplow-cpp-tracker
 
 [tracker-classificiation]: https://github.com/snowplow/snowplow/wiki/Tracker-Maintenance-Classification
 [early-release]: https://img.shields.io/static/v1?style=flat&label=Snowplow&message=Early%20Release&color=014477&labelColor=9ba0aa&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAeFBMVEVMaXGXANeYANeXANZbAJmXANeUANSQAM+XANeMAMpaAJhZAJeZANiXANaXANaOAM2WANVnAKWXANZ9ALtmAKVaAJmXANZaAJlXAJZdAJxaAJlZAJdbAJlbAJmQAM+UANKZANhhAJ+EAL+BAL9oAKZnAKVjAKF1ALNBd8J1AAAAKHRSTlMAa1hWXyteBTQJIEwRgUh2JjJon21wcBgNfmc+JlOBQjwezWF2l5dXzkW3/wAAAHpJREFUeNokhQOCA1EAxTL85hi7dXv/E5YPCYBq5DeN4pcqV1XbtW/xTVMIMAZE0cBHEaZhBmIQwCFofeprPUHqjmD/+7peztd62dWQRkvrQayXkn01f/gWp2CrxfjY7rcZ5V7DEMDQgmEozFpZqLUYDsNwOqbnMLwPAJEwCopZxKttAAAAAElFTkSuQmCC 
