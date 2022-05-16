@@ -34,7 +34,7 @@ target_link_libraries(your-target snowplow)
 
 ### Copying files to your project
 
-Download the most recent release from the [releases section](https://github.com/snowplow/snowplow-cpp-tracker/releases). Everything in the `include` folders will need to be included in your application.
+Download the most recent release from the [releases section](https://github.com/snowplow/snowplow-cpp-tracker/releases). Everything in the `include` folder will need to be included in your application.
 
 The project has two dependencies that need to be included in your project: [nlohmann/json](https://github.com/nlohmann/json) and [the amalgamated version of sqlite3](https://www.sqlite.org/download.html). You will need to update the include paths in headers `include/snowplow/thirdparty/json.hpp` and `include/snowplow/thirdparty/sqlite3.hpp`.
 
