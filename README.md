@@ -1,6 +1,6 @@
 # C++ Analytics for Snowplow
 
-[![early-release]][tracker-classificiation] [![Build Status][travis-image]][travis] [![Coverage Status][coverage-image]][coverage] [![Release][release-image]][releases] [![License][license-image]][license]
+[![early-release]][tracker-classificiation] [![Build Status][travis-image]][travis] [![Release][release-image]][releases] [![License][license-image]][license]
 
 Snowplow is a scalable open-source platform for rich, high quality, low-latency data collection. It is designed to collect high quality, complete behavioral data for enterprise business.
 
@@ -179,9 +179,6 @@ limitations under the License.
 
 [license-image]: https://img.shields.io/badge/license-Apache--2-blue.svg?style=flat
 [license]: https://www.apache.org/licenses/LICENSE-2.0
-
-[coverage-image]: https://coveralls.io/repos/github/snowplow/snowplow-cpp-tracker/badge.svg?branch=master
-[coverage]: https://coveralls.io/github/snowplow/snowplow-cpp-tracker?branch=master
 
 [techdocs-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/techdocs.png
 [roadmap-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/roadmap.png
