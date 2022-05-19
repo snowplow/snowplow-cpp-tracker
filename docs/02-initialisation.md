@@ -111,6 +111,7 @@ It further provides 2 optional setter functions:
 |---|---|---|
 | `collector_url` | Full URL of the Snowplow collector including the protocol (or defaults to HTTPS if protocol not present). | None |
 | `method` | HTTP method to use when sending events to collector – GET or POST. | POST |
+| `curl_cookie_file` | Path to a file where to store cookies in case http_client is nullptr and the CURL HTTP client is used – only relevant under Linux (CURL is not used under Windows and macOS) | In-memory cookie storage with CURL on Linux, platform native storage on Windows and macOS |
 
 Additionally, it provides the following setter functions:
 
@@ -201,6 +202,7 @@ Accepts an argument of an Emitter instance pointer; if the object is `NULL` wi
 | `byte_limit_post` | The byte limit when sending a POST request | No | 40000 bytes |
 | `byte_limit_get` | The byte limit when sending a GET request | No | 40000 bytes |
 | `http_client` | Unique pointer to a custom HTTP client to send GET and POST requests with | No | Platform-specific implementation. |
+| `curl_cookie_file` | Path to a file where to store cookies in case http_client is nullptr and the CURL HTTP client is used – only relevant under Linux (CURL is not used under Windows and macOS) | No | In-memory cookie storage with CURL on Linux, platform native storage on Windows and macOS |
 
 ### Subject
 

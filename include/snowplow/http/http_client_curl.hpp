@@ -32,13 +32,21 @@ namespace snowplow {
  */
 class HttpClientCurl : public HttpClient {
 public:
-  HttpClientCurl();
+  /**
+   * @brief Construct a new Http Client Curl object
+   * 
+   * @param cookie_file Path to a file where to store cookies. If empty string, cookies will be stored in-memory.
+   */
+  HttpClientCurl(const string &cookie_file = "");
   ~HttpClientCurl();
 
   static const string TRACKER_AGENT;
 
 protected:
   HttpRequestResult http_request(const RequestMethod method, const CrackedUrl url, const string & query_string, const string & post_data, list<int> row_ids, bool oversize);
+
+private:
+  string m_cookie_file;
 };
 }
 

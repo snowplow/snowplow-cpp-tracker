@@ -18,8 +18,9 @@ using namespace snowplow;
 
 using std::transform;
 
-NetworkConfiguration::NetworkConfiguration(const string &collector_url, Method method) {
+NetworkConfiguration::NetworkConfiguration(const string &collector_url, Method method, const string &curl_cookie_file) {
   m_method = method;
+  m_curl_cookie_file = curl_cookie_file;
 
   string collector_url_lower = collector_url;
   transform(collector_url_lower.begin(), collector_url_lower.end(), collector_url_lower.begin(), ::tolower);

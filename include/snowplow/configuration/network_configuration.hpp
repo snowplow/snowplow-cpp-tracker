@@ -34,8 +34,9 @@ public:
    * 
    * @param collector_url Full URL of the Snowplow collector including the protocol (or defaults to HTTPS if protocol not present).
    * @param method HTTP method to use when sending events to collector – GET or POST.
+   * @param curl_cookie_file Path to a file where to store cookies in case the CURL HTTP client is used – only relevant under Linux (CURL is not used under Windows and macOS)
    */
-  NetworkConfiguration(const string &collector_url, Method method = POST);
+  NetworkConfiguration(const string &collector_url, Method method = POST, const string &curl_cookie_file = "");
 
   /**
    * @brief Get the collector hostname without the protocol.
@@ -59,6 +60,11 @@ public:
   Protocol get_protocol() const { return m_protocol; }
 
   /**
+   * @return string Path to a file where to store cookies in case the CURL HTTP client is used – only relevant under Linux (CURL is not used under Windows and macOS)
+   */
+  string get_curl_cookie_file() const { return m_curl_cookie_file; }
+
+  /**
    * @brief Set custom HTTP client.
    * 
    * @param http_client Unique pointer to a custom HTTP client to send GET and POST requests with.
@@ -74,6 +80,7 @@ private:
   unique_ptr<HttpClient> move_http_client() { return m_http_client ? move(m_http_client) : nullptr; }
 
   string m_collector_hostname;
+  string m_curl_cookie_file;
   Method m_method;
   Protocol m_protocol;
   unique_ptr<HttpClient> m_http_client;
