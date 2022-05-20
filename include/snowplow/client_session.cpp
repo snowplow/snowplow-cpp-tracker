@@ -72,6 +72,7 @@ void ClientSession::start_new_session() {
 SelfDescribingJson ClientSession::update_and_get_session_context(const string &event_id, unsigned long long event_timestamp) {
   json session_context_data;
   bool save_to_storage = false;
+  int event_index = 0;
 
   {
     lock_guard<mutex> guard(this->m_safe_get);
@@ -82,14 +83,16 @@ SelfDescribingJson ClientSession::update_and_get_session_context(const string &e
     }
     this->update_last_session_check_at();
     session_context_data = this->m_session_context_data;
+
+    m_event_index++;
+    event_index = m_event_index;
   }
 
   if (save_to_storage) {
     m_session_store->set_session(session_context_data);
   }
 
-  m_event_index++;
-  session_context_data[SNOWPLOW_SESSION_EVENT_INDEX] = m_event_index;
+  session_context_data[SNOWPLOW_SESSION_EVENT_INDEX] = event_index;
 
   SelfDescribingJson sdj(SNOWPLOW_SCHEMA_CLIENT_SESSION, session_context_data);
   return sdj;
