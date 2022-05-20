@@ -280,3 +280,14 @@ string Utils::get_device_model() {
 
 #endif
 #endif
+
+string Utils::get_unix_epoch_ms_as_datetime_string(unsigned long long timestamp_ms) {
+  std::time_t time = timestamp_ms / 1000;
+  std::tm* t = std::gmtime(&time);
+  int ms = timestamp_ms % 1000;
+
+  stringstream ss;
+  ss << std::put_time(t, "%Y-%m-%dT%H:%M:%S")
+    << '.' << std::setfill('0') << std::setw(3) << ms << "Z";
+  return ss.str();
+}

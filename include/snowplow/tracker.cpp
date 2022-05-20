@@ -95,7 +95,7 @@ string Tracker::track(const Event &event) {
 
   // Add Client Session if available
   if (this->m_client_session) {
-    context.push_back(this->m_client_session->update_and_get_session_context(payload.get_event_id()));
+    context.push_back(this->m_client_session->update_and_get_session_context(payload.get_event_id(), payload.get_timestamp()));
   }
 
   // Add Desktop Context if available

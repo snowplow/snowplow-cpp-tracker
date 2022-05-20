@@ -91,7 +91,9 @@ TEST_CASE("integration") {
     event = good.back()["event"].get<json>();
     entities = event["contexts"].get<json>()["data"].get<list<json>>();
     auto entity2 = entities.front()["data"].get<json>();
+    REQUIRE(entity2["eventIndex"].get<int>() != entity1["eventIndex"].get<int>());
     REQUIRE(entity2["firstEventId"] == event_id);
+    REQUIRE(entity2["firstEventTimestamp"] == entity1["firstEventTimestamp"]);
     REQUIRE(entity2["userId"] == entity1["userId"]);
     REQUIRE(entity2["sessionId"] == entity1["sessionId"]);
 

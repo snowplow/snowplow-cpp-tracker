@@ -35,7 +35,7 @@ const string SNOWPLOW_GET_PROTOCOL_PATH = "i";
 const string SNOWPLOW_SCHEMA_PAYLOAD_DATA = "iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-4";
 const string SNOWPLOW_SCHEMA_CONTEXTS = "iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-1";
 const string SNOWPLOW_SCHEMA_UNSTRUCT_EVENT = "iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0";
-const string SNOWPLOW_SCHEMA_CLIENT_SESSION = "iglu:com.snowplowanalytics.snowplow/client_session/jsonschema/1-0-1";
+const string SNOWPLOW_SCHEMA_CLIENT_SESSION = "iglu:com.snowplowanalytics.snowplow/client_session/jsonschema/1-0-2";
 const string SNOWPLOW_SCHEMA_DESKTOP_CONTEXT = "iglu:com.snowplowanalytics.snowplow/desktop_context/jsonschema/1-0-0";
 
 // event types
@@ -99,8 +99,10 @@ const string SNOWPLOW_SESSION_USER_ID = "userId";
 const string SNOWPLOW_SESSION_ID = "sessionId";
 const string SNOWPLOW_SESSION_PREVIOUS_ID = "previousSessionId";
 const string SNOWPLOW_SESSION_INDEX = "sessionIndex";
+const string SNOWPLOW_SESSION_EVENT_INDEX = "eventIndex";
 const string SNOWPLOW_SESSION_STORAGE = "storageMechanism";
 const string SNOWPLOW_SESSION_FIRST_ID = "firstEventId";
+const string SNOWPLOW_SESSION_FIRST_TIMESTAMP = "firstEventTimestamp";
 const unsigned long long SNOWPLOW_SESSION_DEFAULT_TIMEOUT = 30 * 1000 * 1000; // 30 minutes
 
 // emitter defaults
