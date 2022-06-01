@@ -158,4 +158,41 @@ TEST_CASE("integration") {
     Snowplow::remove_tracker(tracker);
   }
 
+  SECTION("Stores cookies and maintains network_userid") {
+    Micro::clear();
+
+    NetworkConfiguration network_config(SNOWPLOW_MICRO_ENDPOINT, POST, "cookies.txt");
+    EmitterConfiguration emitter_config("test-tracker.db");
+    TrackerConfiguration tracker_config("snowplow-testing", "snowplow-test-suite", pc);
+    auto tracker = Snowplow::create_tracker(tracker_config, network_config, emitter_config);
+
+    tracker->track(StructuredEvent("hello", "1"));
+    sleep_for(milliseconds(500));
+    tracker->track(StructuredEvent("hello", "2"));
+    tracker->flush();
+
+    auto counts = Micro::get_good_and_bad_count();
+    REQUIRE(std::get<0>(counts) == 2);
+    REQUIRE(std::get<1>(counts) == 0);
+
+    auto good = Micro::get_good();
+    auto first = good.front();
+    auto second = good.back();
+
+    auto get_network_user_id = [](json item) {
+      auto event = item["event"].get<json>();
+      return event["network_userid"].get<string>();
+    };
+    auto get_collector_timestamp = [](json item) {
+      auto event = item["event"].get<json>();
+      return event["collector_tstamp"].get<string>();
+    };
+
+    REQUIRE(get_network_user_id(first).size() > 5);
+    REQUIRE(get_network_user_id(first) == get_network_user_id(second));
+    REQUIRE(get_collector_timestamp(first) != get_collector_timestamp(second));
+
+    Snowplow::remove_tracker(tracker);
+  }
+
 }

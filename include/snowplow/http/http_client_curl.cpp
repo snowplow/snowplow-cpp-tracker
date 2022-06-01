@@ -20,8 +20,9 @@ using namespace snowplow;
 using std::cerr;
 using std::endl;
 
-HttpClientCurl::HttpClientCurl() {
+HttpClientCurl::HttpClientCurl(const string &cookie_file) {
   curl_global_init(CURL_GLOBAL_ALL);
+  m_cookie_file = cookie_file;
 }
 
 HttpClientCurl::~HttpClientCurl() {
@@ -55,10 +56,19 @@ HttpRequestResult HttpClientCurl::http_request(const RequestMethod method, Crack
   }
 
   curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+  curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
   std::string full_url = full_url_stream.str();
   curl_easy_setopt(curl, CURLOPT_URL, full_url.c_str());
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+
+  // cookie jar
+  if (m_cookie_file.empty()) {
+    curl_easy_setopt(curl, CURLOPT_COOKIEFILE, "");
+  } else {
+    curl_easy_setopt(curl, CURLOPT_COOKIEFILE, m_cookie_file.c_str());
+    curl_easy_setopt(curl, CURLOPT_COOKIEJAR, m_cookie_file.c_str());
+  }
 
   // send the request
   CURLcode res = curl_easy_perform(curl);

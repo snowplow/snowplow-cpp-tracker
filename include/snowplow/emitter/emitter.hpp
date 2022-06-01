@@ -81,9 +81,11 @@ public:
    * @param byte_limit_post The byte limit when sending a POST request
    * @param byte_limit_get The byte limit when sending a GET request
    * @param http_client Unique pointer to a custom HTTP client to send GET and POST requests with
+   * @param curl_cookie_file Path to a file where to store cookies in case http_client is nullptr and the CURL HTTP client is used – only relevant under Linux (CURL is not used under Windows and macOS)
    */
   Emitter(shared_ptr<EventStore> event_store, const string & uri, Method method = POST, Protocol protocol = HTTPS, int batch_size = SNOWPLOW_EMITTER_DEFAULT_BATCH_SIZE, 
-    int byte_limit_post = SNOWPLOW_EMITTER_DEFAULT_BYTE_LIMIT_POST, int byte_limit_get = SNOWPLOW_EMITTER_DEFAULT_BYTE_LIMIT_GET, unique_ptr<HttpClient> http_client = nullptr);
+    int byte_limit_post = SNOWPLOW_EMITTER_DEFAULT_BYTE_LIMIT_POST, int byte_limit_get = SNOWPLOW_EMITTER_DEFAULT_BYTE_LIMIT_GET,
+    unique_ptr<HttpClient> http_client = nullptr, const string &curl_cookie_file = "");
 
   ~Emitter();
 

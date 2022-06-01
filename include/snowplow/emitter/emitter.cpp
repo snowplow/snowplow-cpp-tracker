@@ -33,18 +33,18 @@ const int post_stm_bytes = 22;     // "stm":"1443452851000"
 
 #if defined(__APPLE__)
 #include "../http/http_client_apple.hpp"
-unique_ptr<HttpClient> createDefaultHttpClient() {
+unique_ptr<HttpClient> createDefaultHttpClient(const string &curl_cookie_file) {
   return unique_ptr<HttpClient>(new HttpClientApple());
 }
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 #include "../http/http_client_windows.hpp"
-unique_ptr<HttpClient> createDefaultHttpClient() {
+unique_ptr<HttpClient> createDefaultHttpClient(const string &curl_cookie_file) {
   return unique_ptr<HttpClient>(new HttpClientWindows());
 }
 #else
 #include "../http/http_client_curl.hpp"
-unique_ptr<HttpClient> createDefaultHttpClient() {
-  return unique_ptr<HttpClient>(new HttpClientCurl());
+unique_ptr<HttpClient> createDefaultHttpClient(const string &curl_cookie_file) {
+  return unique_ptr<HttpClient>(new HttpClientCurl(curl_cookie_file));
 }
 #endif
 
@@ -57,7 +57,8 @@ Emitter::Emitter(NetworkConfiguration &network_config, const EmitterConfiguratio
     emitter_config.get_batch_size(),
     emitter_config.get_byte_limit_post(),
     emitter_config.get_byte_limit_get(),
-    move(network_config.move_http_client())
+    move(network_config.move_http_client()),
+    network_config.get_curl_cookie_file()
   ) {
   m_callback = emitter_config.get_request_callback();
   m_callback_emit_status = emitter_config.get_request_callback_emit_status();
@@ -65,7 +66,8 @@ Emitter::Emitter(NetworkConfiguration &network_config, const EmitterConfiguratio
 }
 
 Emitter::Emitter(shared_ptr<EventStore> event_store, const string &uri, Method method, Protocol protocol, int batch_size,
-                 int byte_limit_post, int byte_limit_get, unique_ptr<HttpClient> http_client) : m_url(this->get_collector_url(uri, protocol, method)) {
+                 int byte_limit_post, int byte_limit_get,
+                 unique_ptr<HttpClient> http_client, const string &curl_cookie_file) : m_url(this->get_collector_url(uri, protocol, method)) {
   if (uri == "") {
     throw invalid_argument("FATAL: Emitter URI cannot be empty.");
   }
@@ -93,7 +95,7 @@ Emitter::Emitter(shared_ptr<EventStore> event_store, const string &uri, Method m
   if (http_client) {
     this->m_http_client = move(http_client);
   } else {
-    this->m_http_client = createDefaultHttpClient();
+    this->m_http_client = createDefaultHttpClient(curl_cookie_file);
   }
 }
 

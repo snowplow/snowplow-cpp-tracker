@@ -47,7 +47,8 @@ SET(SNOWPLOW_SOURCES
 
 IF (APPLE)
    SET(SNOWPLOW_SOURCES ${SNOWPLOW_SOURCES}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/snowplow/detail/utils/utils_macos.mm)
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/snowplow/detail/utils/utils_macos.mm
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/snowplow/detail/http/request_macos.mm)
 ENDIF()
 
 add_library(snowplow ${SNOWPLOW_SOURCES})
@@ -95,8 +96,6 @@ target_link_libraries(snowplow Threads::Threads)
 if (APPLE)
     find_library(COREFOUNDATION CoreFoundation)
     target_link_libraries(snowplow ${COREFOUNDATION})
-    find_library(CFNETWORK CFNetwork)
-    target_link_libraries(snowplow ${CFNETWORK})
     find_library(FOUNDATION Foundation)
     target_link_libraries(snowplow ${FOUNDATION})
     find_library(CORESERVICES CoreServices)

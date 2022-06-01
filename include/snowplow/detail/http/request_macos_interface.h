@@ -11,31 +11,19 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#ifndef HTTP_CLIENT_APPLE_H
-#define HTTP_CLIENT_APPLE_H
-#if defined(__APPLE__)
+#ifndef REQUEST_MACOS_INTERFACE_H
+#define REQUEST_MACOS_INTERFACE_H
 
-#include "http_client.hpp"
+#if defined(__APPLE__)
 
 #include <string>
 
 using std::string;
-using std::list;
 
 namespace snowplow {
-/**
- * @brief HTTP client for making requests to Snowplow Collector using Apple Core Foundation APIs.
- * 
- * This HTTP client is only compatible with Apple operating systems.
- */
-class HttpClientApple : public HttpClient {
-public:
-  ~HttpClientApple() {}
-
-protected:
-  HttpRequestResult http_request(const RequestMethod method, const CrackedUrl url, const string & query_string, const string & post_data, list<int> row_ids, bool oversize);
-};
+int make_request(bool is_post, const string &url, const string &post_data);
 }
 
 #endif
+
 #endif
