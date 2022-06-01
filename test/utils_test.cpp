@@ -87,6 +87,10 @@ TEST_CASE("utils") {
     REQUIRE(13 == std::to_string(Utils::get_unix_epoch_ms()).length());
   }
 
+  SECTION("get_unix_epoch_ms_as_datetime_string should return the ISO formatted datetime") {
+    REQUIRE("2022-05-20T10:28:55.123Z" == Utils::get_unix_epoch_ms_as_datetime_string(1653042535123));
+  }
+
   SECTION("get_device_context should populate OS specific information correctly") {
     string os_type = Utils::get_os_type();
     string os_version = Utils::get_os_version();

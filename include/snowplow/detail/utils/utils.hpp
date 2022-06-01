@@ -68,6 +68,7 @@ public:
   static string get_device_manufacturer();
   static string get_device_model();
   static int get_device_processor_count();
+  static string get_unix_epoch_ms_as_datetime_string(unsigned long long timestamp_ms);
 
 private:
   static SelfDescribingJson *m_desktop_context;

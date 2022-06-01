@@ -34,7 +34,7 @@ namespace snowplow {
  * Activity is determined by how often events are sent with the Tracker. Sessions are updated on on each tracked event.
  * 
  * Tracker automatically appends session information as a context entity to each tracked event.
- * Schema for the context entity: iglu:com.snowplowanalytics.snowplow/client_session/jsonschema/1-0-1
+ * Schema for the context entity: iglu:com.snowplowanalytics.snowplow/client_session/jsonschema/1-0-2
  */
 class ClientSession {
 public:
@@ -89,9 +89,10 @@ public:
    * foreground timeout if in foreground). Each update is persisted in the SQLite database.
    *
    * @param event_id Tracked event ID
+   * @param event_timestamp Tracked event timestamp
    * @return SelfDescribingJson JSON with the session context
    */
-  SelfDescribingJson update_and_get_session_context(const string &event_id);
+  SelfDescribingJson update_and_get_session_context(const string &event_id, unsigned long long event_timestamp);
 
   /**
    * @brief Get the background timeout setting
@@ -118,6 +119,7 @@ private:
   string m_current_session_id;
   string m_previous_session_id;
   unsigned long long m_session_index;
+  unsigned long long m_event_index;
   string m_session_storage;
   string m_first_event_id;
 
@@ -129,10 +131,11 @@ private:
 
   // Session management
   mutex m_safe_get;
-  void update_session(const string &event_id);
+  void update_session(const string &event_id, unsigned long long event_timestamp);
   void update_last_session_check_at();
   bool should_update_session();
   unsigned long long get_timeout();
+  string timestamp_to_string(unsigned long long timestamp);
 };
 }
 
