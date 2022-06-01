@@ -1,3 +1,12 @@
+Version 1.0.0 (2022-05-02)
+--------------------------
+Add a Snowplow interface with the ability to initialize and manage multiple trackers (#57)
+Add eventIndex and firstEventTimestamp properties to client sessions (#80)
+Add support for storing cookies in HTTP clients (#78)
+Add build using cmake (#65)
+Add integration tests using Snowplow Micro (#57)
+Publish API docs on Github Pages (#73)
+
 Version 0.4.0 (2022-04-27)
 --------------------------
 Add back-off on 100% event sending failure (#9)

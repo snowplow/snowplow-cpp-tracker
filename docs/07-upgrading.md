@@ -2,7 +2,7 @@
 
 This page gives instructions for upgrading to newer versions of the C++ tracker.
 
-## Upgrading to v0.5.0
+## Upgrading to v1.0.0
 
 The package added support for the cmake build system. You may make use of this and import the package in your cmake build configuration. Importing source code by copying files is still supported. However, please note that the code was moved from the `src` folder to the `include` folder and you will need to import the sqlite3 and nlohmann/json dependencies on your own and update their location in `include/snowplow/thirdparty/sqlite3.hpp` and `include/snowplow/thirdparty/json.hpp` files. See instructions on [the Setup page](01-setup.md) for more information.
 
