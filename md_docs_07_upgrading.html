@@ -54,7 +54,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Snowplow C++ Tracker
-   &#160;<span id="projectnumber">0.4.0-1-g8e96411</span>
+   &#160;<span id="projectnumber">1.0.0</span>
    </div>
    <div id="projectbrief">Snowplow event tracker for C++. Add analytics to your C++ applications, games and servers</div>
   </td>
@@ -116,7 +116,12 @@ $(document).ready(function(){initNavTree('md_docs_07_upgrading.html',''); initRe
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p >This page gives instructions for upgrading to newer versions of the C++ tracker.</p>
-<h1><a class="anchor" id="autotoc_md43"></a>
+<h1><a class="anchor" id="autotoc_md47"></a>
+Upgrading to v1.0.0</h1>
+<p >The package added support for the cmake build system. You may make use of this and import the package in your cmake build configuration. Importing source code by copying files is still supported. However, please note that the code was moved from the <code>src</code> folder to the <code>include</code> folder and you will need to import the sqlite3 and nlohmann/json dependencies on your own and update their location in <code>include/snowplow/thirdparty/sqlite3.hpp</code> and <code>include/snowplow/thirdparty/json.hpp</code> files. See instructions on <a class="el" href="md_docs_01_setup.html">the Setup page</a> for more information.</p>
+<p >This version changed how the <code>Tracker</code> and <code>Emitter</code> instances are initialized and introduced the <code>Snowplow::create_tracker()</code> API. Please refer to the <a class="el" href="md_docs_02_initialisation.html">page about initialization</a> to learn more about the new API. The <code>Tracker::init()</code> calls should be replaced with <code>Snowplow::create_tracker()</code> and <code>Tracker::instance()</code> with <code>Snowplow::get_tracker(namespace)</code> or <code>Snowplow::get_default_tracker()</code>.</p>
+<p >Also note that the default protocol has changed from HTTP to HTTPS.</p>
+<h1><a class="anchor" id="autotoc_md48"></a>
 Upgrading to v0.3.0</h1>
 <p >There are a few breaking changes in this release. Please make sure to:</p>
 <ol type="1">
@@ -127,11 +132,10 @@ Upgrading to v0.3.0</h1>
 <li><code>Emitter</code> and <code>ClientSession</code> no longer accept database path string for storage but require an instance of <code>SqliteStorage</code> (or other storage implementation, see the docs).</li>
 <li>Use <code>#include "snowplow.hpp"</code> to import all public APIs of the tracker instead of including individual files.</li>
 </ol>
-<h1><a class="anchor" id="autotoc_md44"></a>
+<h1><a class="anchor" id="autotoc_md49"></a>
 Upgrading to v0.2.0</h1>
 <p >This version adds a <code>snowplow</code> namespace to all tracker components. You will need to import specific or all types from the namespace:</p>
-<div class="fragment"><div class="line"><span class="keyword">using namespace </span><a class="code hl_namespace" href="namespacesnowplow.html">snowplow</a>;</div>
-<div class="ttc" id="anamespacesnowplow_html"><div class="ttname"><a href="namespacesnowplow.html">snowplow</a></div><div class="ttdef"><b>Definition:</b> client_session.hpp:28</div></div>
+<div class="fragment"><div class="line"><span class="keyword">using namespace </span>snowplow;</div>
 </div><!-- fragment --><p >The constructor for <code>ClientSession</code> also changed, dropping the last argument for <code>check_interval</code> that is no longer necessary. Simply remove the last argument when creating an instance of <code>ClientSession</code>. </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->

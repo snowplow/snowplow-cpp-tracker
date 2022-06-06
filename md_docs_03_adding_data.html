@@ -54,7 +54,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Snowplow C++ Tracker
-   &#160;<span id="projectnumber">0.4.0-1-g8e96411</span>
+   &#160;<span id="projectnumber">1.0.0</span>
    </div>
    <div id="projectbrief">Snowplow event tracker for C++. Add analytics to your C++ applications, games and servers</div>
   </td>
@@ -116,11 +116,11 @@ $(document).ready(function(){initNavTree('md_docs_03_adding_data.html',''); init
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p >Subject information describes the user and device associated with the event, such as their user ID, what type of device they used, or what size screen that device had.</p>
-<p >Create a subject like this and add it to your tracker in the <code>init</code> call:</p>
-<div class="fragment"><div class="line">Subject subject;</div>
+<p >Create a subject like this and add it to your tracker using the <code>Snowplow::create_tracker</code> call:</p>
+<div class="fragment"><div class="line"><span class="keyword">auto</span> subject = make_shared&lt;Subject&gt;();</div>
 <div class="line">subject.set_user_id(<span class="stringliteral">&quot;a-user-id&quot;</span>);</div>
 <div class="line"> </div>
-<div class="line">Tracker *t = Tracker::init(emitter, &amp;subject, &amp;client_session, &amp;platform, &amp;app_id, &amp;name_space, &amp;base64, &amp;desktop_context);</div>
+<div class="line"><span class="keyword">auto</span> tracker = Snowplow::create_tracker(<span class="stringliteral">&quot;ns&quot;</span>, <span class="stringliteral">&quot;https://com.acme.collector&quot;</span>, POST, <span class="stringliteral">&quot;events.db&quot;</span>, subject);</div>
 </div><!-- fragment --><p >You can also attach custom Subject information to individual events. In this way, you may track events describing different users or devices using the same tracker. Events can be assigned a shared C++ pointer to a Subject instance using the <code>set_subject</code> method. The following example shows how to attach a subject instance to a structured event (see <a class="el" href="md_docs_04_tracking_events.html">Tracking specific events</a> for more information on tracking events):</p>
 <div class="fragment"><div class="line"><span class="keyword">auto</span> subject = std::make_shared&lt;Subject&gt;();</div>
 <div class="line">subject-&gt;set_user_id(<span class="stringliteral">&quot;another-user&quot;</span>);</div>
@@ -139,54 +139,54 @@ $(document).ready(function(){initNavTree('md_docs_03_adding_data.html',''); init
 <li><code>set_ip_address</code></li>
 </ul>
 <p >We will discuss each of these in turn below:</p>
-<h1><a class="anchor" id="autotoc_md17"></a>
-Set user ID with &lt;tt&gt;set_user_id&lt;/tt&gt;</h1>
+<h1><a class="anchor" id="autotoc_md22"></a>
+Set user ID with "set_user_id"</h1>
 <p >You can set the user ID to any string:</p>
-<div class="fragment"><div class="line">s.set_user_id( <span class="stringliteral">&quot;{{USER ID}}&quot;</span> );</div>
+<div class="fragment"><div class="line">subject-&gt;set_user_id( <span class="stringliteral">&quot;{{USER ID}}&quot;</span> );</div>
 </div><!-- fragment --><p >Example:</p>
-<div class="fragment"><div class="line">s.set_user_id(<span class="stringliteral">&quot;alexd&quot;</span>);</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md18"></a>
-Set screen resolution with &lt;tt&gt;set_screen_resolution&lt;/tt&gt;</h1>
-<p >If your code has access to the device’s screen resolution, then you can pass this in to Snowplow too:</p>
-<div class="fragment"><div class="line">s.set_screen_resolution( {{WIDTH}}, {{HEIGHT}} );</div>
-</div><!-- fragment --><p >Both numbers should be positive integers; note the order is width followed by height. Example:</p>
-<div class="fragment"><div class="line">s.set_screen_resolution(1366, 768);</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md19"></a>
-Set viewport dimensions with &lt;tt&gt;set_viewport&lt;/tt&gt;</h1>
-<p >If your code has access to the viewport dimensions, then you can pass this in to Snowplow too:</p>
-<div class="fragment"><div class="line">s.set_viewport( {{WIDTH}}, {{HEIGHT}} );</div>
-</div><!-- fragment --><p >Both numbers should be positive integers; note the order is width followed by height. Example:</p>
-<div class="fragment"><div class="line">s.set_viewport(300, 200);</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md20"></a>
-Set color depth with &lt;tt&gt;set_color_depth&lt;/tt&gt;</h1>
-<p >If your code has access to the bit depth of the device’s color palette for displaying images, then you can pass this in to Snowplow too:</p>
-<div class="fragment"><div class="line">s.set_color_depth( {{BITS PER PIXEL}} );</div>
-</div><!-- fragment --><p >The number should be a positive integer, in bits per pixel. Example:</p>
-<div class="fragment"><div class="line">s.set_color_depth(32);</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md21"></a>
-Set timezone with &lt;tt&gt;set_timezone&lt;/tt&gt;</h1>
-<p >This method lets you pass a user’s timezone in to Snowplow:</p>
-<div class="fragment"><div class="line">s.set_timezone( {{TIMEZONE}} );</div>
-</div><!-- fragment --><p >The timezone should be a string:</p>
-<div class="fragment"><div class="line">s.set_timezone(<span class="stringliteral">&quot;Europe/London&quot;</span>);</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md22"></a>
-Set the language with &lt;tt&gt;set_language&lt;/tt&gt;</h1>
-<p >This method lets you pass a user’s language in to Snowplow:</p>
-<div class="fragment"><div class="line">s.set_language( {{LANGUAGE}} );</div>
-</div><!-- fragment --><p >The language should be a string:</p>
-<div class="fragment"><div class="line">s.set_language(<span class="stringliteral">&#39;en&#39;</span>);</div>
+<div class="fragment"><div class="line">subject-&gt;set_user_id(<span class="stringliteral">&quot;alexd&quot;</span>);</div>
 </div><!-- fragment --><h1><a class="anchor" id="autotoc_md23"></a>
-Set custom user-agent with &lt;tt&gt;set_useragent&lt;/tt&gt;</h1>
-<p >To change the <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent">user-agent string</a> sent along with events to identify the application and system, you may set custom useragent using this method:</p>
-<div class="fragment"><div class="line">s.set_useragent( {{USERAGENT}} );</div>
-</div><!-- fragment --><p >The user-agent should be a string:</p>
-<div class="fragment"><div class="line">s.set_useragent(<span class="stringliteral">&quot;YourApp/5.0 (Macintosh; Intel Mac OS X 10_15_7)&quot;</span>);</div>
+Set screen resolution with "set_screen_resolution"</h1>
+<p >If your code has access to the device’s screen resolution, then you can pass this in to Snowplow too:</p>
+<div class="fragment"><div class="line">subject-&gt;set_screen_resolution( {{WIDTH}}, {{HEIGHT}} );</div>
+</div><!-- fragment --><p >Both numbers should be positive integers; note the order is width followed by height. Example:</p>
+<div class="fragment"><div class="line">subject-&gt;set_screen_resolution(1366, 768);</div>
 </div><!-- fragment --><h1><a class="anchor" id="autotoc_md24"></a>
-Set user's IP address with &lt;tt&gt;set_ip_address&lt;/tt&gt;</h1>
+Set viewport dimensions with &lt;tt&gt;set_viewport&lt;/tt&gt;[](#set-viewport-dimensions-with-set_viewport)</h1>
+<p >If your code has access to the viewport dimensions, then you can pass this in to Snowplow too:</p>
+<div class="fragment"><div class="line">subject-&gt;set_viewport( {{WIDTH}}, {{HEIGHT}} );</div>
+</div><!-- fragment --><p >Both numbers should be positive integers; note the order is width followed by height. Example:</p>
+<div class="fragment"><div class="line">subject-&gt;set_viewport(300, 200);</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md25"></a>
+Set color depth with &lt;tt&gt;set_color_depth&lt;/tt&gt;[](#set-color-depth-with-set_color_depth)</h1>
+<p >If your code has access to the bit depth of the device’s color palette for displaying images, then you can pass this in to Snowplow too:</p>
+<div class="fragment"><div class="line">subject-&gt;set_color_depth( {{BITS PER PIXEL}} );</div>
+</div><!-- fragment --><p >The number should be a positive integer, in bits per pixel. Example:</p>
+<div class="fragment"><div class="line">subject-&gt;set_color_depth(32);</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md26"></a>
+Set timezone with "set_timezone"</h1>
+<p >This method lets you pass a user’s timezone in to Snowplow:</p>
+<div class="fragment"><div class="line">subject-&gt;set_timezone( {{TIMEZONE}} );</div>
+</div><!-- fragment --><p >The timezone should be a string:</p>
+<div class="fragment"><div class="line">subject-&gt;set_timezone(<span class="stringliteral">&quot;Europe/London&quot;</span>);</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md27"></a>
+Set the language with &lt;tt&gt;set_language&lt;/tt&gt;[](#set-the-language-with-set_language)</h1>
+<p >This method lets you pass a user’s language in to Snowplow:</p>
+<div class="fragment"><div class="line">subject-&gt;set_language( {{LANGUAGE}} );</div>
+</div><!-- fragment --><p >The language should be a string:</p>
+<div class="fragment"><div class="line">subject-&gt;set_language(<span class="stringliteral">&#39;en&#39;</span>);</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md28"></a>
+Set custom user-agent with "set_useragent"</h1>
+<p >To change the <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent">user-agent string</a> sent along with events to identify the application and system, you may set custom useragent using this method:</p>
+<div class="fragment"><div class="line">subject-&gt;set_useragent( {{USERAGENT}} );</div>
+</div><!-- fragment --><p >The user-agent should be a string:</p>
+<div class="fragment"><div class="line">subject-&gt;set_useragent(<span class="stringliteral">&quot;YourApp/5.0 (Macintosh; Intel Mac OS X 10_15_7)&quot;</span>);</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md29"></a>
+Set user's IP address with "set_ip_address"</h1>
 <p >To set the user's IP address, you may use this method:</p>
-<div class="fragment"><div class="line">s.set_ip_address( {{IP_ADDRESS}} );</div>
+<div class="fragment"><div class="line">subject-&gt;set_ip_address( {{IP_ADDRESS}} );</div>
 </div><!-- fragment --><p >The IP address should be a string:</p>
-<div class="fragment"><div class="line">s.set_ip_address(<span class="stringliteral">&quot;169.254.0.2&quot;</span>);</div>
+<div class="fragment"><div class="line">subject-&gt;set_ip_address(<span class="stringliteral">&quot;169.254.0.2&quot;</span>);</div>
 </div><!-- fragment --><p >If the IP address is not set, the events will be assigned the IP address from the HTTP request by the Collector. </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->

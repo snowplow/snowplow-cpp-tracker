@@ -1,9 +1,0 @@
-<map id="src/emitter/retry_delay.hpp" name="src/emitter/retry_delay.hpp">
-<area shape="rect" id="node1" title=" " alt="" coords="219,5,416,32"/>
-<area shape="rect" id="node2" href="$emitter_8hpp.html" title=" " alt="" coords="127,80,299,107"/>
-<area shape="rect" id="node7" href="$retry__delay_8cpp.html" title=" " alt="" coords="323,80,519,107"/>
-<area shape="rect" id="node3" href="$emitter_8cpp.html" title=" " alt="" coords="5,155,176,181"/>
-<area shape="rect" id="node4" href="$snowplow_8hpp.html" title=" " alt="" coords="145,229,282,256"/>
-<area shape="rect" id="node5" href="$tracker_8hpp.html" title=" " alt="" coords="251,155,368,181"/>
-<area shape="rect" id="node6" href="$tracker_8cpp.html" title=" " alt="" coords="306,229,422,256"/>
-</map>

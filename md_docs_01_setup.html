@@ -54,7 +54,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Snowplow C++ Tracker
-   &#160;<span id="projectnumber">0.4.0-1-g8e96411</span>
+   &#160;<span id="projectnumber">1.0.0</span>
    </div>
    <div id="projectbrief">Snowplow event tracker for C++. Add analytics to your C++ applications, games and servers</div>
   </td>
@@ -125,12 +125,34 @@ Tracker compatibility</h1>
 <li>Linux</li>
 </ul>
 <h1><a class="anchor" id="autotoc_md3"></a>
-Setup</h1>
-<p >The Tracker is hosted on Github and versions of the Tracker will need to be included by manually dragging and dropping the source files directly into your codebase.</p>
-<p >Everything in both the <code>src</code> and <code>include</code> folders will need to be included in your application. It is important to keep the same folder structure as references to the included headers have been done like so: <code>../include/json.hpp</code>.</p>
-<p >If you wish to change this you will need to manually update the <code>src</code> header files.</p>
-<p ><b>NOTE</b>: We have included the raw <code>sqlite3.h &amp; c</code> files which will need to be compiled separately before being linked to your main C++ project.</p>
-<p >The current version of the Snowplow C++ Tracker is 0.2.0. </p>
+Installing in your project</h1>
+<p >There are two ways to install the tracker in your app:</p>
+<ol type="1">
+<li>By including the project using cmake.</li>
+<li>By copying source files inside the <code>include</code> folder into your codebase.</li>
+</ol>
+<h2><a class="anchor" id="autotoc_md4"></a>
+Using cmake</h2>
+<p >Cmake version 3.14 or greater is required. You may add the library to your project target (<code>your-target</code>) using <code>FetchContent</code> like so:</p>
+<div class="fragment"><div class="line">include(FetchContent)</div>
+<div class="line">FetchContent_Declare(</div>
+<div class="line">    snowplow</div>
+<div class="line">    GIT_REPOSITORY https://github.com/snowplow/snowplow-cpp-tracker</div>
+<div class="line">    GIT_TAG        1.0.0</div>
+<div class="line">)</div>
+<div class="line">FetchContent_MakeAvailable(snowplow)</div>
+<div class="line">target_link_libraries(your-target snowplow)</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md5"></a>
+Copying files to your project</h2>
+<p >Download the most recent release from the <a href="https://github.com/snowplow/snowplow-cpp-tracker/releases">releases section</a>. Everything in the <code>include</code> folder will need to be included in your application.</p>
+<p >The project has two dependencies that need to be included in your project: <a href="https://github.com/nlohmann/json">nlohmann/json</a> and <a href="https://www.sqlite.org/download.html">the amalgamated version of sqlite3</a>. You will need to update the include paths in headers <code>include/snowplow/thirdparty/json.hpp</code> and <code>include/snowplow/thirdparty/sqlite3.hpp</code>.</p>
+<h2><a class="anchor" id="autotoc_md6"></a>
+Additional requirements under Linux</h2>
+<p >Additionally, under Linux, the following libraries need to be installed:</p>
+<ul>
+<li>curl (using <code>apt install libcurl4-openssl-dev</code> on Ubuntu)</li>
+<li>uuid (using <code>apt install uuid-dev</code> on Ubuntu) </li>
+</ul>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->

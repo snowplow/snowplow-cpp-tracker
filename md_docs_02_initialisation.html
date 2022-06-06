@@ -54,7 +54,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Snowplow C++ Tracker
-   &#160;<span id="projectnumber">0.4.0-1-g8e96411</span>
+   &#160;<span id="projectnumber">1.0.0</span>
    </div>
    <div id="projectbrief">Snowplow event tracker for C++. Add analytics to your C++ applications, games and servers</div>
   </td>
@@ -116,100 +116,219 @@ $(document).ready(function(){initNavTree('md_docs_02_initialisation.html',''); i
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p >Designing how and what to track in your app is an important decision. Check out our docs about tracking design <a href="https://docs.snowplowanalytics.com/docs/understanding-tracking-design/introduction-to-tracking-design/">here</a>.</p>
-<h1><a class="anchor" id="autotoc_md5"></a>
+<h1><a class="anchor" id="autotoc_md8"></a>
 Import the library</h1>
 <p >Import the C++ Tracker library and use the <code>snowplow</code> namespace like so:</p>
-<div class="fragment"><div class="line"><span class="preprocessor">#include &quot;<a class="code" href="snowplow_8hpp.html">snowplow.hpp</a>&quot;</span></div>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &quot;snowplow/snowplow.hpp&quot;</span></div>
 <div class="line"> </div>
-<div class="line"><span class="keyword">using namespace </span><a class="code hl_namespace" href="namespacesnowplow.html">snowplow</a>;</div>
-<div class="ttc" id="anamespacesnowplow_html"><div class="ttname"><a href="namespacesnowplow.html">snowplow</a></div><div class="ttdef"><b>Definition:</b> client_session.hpp:28</div></div>
-<div class="ttc" id="asnowplow_8hpp_html"><div class="ttname"><a href="snowplow_8hpp.html">snowplow.hpp</a></div></div>
-</div><!-- fragment --><p >That’s it – you are now ready to initialize a tracker instance.</p>
-<h1><a class="anchor" id="autotoc_md6"></a>
-Creating a tracker</h1>
-<p >You will first need to create an Emitter to which events will be sent and pass it a Storage where it will persist an event queue with unsent events:</p>
-<div class="fragment"><div class="line"><span class="preprocessor">#include &quot;<a class="code" href="snowplow_8hpp.html">snowplow.hpp</a>&quot;</span></div>
+<div class="line"><span class="keyword">using namespace </span>snowplow;</div>
+</div><!-- fragment --><p >That’s it – you are now ready to initialize a tracker instance that you will use to track events. There are 3 ways to do that:</p>
+<ol type="1">
+<li>Create a tracker with default configuration using the <code>Snowplow</code> interface.</li>
+<li>Create a tracker with custom configuration using the <code>Snowplow</code> interface.</li>
+<li>Create and manage <code>Tracker</code>, <code>Emitter</code>, and <code>ClientSession</code> directly.</li>
+</ol>
+<h1><a class="anchor" id="autotoc_md9"></a>
+Option 1: Creating a tracker with default configuration using the "Snowplow" interface</h1>
+<p >The <code>Snowplow</code> class provides static methods that let you easily create a new tracker. It can be as simple as:</p>
+<div class="fragment"><div class="line"><span class="keyword">auto</span> tracker = Snowplow::create_tracker(</div>
+<div class="line">    <span class="stringliteral">&quot;ns&quot;</span>, <span class="comment">// tracker namespace used to identify the tracker</span></div>
+<div class="line">    <span class="stringliteral">&quot;https://com.acme.collector&quot;</span>, <span class="comment">// Snowplow collector URL</span></div>
+<div class="line">    POST, <span class="comment">// HTTP method used to send events to the collector</span></div>
+<div class="line">    <span class="stringliteral">&quot;events.db&quot;</span> <span class="comment">// Relative path to an SQLite database used for event queue and session tracking</span></div>
+<div class="line">);</div>
+</div><!-- fragment --><p >Optionally, you may choose to attach a <code>Subject</code> instance with information about the user and device (see the next page on <a class="el" href="md_docs_03_adding_data.html">Adding data</a> to learn more about the <code>Subject</code>):</p>
+<div class="fragment"><div class="line"><span class="keyword">auto</span> subject = std::make_shared&lt;Subject&gt;() <span class="comment">// initialize a C++ shared pointer for the Subject</span></div>
+<div class="line">subject-&gt;set_user_id(&quot;a-user-<span class="keywordtype">id</span>&quot;);</div>
 <div class="line"> </div>
-<div class="line"><span class="keyword">using namespace </span><a class="code hl_namespace" href="namespacesnowplow.html">snowplow</a>;</div>
+<div class="line">auto tracker = Snowplow::create_tracker(&quot;ns&quot;, &quot;https:<span class="comment">//com.acme.collector&quot;, POST, &quot;events.db&quot;, subject);</span></div>
+</div><!-- fragment --><p >Finally, client session tracking will be automatically enabled and session information will be attached to all events (see documentation on <a class="el" href="md_docs_06_client_sessions.html">Client sessions</a> for more details). If you wish to disable session tracking, pass <code>false</code> as the last argument:</p>
+<div class="fragment"><div class="line"><span class="keyword">auto</span> tracker = Snowplow::create_tracker(<span class="stringliteral">&quot;ns&quot;</span>, <span class="stringliteral">&quot;https://com.acme.collector&quot;</span>, POST, <span class="stringliteral">&quot;events.db&quot;</span>, subject, <span class="keyword">false</span>);</div>
+</div><!-- fragment --><p >After you create a tracker, you can access it from anywhere using it's namespace:</p>
+<div class="fragment"><div class="line"><span class="keyword">auto</span> tracker = Snowplow::get_tracker(<span class="stringliteral">&quot;ns&quot;</span>);</div>
+</div><!-- fragment --><p >You can also access the default tracker using <code>Snowplow::get_default_tracker()</code>. The default tracker is the first initialized tracker (unless it is removed). If you have multiple trackers, you can choose the default tracker by calling <code>Snowplow::set_default_tracker(tracker2)</code>.</p>
+<p >To remove reference of previously initialized tracker from the Snowplow interface (the tracker will be deleted once all remaininig references to it are deleted):</p>
+<div class="fragment"><div class="line">Snowplow::remove_tracker(tracker);</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md10"></a>
+Option 2: Creating a tracker with custom configuration using the "Snowplow" interface</h1>
+<p >There are a number of settings that you may want to customize when creating a tracker instance. You can make use of configuration objects to provide custom configuration for the tracker:</p>
+<div class="fragment"><div class="line">TrackerConfiguration tracker_config(</div>
+<div class="line">    <span class="stringliteral">&quot;namespace&quot;</span>, <span class="comment">// tracker namespace</span></div>
+<div class="line">    <span class="stringliteral">&quot;app-id&quot;</span>, <span class="comment">// application ID</span></div>
+<div class="line">    mob <span class="comment">// platform that the tracker runs on</span></div>
+<div class="line">);</div>
+<div class="line">tracker_config.set_desktop_context(<span class="keyword">false</span>); <span class="comment">// do not attach a desktop context entity to events (on by default)</span></div>
 <div class="line"> </div>
-<div class="line"><span class="keyword">auto</span> storage = std::make_shared&lt;SqliteStorage&gt;(<span class="stringliteral">&quot;events.db&quot;</span>);</div>
-<div class="line">Emitter emitter(<span class="stringliteral">&quot;com.acme.collector&quot;</span>, Emitter::Method::POST, Emitter::Protocol::HTTP, 500, 52000, 52000, storage);</div>
-<div class="line">Tracker *t = Tracker::init(emitter, NULL, NULL, NULL, NULL, NULL, NULL);</div>
-</div><!-- fragment --><p >The Tracker can now be used. It is created as a static singleton object so as to avoid conflicts between multiple Trackers reading and writing to a single database. You can access a pointer to the Tracker by either the <code>Tracker::init(...)</code> function or by the <code>Tracker::instance()</code> function. To ensure the Tracker is cleaned up properly you will need to run <code>Tracker::close()</code> in your main destructor.</p>
-<p ><b>NOTE</b>: If you attempt to access the <code>instance</code> without having first run <code>init</code> an exception will be thrown.</p>
-<p >The optional tracker arguments:</p>
+<div class="line">NetworkConfiguration network_config(<span class="stringliteral">&quot;https://com.acme.collector&quot;</span>, POST); <span class="comment">// collector URL and method</span></div>
+<div class="line"> </div>
+<div class="line">EmitterConfiguration emitter_config(<span class="stringliteral">&quot;sp.db&quot;</span>); <span class="comment">// event queue DB path if SQLite or custom `EventStore` instance</span></div>
+<div class="line">emitter_config.set_batch_size(500); <span class="comment">// maximum number of events to send at a time</span></div>
+<div class="line"> </div>
+<div class="line">SessionConfiguration session_config(</div>
+<div class="line">    <span class="stringliteral">&quot;sp.db&quot;</span>, <span class="comment">// session DB path if SQLite (usually same as event queue) or custom `SessionStore` instance</span></div>
+<div class="line">    5000, <span class="comment">// foreground timeout in ms</span></div>
+<div class="line">    5000 <span class="comment">// background timeout in ms</span></div>
+<div class="line">);</div>
+<div class="line"> </div>
+<div class="line"><span class="keyword">auto</span> tracker = Snowplow::create_tracker(tracker_config, network_config, emitter_config, session_config);</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md11"></a>
+Tracker configuration using "TrackerConfiguration"</h2>
+<p ><code>TrackerConfiguration</code> contains settings to identify and configure the tracker. It's constructor takes 3 attributes:</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Constructor attribute   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Default    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>name_space</code>   </td><td class="markdownTableBodyNone">Tracker namespace to identify the tracker and also attach as a property to tracked events.   </td><td class="markdownTableBodyNone">None    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>app_id</code>   </td><td class="markdownTableBodyNone">Application ID.   </td><td class="markdownTableBodyNone">""    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>platform</code>   </td><td class="markdownTableBodyNone">Enum of the platform the Tracker is running on, can be one of: web, mob, pc, app, srv, tv, cnsl, iot   </td><td class="markdownTableBodyNone">srv   </td></tr>
+</table>
+<p >It further provides 2 optional setter functions:</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Setter   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Default    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>set_use_base64</code>   </td><td class="markdownTableBodyNone">Whether to use base64 encoding in events.   </td><td class="markdownTableBodyNone">true    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>set_desktop_context</code>   </td><td class="markdownTableBodyNone">Whether to add a desktop_context, which gathers information about the device the tracker is running on, to each event.   </td><td class="markdownTableBodyNone">true   </td></tr>
+</table>
+<h2><a class="anchor" id="autotoc_md12"></a>
+Network configuration using "NetworkConfiguration"</h2>
+<p ><code>NetworkConfiguration</code> has only two properties set in it's constructor to configure the Snowplow collector:</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Constructor attribute   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Default    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>collector_url</code>   </td><td class="markdownTableBodyNone">Full URL of the Snowplow collector including the protocol (or defaults to HTTPS if protocol not present).   </td><td class="markdownTableBodyNone">None    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>method</code>   </td><td class="markdownTableBodyNone">HTTP method to use when sending events to collector – GET or POST.   </td><td class="markdownTableBodyNone">POST    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>curl_cookie_file</code>   </td><td class="markdownTableBodyNone">Path to a file where to store cookies in case http_client is nullptr and the CURL HTTP client is used – only relevant under Linux (CURL is not used under Windows and macOS)   </td><td class="markdownTableBodyNone">In-memory cookie storage with CURL on Linux, platform native storage on Windows and macOS   </td></tr>
+</table>
+<p >Additionally, it provides the following setter functions:</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Setter   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Default    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>set_http_client</code>   </td><td class="markdownTableBodyNone">Unique pointer to a custom HTTP client to send GET and POST requests with.   </td><td class="markdownTableBodyNone">Platform-specific implementation.   </td></tr>
+</table>
+<h2><a class="anchor" id="autotoc_md13"></a>
+Emitter configuration using "EmitterConfiguration"</h2>
+<p ><code>EmitterConfiguration</code> brings additional settings for the constructor. It provides two constructors that accept the event store either as a path to the SQLite database or a custom <code>EventStore</code> object. The following configurations are identical:</p>
+<div class="fragment"><div class="line">EmitterConfiguration config1(<span class="stringliteral">&quot;sp.db&quot;</span>);</div>
+<div class="line"> </div>
+<div class="line"><span class="keyword">auto</span> storage = std::make_shared&lt;SqliteStorage&gt;(<span class="stringliteral">&quot;sp.db&quot;</span>);</div>
+<div class="line">EmitterConfiguration config2(storage); <span class="comment">// you can also pass a custom `EventStore`</span></div>
+</div><!-- fragment --><p >Additionally, it provides the following setter functions:</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Setter   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Default    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>set_batch_size</code>   </td><td class="markdownTableBodyNone">The maximum amount of events to send at a time.   </td><td class="markdownTableBodyNone">250 events    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>set_byte_limit_get</code>   </td><td class="markdownTableBodyNone">The byte limit when sending a GET request.   </td><td class="markdownTableBodyNone">40000 bytes    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>set_byte_limit_post</code>   </td><td class="markdownTableBodyNone">The byte limit when sending a POST request.   </td><td class="markdownTableBodyNone">40000 bytes    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>set_request_callback</code>   </td><td class="markdownTableBodyNone">Set a callback to call after emit requests are made with the resulting emit status (see page about Emitter for more info).   </td><td class="markdownTableBodyNone">None    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>set_custom_retry_for_status_code</code>   </td><td class="markdownTableBodyNone">Set a custom retry rule for when the HTTP status code is received in emit response from Collector (see page about Emitter for more details).   </td><td class="markdownTableBodyNone">None   </td></tr>
+</table>
+<h2><a class="anchor" id="autotoc_md14"></a>
+Session configuration using "SessionConfiguration"</h2>
+<p ><code>SessionConfiguration</code> is an optional attribute in <code>create_tracker</code>. If passed, session tracking will be enabled with the given configuration. If not passed, session tracking will not be enabled. The constructor takes 3 attributes:</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Constructor attribute   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Default    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>session_store</code> or <code>db_name</code>   </td><td class="markdownTableBodyNone">You may either pass a path to an SQLite database to be used for session storage or a custom implementation of <code>SessionStore</code> similar as for <code>EventStore</code> in <code>EmitterConfiguration</code>.   </td><td class="markdownTableBodyNone">None    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>foreground_timeout</code>   </td><td class="markdownTableBodyNone">Timeout in ms for updating the session when the app is in background.   </td><td class="markdownTableBodyNone">30 minutes    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>background_timeout</code>   </td><td class="markdownTableBodyNone">Timeout in ms for updating the session when the app is in foreground.   </td><td class="markdownTableBodyNone">30 minutes   </td></tr>
+</table>
+<h1><a class="anchor" id="autotoc_md15"></a>
+Option 3: Managing "Tracker", "Emitter", and "ClientSession" directly</h1>
+<p >The third option to initialise a new tracker is to instantiate it and the related components directly. This option is suitable in case you want supply a custom emitter or client session implementation. If you don't want to do that, we recommend using Option 2 which gives you the same configuration options with a simpler API.</p>
+<p >The following example takes you through the steps needed to initialize a storage, emitter, subject, client session, and tracker:</p>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &quot;snowplow/snowplow.hpp&quot;</span></div>
+<div class="line"> </div>
+<div class="line"><span class="comment">// 1. create storage for event queue and session information</span></div>
+<div class="line"><span class="keyword">auto</span> storage = std::make_shared&lt;SqliteStorage&gt;(<span class="stringliteral">&quot;sp.db&quot;</span>);</div>
+<div class="line"><span class="comment">// 2. create an emitter for sending event to Snowplow collector</span></div>
+<div class="line"><span class="keyword">auto</span> emitter = std::make_shared&lt;Emitter&gt;(storage, <span class="stringliteral">&quot;com.acme.collector&quot;</span>);</div>
+<div class="line"><span class="comment">// 3. create a subject with user and device information</span></div>
+<div class="line"><span class="keyword">auto</span> subject = std::make_shared&lt;Subject&gt;();</div>
+<div class="line">subject-&gt;set_user_id(<span class="stringliteral">&quot;a-user-id&quot;</span>);</div>
+<div class="line"><span class="comment">// 4. optionally create a client_session for session tracking</span></div>
+<div class="line"><span class="keyword">auto</span> client_session = std::make_shared&lt;ClientSession&gt;(storage, 5000, 5000);</div>
+<div class="line"><span class="comment">// 5. finally, create the tracker instance</span></div>
+<div class="line"><span class="keyword">auto</span> tracker = std::make_shared&lt;Tracker&gt;(emitter, subject, client_session, <span class="stringliteral">&quot;pc&quot;</span>, <span class="stringliteral">&quot;app_id&quot;</span>, <span class="stringliteral">&quot;ns&quot;</span>);</div>
+</div><!-- fragment --><p >Once you initialize the tracker, you can optionally register it with the Snowplow interface:</p>
+<div class="fragment"><div class="line">Snowplow::register_tracker(tracker);</div>
+</div><!-- fragment --><p >This will make accessible from anywhere using <code>Snowplow::get_tracker("ns")</code>.</p>
+<p >The following will explain the individual components shown in the above code sample in more detail.</p>
+<h2><a class="anchor" id="autotoc_md16"></a>
+Storage</h2>
+<p >The storage has two functions in the example above – it is used by the <code>emitter</code> to persist an event queue with events to be sent, and it is used by the <code>client_session</code> to persist the current session. The tracker provides an SQL storage (<code>SqliteStorage</code>) implementation, but you may introduce your own storage as described in <a class="el" href="md_docs_05_emitters.html">&quot;Emitters&quot;</a> and <a class="el" href="md_docs_06_client_sessions.html">&quot;Client Sessions&quot;</a>.</p>
+<h2><a class="anchor" id="autotoc_md17"></a>
+Emitter</h2>
+<p >Emitter is a required component responsible for sending tracked events to the collector.</p>
+<p >Accepts an argument of an Emitter instance pointer; if the object is <code>NULL</code> will throw an exception. See Emitters for more on emitter configuration.</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone"><b>Argument Name</b>   </th><th class="markdownTableHeadNone"><b>Description</b>   </th><th class="markdownTableHeadNone"><b>Required?</b>   </th><th class="markdownTableHeadNone"><b>Default</b>    </th></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>emitter</code>   </td><td class="markdownTableBodyNone">The emitter to which events are sent   </td><td class="markdownTableBodyNone">Yes   </td><td class="markdownTableBodyNone"><code>NULL</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>event_store</code>   </td><td class="markdownTableBodyNone">Defines the database to use for event queue   </td><td class="markdownTableBodyNone">Yes   </td><td class="markdownTableBodyNone">–    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>subject</code>   </td><td class="markdownTableBodyNone">The user being tracked   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone"><code>NULL</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>uri</code>   </td><td class="markdownTableBodyNone">The collector URI (excluding protocol) to send events to   </td><td class="markdownTableBodyNone">Yes   </td><td class="markdownTableBodyNone">–    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>client_session</code>   </td><td class="markdownTableBodyNone">Client session recording   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone"><code>NULL</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>method</code>   </td><td class="markdownTableBodyNone">The request type to use (GET or POST)   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">POST    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>platform</code>   </td><td class="markdownTableBodyNone">The platform the Tracker is running on   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone"><code>srv</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>protocol</code>   </td><td class="markdownTableBodyNone">The protocol to use (HTTP or HTTPS)   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">HTTPS    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>app_id</code>   </td><td class="markdownTableBodyNone">The application ID   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">“    </td></tr>
+<td class="markdownTableBodyNone"><code>batch_size</code>   </td><td class="markdownTableBodyNone">The maximum amount of events to send at a time   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">250 events    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>name_space</code>   </td><td class="markdownTableBodyNone">The name of the tracker instance   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">“    </td></tr>
+<td class="markdownTableBodyNone"><code>byte_limit_post</code>   </td><td class="markdownTableBodyNone">The byte limit when sending a POST request   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">40000 bytes    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>use_base64</code>   </td><td class="markdownTableBodyNone">Whether to enable <a href="https://en.wikipedia.org/wiki/Base64">base 64 encoding</a>   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone"><code>true</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>byte_limit_get</code>   </td><td class="markdownTableBodyNone">The byte limit when sending a GET request   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">40000 bytes    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>desktop_context</code>   </td><td class="markdownTableBodyNone">Whether to add a <code>desktop_context</code> to events   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone"><code>true</code>   </td></tr>
+<td class="markdownTableBodyNone"><code>http_client</code>   </td><td class="markdownTableBodyNone">Unique pointer to a custom HTTP client to send GET and POST requests with   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">Platform-specific implementation.    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>curl_cookie_file</code>   </td><td class="markdownTableBodyNone">Path to a file where to store cookies in case http_client is nullptr and the CURL HTTP client is used – only relevant under Linux (CURL is not used under Windows and macOS)   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">In-memory cookie storage with CURL on Linux, platform native storage on Windows and macOS   </td></tr>
 </table>
-<p >A more complete example:</p>
-<div class="fragment"><div class="line"><span class="preprocessor">#include &quot;<a class="code" href="snowplow_8hpp.html">snowplow.hpp</a>&quot;</span></div>
-<div class="line"> </div>
-<div class="line"><span class="keyword">auto</span> storage = std::make_shared&lt;SqliteStorage&gt;(<span class="stringliteral">&quot;sp.db&quot;</span>); <span class="comment">// storage for events and sessions, see &quot;Emitters&quot; and &quot;Client Sessions&quot; to learn more</span></div>
-<div class="line"> </div>
-<div class="line">Emitter emitter(<span class="stringliteral">&quot;com.acme.collector&quot;</span>, Emitter::Method::GET, Emitter::Protocol::HTTPS, 500, 52000, 52000, storage);</div>
-<div class="line"> </div>
-<div class="line">Subject subject;</div>
-<div class="line">subject.set_user_id(<span class="stringliteral">&quot;a-user-id&quot;</span>);</div>
-<div class="line">subject.set_screen_resolution(1920, 1080);</div>
-<div class="line">subject.set_viewport(1080, 1080);</div>
-<div class="line">subject.set_color_depth(32);</div>
-<div class="line">subject.set_timezone(<span class="stringliteral">&quot;GMT&quot;</span>);</div>
-<div class="line">subject.set_language(<span class="stringliteral">&quot;EN&quot;</span>);</div>
-<div class="line"> </div>
-<div class="line">ClientSession client_session(storage, 5000, 5000);</div>
-<div class="line"><span class="keywordtype">string</span> platform = <span class="stringliteral">&quot;pc&quot;</span>;</div>
-<div class="line"><span class="keywordtype">string</span> app_id = <span class="stringliteral">&quot;openage&quot;</span>;</div>
-<div class="line"><span class="keywordtype">string</span> name_space = <span class="stringliteral">&quot;sp-pc&quot;</span>;</div>
-<div class="line"><span class="keywordtype">bool</span> base64 = <span class="keyword">false</span>;</div>
-<div class="line"><span class="keywordtype">bool</span> desktop_context = <span class="keyword">true</span>;</div>
-<div class="line"> </div>
-<div class="line">Tracker *t = Tracker::init(emitter, &amp;subject, &amp;client_session, &amp;platform, &amp;app_id, &amp;name_space, &amp;base64, &amp;desktop_context);</div>
-</div><!-- fragment --><p ><b>NOTE</b>: To ensure all of your events are sent before closing your application you can call the tracker flush function which is a blocking call that will send everything in the database and then will join the daemon thread to the calling thread.</p>
-<h2><a class="anchor" id="autotoc_md7"></a>
-&lt;tt&gt;storage&lt;/tt&gt;</h2>
-<p >The storage has two functions in the example above – it is used by the <code>emitter</code> to persist an event queue with events to be sent, and it is used by the <code>client_session</code> to persist the current session. The tracker provides an SQL storage implementation, but you may introduce your own storage as described in "Emitters" and "Client Sessions".</p>
-<h2><a class="anchor" id="autotoc_md8"></a>
-&lt;tt&gt;emitter&lt;/tt&gt;</h2>
-<p >Accepts an argument of an Emitter instance pointer; if the object is <code>NULL</code> will throw an exception. See Emitters for more on emitter configuration.</p>
-<h2><a class="anchor" id="autotoc_md9"></a>
-&lt;tt&gt;subject&lt;/tt&gt;</h2>
+<h2><a class="anchor" id="autotoc_md18"></a>
+Subject</h2>
 <p >The user which the Tracker will track. Accepts an argument of a Subject instance pointer.</p>
 <p >You don’t need to set this during Tracker construction; you can use the <code>tracker.set_subject(...)</code> method afterwards. In fact, you don’t need to create a subject at all. If you don’t, though, your events won’t contain user-specific data such as timezone and language.</p>
-<h2><a class="anchor" id="autotoc_md10"></a>
-&lt;tt&gt;client_session&lt;/tt&gt;</h2>
+<h2><a class="anchor" id="autotoc_md19"></a>
+Client session</h2>
 <p >The client sessions which the Tracker will attach to each event. Accepts an argument of a ClientSession instance pointer.</p>
 <p >Adds the ability to attach a ClientSession context to each event that leaves the Tracker. This object will persistently store information about the sessions that have occurred for the life of the application – unless the database is destroyed.</p>
-<h2><a class="anchor" id="autotoc_md11"></a>
-&lt;tt&gt;platform&lt;/tt&gt;</h2>
-<p >By default we assume the Tracker will be running in a server environment. To override this provide your own platform string.</p>
-<h2><a class="anchor" id="autotoc_md12"></a>
-&lt;tt&gt;app_id&lt;/tt&gt;</h2>
-<p >The <code>app_id</code> argument lets you set the application ID to any string.</p>
-<h2><a class="anchor" id="autotoc_md13"></a>
-&lt;tt&gt;name_space&lt;/tt&gt;</h2>
-<p >If provided, the <code>name_space</code> argument will be attached to every event fired by the new tracker. This allows you to later identify which tracker fired which event if you have multiple trackers running.</p>
-<h2><a class="anchor" id="autotoc_md14"></a>
-&lt;tt&gt;use_base64&lt;/tt&gt;</h2>
-<p >By default, unstructured events and custom contexts are encoded using Base64 to ensure that no data is lost or corrupted.</p>
-<h2><a class="anchor" id="autotoc_md15"></a>
-&lt;tt&gt;desktop_context&lt;/tt&gt;</h2>
+<h2><a class="anchor" id="autotoc_md20"></a>
+Tracker</h2>
+<p >The tracker instance lets you track events. You should maintain a reference to the initialized tracker during the app lifetime.</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone"><b>Argument Name</b>   </th><th class="markdownTableHeadNone"><b>Description</b>   </th><th class="markdownTableHeadNone"><b>Required?</b>   </th><th class="markdownTableHeadNone"><b>Default</b>    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>emitter</code>   </td><td class="markdownTableBodyNone">The emitter to which events are sent   </td><td class="markdownTableBodyNone">Yes   </td><td class="markdownTableBodyNone">–    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>subject</code>   </td><td class="markdownTableBodyNone">The user being tracked   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">nullptr    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>client_session</code>   </td><td class="markdownTableBodyNone">Client session recording   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">nullptr    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>platform</code>   </td><td class="markdownTableBodyNone">The platform the Tracker is running on   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">"srv"    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>app_id</code>   </td><td class="markdownTableBodyNone">The application ID   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">""    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>name_space</code>   </td><td class="markdownTableBodyNone">The namespace of the tracker instance used to identify the tracker.   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">""    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>use_base64</code>   </td><td class="markdownTableBodyNone">Whether to enable <a href="https://en.wikipedia.org/wiki/Base64">base 64 encoding</a>. Defaults to true to ensure that no data is lost or corrupted.   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">true    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>desktop_context</code>   </td><td class="markdownTableBodyNone">Whether to add a <code>desktop_context</code> to events   </td><td class="markdownTableBodyNone">No   </td><td class="markdownTableBodyNone">true   </td></tr>
+</table>
 <p >The <code>desktop_context</code> gathers extra information about the device it is running on and sends it along with every event that is made by the Tracker.</p>
 <p >An example of the data in this context:</p>
 <div class="fragment"><div class="line">{</div>

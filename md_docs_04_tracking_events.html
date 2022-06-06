@@ -54,7 +54,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Snowplow C++ Tracker
-   &#160;<span id="projectnumber">0.4.0-1-g8e96411</span>
+   &#160;<span id="projectnumber">1.0.0</span>
    </div>
    <div id="projectbrief">Snowplow event tracker for C++. Add analytics to your C++ applications, games and servers</div>
   </td>
@@ -131,7 +131,7 @@ $(document).ready(function(){initNavTree('md_docs_04_tracking_events.html',''); 
 <td class="markdownTableBodyNone"><code>TimingEvent</code>   </td><td class="markdownTableBodyNone">Tracks a timing event   </td></tr>
 </table>
 <p >Snowplow events are all processed into the same format, regardless of the event type (and regardless of the tracker language used). Read about the different properties and fields of events in the <a href="https://docs.snowplowanalytics.com/docs/collecting-data/collecting-from-own-applications/snowplow-tracker-protocol/">Snowplow Tracker Protocol</a>.</p>
-<h1><a class="anchor" id="autotoc_md26"></a>
+<h1><a class="anchor" id="autotoc_md31"></a>
 Custom event context</h1>
 <p >Event context is an incredibly powerful aspect of Snowplow tracking, which allows you to create very rich data. It is based on the same self-describing JSON schemas as the self-describing events. Using event context, you can add any details you like to your events, as long as you can describe them in a self-describing JSON schema.</p>
 <p >Each schema will describe a single "entity". All of an event's entities together form the event context. There is no limit to how many entities can be attached to one event.</p>
@@ -151,10 +151,10 @@ Custom event context</h1>
 <div class="fragment"><div class="line">StructuredEvent se(<span class="stringliteral">&quot;category&quot;</span>, <span class="stringliteral">&quot;action&quot;</span>);</div>
 <div class="line">se.set_context(context);</div>
 <div class="line"> </div>
-<div class="line">Tracker::instance()-&gt;track(se);</div>
+<div class="line">Snowplow::get_default_tracker()-&gt;track(se);</div>
 </div><!-- fragment --><p >Note that even though there is only one custom context entity attached to the event, it still needs to be placed in a list.</p>
 <p ><b>INFO</b>: We use the excellent json library from Github community member <a href="https://github.com/nlohmann">Niels (nlohmann)</a> for all JSON parsing. For more information on using this library please visit the <a href="https://github.com/nlohmann/json">Technical information on Github</a>.</p>
-<h1><a class="anchor" id="autotoc_md27"></a>
+<h1><a class="anchor" id="autotoc_md32"></a>
 Optional true-timestamp argument</h1>
 <p >Each event class supports an optional true-timestamp argument; this allows you to provide the true-timestamp attached to this event to help with the timing of events in multiple timezones. The timestamp should be in milliseconds since the Unix epoch.</p>
 <p >Here is an example tracking a structured event and supplying the optional true-timestamp argument:</p>
@@ -164,9 +164,9 @@ Optional true-timestamp argument</h1>
 <div class="line"><span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> <span class="keywordtype">long</span> true_tstamp = <span class="stringliteral">&quot;1368725287000&quot;</span>;</div>
 <div class="line">se.set_true_timestamp(&amp;true_tstamp);</div>
 <div class="line"> </div>
-<div class="line">Tracker::instance()-&gt;track(se);</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md28"></a>
-Track SelfDescribing/Unstructured events with &lt;tt&gt;SelfDescribingEvent&lt;/tt&gt;</h1>
+<div class="line">Snowplow::get_default_tracker()-&gt;track(se);</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md33"></a>
+Track SelfDescribing/Unstructured events with "SelfDescribingEvent"</h1>
 <p >Use the <code>SelfDescribingEvent</code> type to track a custom event which consists of a name and an unstructured set of properties. This is useful when:</p>
 <ul>
 <li>You want to track event types which are proprietary/specific to your business (i.e. not already part of Snowplow), or</li>
@@ -184,17 +184,16 @@ Track SelfDescribing/Unstructured events with &lt;tt&gt;SelfDescribingEvent&lt;
 </table>
 <p >Example:</p>
 <div class="fragment"><div class="line"><span class="comment">// Create a JSON containing your data</span></div>
-<div class="line"><a class="code hl_typedef" href="client__session_8hpp.html#ab701e3ac61a85b337ec5c1abaad6742d">json</a> data = <span class="stringliteral">&quot;{\&quot;level\&quot;:5,\&quot;saveId\&quot;:\&quot;ju302\&quot;,\&quot;hardMode\&quot;:true}&quot;</span>_json;</div>
+<div class="line">json data = <span class="stringliteral">&quot;{\&quot;level\&quot;:5,\&quot;saveId\&quot;:\&quot;ju302\&quot;,\&quot;hardMode\&quot;:true}&quot;</span>_json;</div>
 <div class="line"> </div>
 <div class="line"><span class="comment">// Create a new SelfDescribingJson</span></div>
 <div class="line">SelfDescribingJson sdj(<span class="stringliteral">&quot;iglu:com.example_company/save-game/jsonschema/1-0-2&quot;</span>, data);</div>
 <div class="line"> </div>
 <div class="line">SelfDescribingEvent sde(sdj);</div>
-<div class="line">Tracker::instance()-&gt;track(sde);</div>
-<div class="ttc" id="aclient__session_8hpp_html_ab701e3ac61a85b337ec5c1abaad6742d"><div class="ttname"><a href="client__session_8hpp.html#ab701e3ac61a85b337ec5c1abaad6742d">json</a></div><div class="ttdeci">nlohmann::json json</div><div class="ttdef"><b>Definition:</b> client_session.hpp:26</div></div>
+<div class="line">Snowplow::get_default_tracker()-&gt;track(sde);</div>
 </div><!-- fragment --><p >For more on JSON schema, refer to <a href="https://docs.snowplowanalytics.com/docs/understanding-tracking-design/understanding-schemas-and-validation/">this page</a>.</p>
-<h1><a class="anchor" id="autotoc_md29"></a>
-Track screen views with &lt;tt&gt;ScreenViewEvent&lt;/tt&gt;</h1>
+<h1><a class="anchor" id="autotoc_md34"></a>
+Track screen views with "ScreenViewEvent"</h1>
 <p >Use the <code>ScreenViewEvent</code> type to track a user viewing a screen (or equivalent) within your app. This is the page view equivalent for apps that are not webpages.</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -212,9 +211,9 @@ Track screen views with &lt;tt&gt;ScreenViewEvent&lt;/tt&gt;</h1>
 <div class="line">ScreenViewEvent sve;</div>
 <div class="line">sve.name = &amp;name;</div>
 <div class="line"> </div>
-<div class="line">Tracker::instance()-&gt;track(sve);</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md30"></a>
-Track structured events with &lt;tt&gt;StructuredEvent&lt;/tt&gt;</h1>
+<div class="line">Snowplow::get_default_tracker()-&gt;track(sve);</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md35"></a>
+Track structured events with &lt;tt&gt;StructuredEvent&lt;/tt&gt;[](#track-structured-events-with-trackstructevent)</h1>
 <p >Use the <code>StructuredEvent</code> type to track a custom event happening in your app which fits the Google Analytics-style structure of having up to five fields (with only the first two required). This method provides a halfway-house between tracking fully user-defined self-describing events and out-of-the box predefined events. This event type can be used to track many types of user activity, as it is somewhat customizable.</p>
 <p >As these fields are fairly arbitrary, we recommend following the advice in this table how to define structured events. It's important to be consistent throughout the business about how each field is used.</p>
 <table class="markdownTable">
@@ -236,9 +235,9 @@ Track structured events with &lt;tt&gt;StructuredEvent&lt;/tt&gt;</h1>
 <div class="line">se.property = <span class="stringliteral">&quot;pcs&quot;</span>;</div>
 <div class="line">se.value = 25.6;</div>
 <div class="line"> </div>
-<div class="line">Tracker::instance()-&gt;track(se);</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md31"></a>
-Track timing events with &lt;tt&gt;TimingEvent&lt;/tt&gt;</h1>
+<div class="line">Snowplow::get_default_tracker()-&gt;track(se);</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md36"></a>
+Track timing events with "TimingEvent"</h1>
 <p >Use the <code>TimingEvent</code> type to track user timing events such as how long resources take to load.</p>
 <p >Its properties are as follows:</p>
 <table class="markdownTable">
@@ -256,7 +255,7 @@ Track timing events with &lt;tt&gt;TimingEvent&lt;/tt&gt;</h1>
 <p >The event uses the following Iglu schema: <a href="http://iglucentral.com/schemas/com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0">iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0</a>.</p>
 <p >Example:</p>
 <div class="fragment"><div class="line">TimingEvent te(<span class="stringliteral">&quot;category&quot;</span>, <span class="stringliteral">&quot;variable&quot;</span>, 123);</div>
-<div class="line">Tracker::instance()-&gt;track(te);</div>
+<div class="line">Snowplow::get_default_tracker()-&gt;track(te);</div>
 </div><!-- fragment --> </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->

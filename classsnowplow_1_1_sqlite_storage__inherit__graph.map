@@ -1,5 +1,0 @@
-<map id="snowplow::SqliteStorage" name="snowplow::SqliteStorage">
-<area shape="rect" id="node1" title="Tracker SQLite storage for events and session information." alt="" coords="95,80,276,107"/>
-<area shape="rect" id="node2" href="$structsnowplow_1_1_event_store.html" title="Storage interface used by the Emitter to store and access events." alt="" coords="5,5,171,32"/>
-<area shape="rect" id="node3" href="$structsnowplow_1_1_session_store.html" title="Storage interface used by the ClientSession to store and access sessions." alt="" coords="195,5,373,32"/>
-</map>
