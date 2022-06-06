@@ -11,7 +11,7 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "../src/utils.hpp"
+#include "../include/snowplow/detail/utils/utils.hpp"
 #include "catch.hpp"
 #include <algorithm>
 #include <regex>
@@ -85,6 +85,10 @@ TEST_CASE("utils") {
 
   SECTION("get_unix_epoch_ms should return the time since epoch in milliseconds") {
     REQUIRE(13 == std::to_string(Utils::get_unix_epoch_ms()).length());
+  }
+
+  SECTION("get_unix_epoch_ms_as_datetime_string should return the ISO formatted datetime") {
+    REQUIRE("2022-05-20T10:28:55.123Z" == Utils::get_unix_epoch_ms_as_datetime_string(1653042535123));
   }
 
   SECTION("get_device_context should populate OS specific information correctly") {
