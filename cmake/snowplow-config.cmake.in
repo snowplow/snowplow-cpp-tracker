@@ -1,0 +1,19 @@
+include(CMakeFindDependencyMacro)
+
+find_dependency(nlohmann_json @nlohmann_json_VERSION@ EXACT REQUIRED)
+
+if(NOT "@BUILD_SHARED_LIBS@")
+    find_dependency(SQLite3)
+    find_dependency(Threads)
+
+    if(@SNOWPLOW_NEEDS_LIBUUID@)
+        list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
+        find_dependency(LibUUID)
+    endif()
+
+    if(@SNOWPLOW_NEEDS_CURL@)
+        find_dependency(CURL)
+    endif()
+endif()
+
+include(${CMAKE_CURRENT_LIST_DIR}/snowplow-targets.cmake)

@@ -16,14 +16,15 @@ The tracker supports macOS, Windows, and Linux.
 
 ### Installation
 
-There are two ways to install the tracker in your app:
+There are three ways to install the tracker in your app:
 
-1. By including the project using cmake.
-2. By copying source files inside the `include` folder into your codebase.
+1. By adding the project into your `CMakeLists.txt` as a subdirectory.
+2. By installing the project and importing it into your app using CMake's `find_package` command.
+3. By copying source files inside the `include` folder into your codebase.
 
-#### Using cmake
+#### As a subdirectory in your CMake project
 
-Cmake version 3.14 or greater is required. You may add the library to your project target (`your-target`) using `FetchContent` like so:
+CMake version 3.15 or greater is required. You may add the library to your project target (`your-target`) using `FetchContent` like so:
 
 ```cmake
 include(FetchContent)
@@ -35,6 +36,29 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(snowplow)
 target_link_libraries(your-target snowplow)
 ```
+
+#### As an imported target in your CMake project
+
+First, build and install the project. Make sure the project uses the external JSON and SQLite3 libraries (`SNOWPLOW_USE_EXTERNAL_JSON=ON` and `SNOWPLOW_USE_EXTERNAL_SQLITE=ON`). Use `BUILD_SHARED_LIBS=OFF` to build a static library. If you have `SQLite3`, `CURL`, `LibUUID` available as system libraries but you need to use different packages (e.g. from Conan) you need to set `CMAKE_FIND_PACKAGE_PREFER_CONFIG=ON` to prevent linking to the system libraries.
+
+```cmake
+cmake [...] -DCMAKE_INSTALL_PREFIX=[...]
+    -DSNOWPLOW_USE_EXTERNAL_JSON=ON -DSNOWPLOW_USE_EXTERNAL_SQLITE=ON \
+    -DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON \
+    -DSNOWPLOW_BUILD_TESTS=0 -DSNOWPLOW_BUILD_EXAMPLE=0 -DSNOWPLOW_BUILD_PERFORMANCE=0
+```
+
+When you're building a shared library you need to use an external JSON library. For a static library you need both JSON and SQLite3 to be external.
+
+After building and installing the project you can use `find_package` to import it into your `CMakeLists.txt`:
+
+```cmake
+find_package(snowplow REQUIRED CONFIG)
+...
+target_link_libraries(your-target snowplow::snowplow)
+```
+
+Make sure your project finds the same dependencies what was visible for Snowplow when you were building and installing it. For example, if you have a both a system and local SQlite3 installation and `CMAKE_FIND_PACKAGE_PREFER_CONFIG` was `ON` for Snowplow but `OFF` for your project, Snowplow will be built with the local SQLite3 while the `find_package(snowplow)` in your project will find the system one.
 
 #### Copying files to your project
 

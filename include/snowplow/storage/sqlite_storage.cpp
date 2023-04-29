@@ -15,6 +15,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include <iostream>
 #include "../detail/utils/utils.hpp"
+#include "../thirdparty/sqlite3.hpp"
 
 using namespace snowplow;
 using std::cerr;
