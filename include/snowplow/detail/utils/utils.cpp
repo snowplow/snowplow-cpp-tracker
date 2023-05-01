@@ -177,6 +177,7 @@ string Utils::get_os_version() {
   OSVERSIONINFOEX osviex;
   ::ZeroMemory(&osviex, sizeof(OSVERSIONINFOEX));
   osviex.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+  #pragma warning(suppress: 4996) // 'GetVersionExW': was declared deprecated
   ::GetVersionEx((LPOSVERSIONINFO)&osviex);
   return to_string(osviex.dwMajorVersion) + "." + to_string(osviex.dwMinorVersion) + "." + to_string(osviex.dwBuildNumber);
 }
@@ -185,6 +186,7 @@ string Utils::get_os_service_pack() {
   OSVERSIONINFOEX osviex;
   ::ZeroMemory(&osviex, sizeof(OSVERSIONINFOEX));
   osviex.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+  #pragma warning(suppress: 4996) // 'GetVersionExW': was declared deprecated
   ::GetVersionEx((LPOSVERSIONINFO)&osviex);
   return to_string(osviex.wServicePackMajor) + "." + to_string(osviex.wServicePackMinor);
 }
