@@ -50,14 +50,14 @@ unique_ptr<HttpClient> createDefaultHttpClient(const string &curl_cookie_file) {
 
 Emitter::Emitter(NetworkConfiguration &network_config, const EmitterConfiguration &emitter_config) :
   Emitter(
-    move(emitter_config.get_event_store()),
+    emitter_config.get_event_store(),
     network_config.get_collector_hostname(),
     network_config.get_method(),
     network_config.get_protocol(),
     emitter_config.get_batch_size(),
     emitter_config.get_byte_limit_post(),
     emitter_config.get_byte_limit_get(),
-    move(network_config.move_http_client()),
+    network_config.move_http_client(),
     network_config.get_curl_cookie_file()
   ) {
   m_callback = emitter_config.get_request_callback();
@@ -223,7 +223,7 @@ void Emitter::do_send(const list<EventRow> &event_rows, list<HttpRequestResult> 
     int total_byte_size = 0;
 
     for (auto const &row : event_rows) {
-      unsigned int byte_size = Utils::serialize_payload(row.event).size() + post_stm_bytes;
+      unsigned int byte_size = unsigned(Utils::serialize_payload(row.event).size() + post_stm_bytes);
 
       if ((byte_size + post_wrapper_bytes) > this->m_byte_limit_post) {
         // A single payload has exceeded the Byte Limit
