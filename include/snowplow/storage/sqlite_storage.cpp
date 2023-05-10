@@ -115,7 +115,7 @@ void SqliteStorage::add_event(const Payload &payload) {
 
   string payload_str = Utils::serialize_payload(payload);
 
-  rc = sqlite3_bind_text(this->m_add_stmt, 1, payload_str.c_str(), payload_str.length(), SQLITE_STATIC);
+  rc = sqlite3_bind_text(this->m_add_stmt, 1, payload_str.c_str(), int(payload_str.length()), SQLITE_STATIC);
   if (rc != SQLITE_OK) {
     cerr << "ERROR: Failed to bind payload to statement: " << rc << endl;
     return;
@@ -158,7 +158,7 @@ void SqliteStorage::set_session(const json &session_data) {
   }
 
   string session_data_str = session_data.dump();
-  rc = sqlite3_bind_text(insert_stmt, 2, session_data_str.c_str(), session_data_str.length(), SQLITE_STATIC);
+  rc = sqlite3_bind_text(insert_stmt, 2, session_data_str.c_str(), int(session_data_str.length()), SQLITE_STATIC);
   if (rc != SQLITE_OK) {
     cerr << "ERROR: Failed to bind data to statement: " << rc << endl;
     return;

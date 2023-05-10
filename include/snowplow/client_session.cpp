@@ -25,7 +25,7 @@ using std::move;
 
 ClientSession::ClientSession(const SessionConfiguration &session_config) :
   ClientSession(
-    move(session_config.get_session_store()),
+    session_config.get_session_store(),
     session_config.get_foreground_timeout(),
     session_config.get_background_timeout()
   ) {
@@ -85,7 +85,7 @@ SelfDescribingJson ClientSession::update_and_get_session_context(const string &e
     session_context_data = this->m_session_context_data;
 
     m_event_index++;
-    event_index = m_event_index;
+    event_index = int(m_event_index);
   }
 
   if (save_to_storage) {

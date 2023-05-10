@@ -76,7 +76,7 @@ string Utils::get_uuid4() {
 string Utils::int_list_to_string(const list<int> &int_list, const string &delimiter) {
   stringstream s;
   int i = 0;
-  int length = int_list.size();
+  int length = int(int_list.size());
 
   for (auto const &value : int_list) {
     s << value;
@@ -94,7 +94,7 @@ string Utils::map_to_query_string(map<string, string> m) {
   int i;
   map<string, string>::iterator it;
 
-  int length = m.size();
+  int length = int(m.size());
   for (i = 0, it = m.begin(); it != m.end(); ++it, ++i) {
     s << Utils::url_encode(it->first) << "=" << Utils::url_encode(it->second);
     if (i < length - 1) {
@@ -177,6 +177,7 @@ string Utils::get_os_version() {
   OSVERSIONINFOEX osviex;
   ::ZeroMemory(&osviex, sizeof(OSVERSIONINFOEX));
   osviex.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+  #pragma warning(suppress: 4996) // 'GetVersionExW': was declared deprecated
   ::GetVersionEx((LPOSVERSIONINFO)&osviex);
   return to_string(osviex.dwMajorVersion) + "." + to_string(osviex.dwMinorVersion) + "." + to_string(osviex.dwBuildNumber);
 }
@@ -185,6 +186,7 @@ string Utils::get_os_service_pack() {
   OSVERSIONINFOEX osviex;
   ::ZeroMemory(&osviex, sizeof(OSVERSIONINFOEX));
   osviex.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+  #pragma warning(suppress: 4996) // 'GetVersionExW': was declared deprecated
   ::GetVersionEx((LPOSVERSIONINFO)&osviex);
   return to_string(osviex.wServicePackMajor) + "." + to_string(osviex.wServicePackMinor);
 }

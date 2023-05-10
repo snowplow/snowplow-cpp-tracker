@@ -81,7 +81,7 @@ HttpRequestResult HttpClientCurl::http_request(const RequestMethod method, Crack
   curl_easy_cleanup(curl);
   curl_slist_free_all(headers);
 
-  return HttpRequestResult(0, status_code, row_ids, oversize);
+  return HttpRequestResult(0, int(status_code), row_ids, oversize);
 }
 
 #endif

@@ -51,7 +51,7 @@ int snowplow::make_request(bool is_post, const string &url, const string &post_d
 
     dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
 
-    return [httpResponse statusCode];
+    return int([httpResponse statusCode]);
 }
 
 #endif

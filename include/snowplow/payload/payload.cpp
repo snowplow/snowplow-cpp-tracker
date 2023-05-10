@@ -41,7 +41,7 @@ void Payload::add_payload(const Payload &p) {
 void Payload::add_json(const json &j, bool base64Encode, const string &encoded, const string &not_encoded) {
   if (base64Encode) {
     string json_str = j.dump();
-    this->add(encoded, base64_encode((const unsigned char *)json_str.c_str(), json_str.length()));
+    this->add(encoded, base64_encode((const unsigned char *)json_str.c_str(), unsigned(json_str.length())));
   } else {
     this->add(not_encoded, j.dump());
   }
