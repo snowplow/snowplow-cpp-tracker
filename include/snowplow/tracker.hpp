@@ -22,11 +22,12 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "events/event.hpp"
 #include "configuration/tracker_configuration.hpp"
 
+namespace snowplow {
+
 using std::string;
 using std::map;
 using std::shared_ptr;
 
-namespace snowplow {
 /**
  * @brief Instance of the Snowplow tracker that provides an interface to track Snowplow events.
  * 

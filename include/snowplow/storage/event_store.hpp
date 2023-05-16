@@ -17,9 +17,10 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "event_row.hpp"
 #include <list>
 
+namespace snowplow {
+
 using std::list;
 
-namespace snowplow {
 /**
  * @brief Storage interface used by the Emitter to store and access events.
  *

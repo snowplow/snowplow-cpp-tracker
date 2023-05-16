@@ -19,10 +19,11 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include <string>
 
+namespace snowplow {
+
 using std::string;
 using std::list;
 
-namespace snowplow {
 /**
  * @brief HTTP client for making requests to Snowplow Collector using Apple Core Foundation APIs.
  * 

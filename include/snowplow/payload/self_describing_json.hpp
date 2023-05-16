@@ -18,10 +18,11 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../constants.hpp"
 #include "../thirdparty/json.hpp"
 
+namespace snowplow {
+
 using std::string;
 using json = nlohmann::json;
 
-namespace snowplow {
 /**
  * @brief Self-describing JSON object used for defining self-describing events or custom context entities.
  */

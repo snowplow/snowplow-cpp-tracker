@@ -58,11 +58,12 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <map>
 #include <mutex>
 
+namespace snowplow {
+
 using std::shared_ptr;
 using std::map;
 using std::mutex;
 
-namespace snowplow {
 /**
  * @brief Static entry point to instance a new Snowplow tracker or manage existing trackers.
  * 

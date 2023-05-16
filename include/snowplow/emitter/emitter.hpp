@@ -34,6 +34,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "retry_delay.hpp"
 #include "../http/http_enums.hpp"
 
+namespace snowplow {
+
 using std::string;
 using std::thread;
 using std::condition_variable;
@@ -41,8 +43,6 @@ using std::mutex;
 using std::unique_ptr;
 using std::list;
 using std::shared_ptr;
-
-namespace snowplow {
 
 /**
  * @brief Emitter is responsible for sending events to a Snowplow Collector.

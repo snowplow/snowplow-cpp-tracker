@@ -32,6 +32,7 @@ using std::vector;
 using std::chrono::duration;
 using std::chrono::high_resolution_clock;
 using std::make_shared;
+using std::thread;
 
 void clear_storage(shared_ptr<SqliteStorage> &db_name);
 

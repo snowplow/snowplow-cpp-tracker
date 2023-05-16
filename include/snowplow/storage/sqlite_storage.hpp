@@ -22,12 +22,13 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../thirdparty/json.hpp"
 #include "../thirdparty/sqlite3.hpp"
 
+namespace snowplow {
+
 using std::mutex;
 using std::string;
 using std::list;
 using json = nlohmann::json;
 
-namespace snowplow {
 /**
  * @brief Tracker SQLite storage for events and session information.
  *

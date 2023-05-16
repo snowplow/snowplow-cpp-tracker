@@ -18,10 +18,11 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../cracked_url.hpp"
 #include "http_request_result.hpp"
 
+namespace snowplow {
+
 using std::string;
 using std::list;
 
-namespace snowplow {
 /**
  * @brief Abstract base class for HTTP client for making requests to Snowplow Collector. It is used by Emitter.
  */

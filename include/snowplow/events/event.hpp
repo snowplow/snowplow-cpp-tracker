@@ -20,11 +20,12 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <string>
 #include <vector>
 
+namespace snowplow {
+
 using std::string;
 using std::vector;
 using std::shared_ptr;
 
-namespace snowplow {
 /**
  * @brief Base class for all event types that concrete event types inherit from.
  */

@@ -19,12 +19,12 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../emitter/emit_status.hpp"
 #include "../storage/sqlite_storage.hpp"
 
+namespace snowplow {
+
 using std::shared_ptr;
 using std::string;
 using std::move;
 using std::make_shared;
-
-namespace snowplow {
 
 typedef std::function<void(list<string>, EmitStatus)> EmitterCallback;
 

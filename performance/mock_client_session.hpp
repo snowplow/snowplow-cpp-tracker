@@ -19,6 +19,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 using snowplow::ClientSession;
 using snowplow::SelfDescribingJson;
 using snowplow::SessionStore;
+using nlohmann::json;
 using std::string;
 using std::shared_ptr;
 using std::move;

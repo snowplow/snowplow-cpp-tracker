@@ -20,11 +20,12 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../emitter/emit_status.hpp"
 #include "../constants.hpp"
 
+namespace snowplow {
+
 using std::shared_ptr;
 using std::string;
 using std::move;
 
-namespace snowplow {
 /**
  * @brief Configuration object containing settings used to initialize client session tracking.
  * 

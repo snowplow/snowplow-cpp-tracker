@@ -18,10 +18,11 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <list>
 #include <map>
 
+namespace snowplow {
+
 using std::list;
 using std::map;
 
-namespace snowplow {
 /**
  * @brief Response from HTTP requests to collector. To be used internally within tracker only.
  */

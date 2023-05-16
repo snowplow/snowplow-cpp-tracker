@@ -19,11 +19,12 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../http/http_enums.hpp"
 #include "../http/http_client.hpp"
 
+namespace snowplow {
+
 using std::shared_ptr;
 using std::unique_ptr;
 using std::string;
 
-namespace snowplow {
 /**
  * @brief Configuration object containing Snowplow collector settings used to initialize an emitter.
  */
