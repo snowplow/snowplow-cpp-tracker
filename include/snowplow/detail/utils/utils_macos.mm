@@ -17,7 +17,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 @implementation UtilsMacOS
 
-string snowplow::get_os_version_objc() {
+std::string snowplow::get_os_version_objc() {
     return ([[UtilsMacOS getOSVersion] UTF8String]);
 }
 

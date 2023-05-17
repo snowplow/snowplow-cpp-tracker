@@ -34,25 +34,25 @@ shared_ptr<Tracker> Snowplow::create_tracker(const string &name_space, const str
   return create_tracker(
       TrackerConfiguration(name_space),
       network_config,
-      EmitterConfiguration(move(event_store)),
-      move(subject));
+      EmitterConfiguration(std::move(event_store)),
+      std::move(subject));
 }
 
 shared_ptr<Tracker> Snowplow::create_tracker(const string &name_space, const string &collector_url, Method method, shared_ptr<EventStore> event_store, shared_ptr<SessionStore> session_store, shared_ptr<Subject> subject) {
   NetworkConfiguration network_config(collector_url, method);
-  SessionConfiguration session_config(move(session_store));
-  EmitterConfiguration emitter_config(move(event_store));
+  SessionConfiguration session_config(std::move(session_store));
+  EmitterConfiguration emitter_config(std::move(event_store));
   return create_tracker(
       TrackerConfiguration(name_space),
       network_config,
       emitter_config,
       session_config,
-      move(subject));
+      std::move(subject));
 }
 
 shared_ptr<Tracker> Snowplow::create_tracker(const TrackerConfiguration &tracker_config, NetworkConfiguration &network_config, const EmitterConfiguration &emitter_config, shared_ptr<Subject> subject) {
   auto emitter = make_shared<Emitter>(network_config, emitter_config);
-  auto tracker = make_shared<Tracker>(tracker_config, move(emitter), move(subject));
+  auto tracker = make_shared<Tracker>(tracker_config, std::move(emitter), std::move(subject));
   register_tracker(tracker);
   return tracker;
 }
@@ -65,7 +65,7 @@ shared_ptr<Tracker> Snowplow::create_tracker(const TrackerConfiguration &tracker
   }
   auto emitter = make_shared<Emitter>(network_config, emitter_config);
   auto client_session = make_shared<ClientSession>(session_config);
-  auto tracker = make_shared<Tracker>(tracker_config, move(emitter), move(subject), move(client_session));
+  auto tracker = make_shared<Tracker>(tracker_config, std::move(emitter), std::move(subject), std::move(client_session));
   register_tracker(tracker);
   return tracker;
 }

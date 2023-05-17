@@ -15,11 +15,10 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../storage/sqlite_storage.hpp"
 
 using namespace snowplow;
-using std::move;
 using std::make_shared;
 
 SessionConfiguration::SessionConfiguration(shared_ptr<SessionStore> session_store, unsigned long long foreground_timeout, unsigned long long background_timeout) {
-  m_session_store = move(session_store);
+  m_session_store = std::move(session_store);
   m_db_name = "";
   m_foreground_timeout = foreground_timeout;
   m_background_timeout = background_timeout;

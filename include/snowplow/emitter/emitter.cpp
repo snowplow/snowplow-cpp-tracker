@@ -24,7 +24,6 @@ using std::async;
 using std::to_string;
 using std::transform;
 using std::equal;
-using std::move;
 using std::future;
 using std::this_thread::sleep_for;
 
@@ -91,9 +90,9 @@ Emitter::Emitter(shared_ptr<EventStore> event_store, const string &uri, Method m
   this->m_batch_size = batch_size;
   this->m_byte_limit_post = byte_limit_post;
   this->m_byte_limit_get = byte_limit_get;
-  this->m_event_store = move(event_store);
+  this->m_event_store = std::move(event_store);
   if (http_client) {
-    this->m_http_client = move(http_client);
+    this->m_http_client = std::move(http_client);
   } else {
     this->m_http_client = createDefaultHttpClient(curl_cookie_file);
   }

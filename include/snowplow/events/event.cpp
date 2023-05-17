@@ -17,7 +17,6 @@ See the Apache License Version 2.0 for the specific language governing permissio
 using namespace snowplow;
 using std::to_string;
 using std::invalid_argument;
-using std::move;
 
 Event::Event() {
   this->m_true_timestamp = NULL;
@@ -73,5 +72,5 @@ void Event::set_context(const vector<SelfDescribingJson> &context) {
 }
 
 void Event::set_subject(shared_ptr<Subject> subject) {
-  m_subject = move(subject);
+  m_subject = std::move(subject);
 }
