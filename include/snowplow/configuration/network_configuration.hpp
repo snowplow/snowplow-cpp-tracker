@@ -70,7 +70,7 @@ public:
    * 
    * @param http_client Unique pointer to a custom HTTP client to send GET and POST requests with.
    */
-  void set_http_client(unique_ptr<HttpClient> http_client) { m_http_client = move(http_client); }
+  void set_http_client(unique_ptr<HttpClient> http_client) { m_http_client = std::move(http_client); }
 
 private:
   /**
@@ -78,7 +78,7 @@ private:
    * 
    * @return unique_ptr<HttpClient> Unique pointer to the HTTP client.
    */
-  unique_ptr<HttpClient> move_http_client() { return m_http_client ? move(m_http_client) : nullptr; }
+  unique_ptr<HttpClient> move_http_client() { return m_http_client ? std::move(m_http_client) : nullptr; }
 
   string m_collector_hostname;
   string m_curl_cookie_file;

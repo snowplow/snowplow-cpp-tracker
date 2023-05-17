@@ -23,7 +23,6 @@ namespace snowplow {
 
 using std::shared_ptr;
 using std::string;
-using std::move;
 using std::make_shared;
 
 typedef std::function<void(list<string>, EmitStatus)> EmitterCallback;

@@ -24,7 +24,6 @@ namespace snowplow {
 
 using std::shared_ptr;
 using std::string;
-using std::move;
 
 /**
  * @brief Configuration object containing settings used to initialize client session tracking.
@@ -85,7 +84,7 @@ public:
    * 
    * @param session_store Defines the database to use for session storage
    */
-  void set_session_store(shared_ptr<SessionStore> session_store) { m_session_store = move(session_store); }
+  void set_session_store(shared_ptr<SessionStore> session_store) { m_session_store = std::move(session_store); }
 
 private:
   unsigned long long m_foreground_timeout;
