@@ -16,9 +16,10 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include <chrono>
 
+namespace snowplow {
+
 using std::chrono::milliseconds;
 
-namespace snowplow {
 /**
  * @brief Calculates exponential retry delay for Emitter based on the number of retry attempts.
  */

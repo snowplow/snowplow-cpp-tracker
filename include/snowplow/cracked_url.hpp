@@ -18,9 +18,10 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <sstream>
 #include <regex>
 
+namespace snowplow {
+
 using std::string;
 
-namespace snowplow {
 /**
  * @brief Parser for collector URLs. To be used internally within tracker only.
  */

@@ -19,10 +19,11 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <map>
 #include <string>
 
+namespace snowplow {
+
 using std::map;
 using std::string;
 
-namespace snowplow {
 /**
  * @brief Defines additional information about your application's environment, current user and so on, to be sent to with each tracked event.
  */

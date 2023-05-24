@@ -43,11 +43,12 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #endif
 
+namespace snowplow {
+
 using std::list;
 using std::string;
 using json = nlohmann::json;
 
-namespace snowplow {
 /**
  * @brief Tracker internal utility functions.
  */

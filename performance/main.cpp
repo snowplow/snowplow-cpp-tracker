@@ -20,6 +20,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 using snowplow::SelfDescribingJson;
 using snowplow::SNOWPLOW_TRACKER_VERSION_LABEL;
 using snowplow::Utils;
+using nlohmann::json;
 using std::cout;
 using std::endl;
 using std::ofstream;

@@ -18,9 +18,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include <string>
 
-using std::string;
-
 namespace snowplow {
+using std::string;
 int make_request(bool is_post, const string &url, const string &post_data);
 }
 

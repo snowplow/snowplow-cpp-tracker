@@ -17,10 +17,11 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <string>
 #include <set>
 
+namespace snowplow {
+
 using std::string;
 using std::set;
 
-namespace snowplow {
 const string SNOWPLOW_TRACKER_VERSION_LABEL = "cpp-1.0.0";
 
 // post requests

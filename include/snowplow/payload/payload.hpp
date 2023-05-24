@@ -19,11 +19,12 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <map>
 #include <string>
 
+namespace snowplow {
+
 using std::map;
 using std::string;
 using json = nlohmann::json;
 
-namespace snowplow {
 /**
  * @brief Snowplow event payload with event properties.
  */

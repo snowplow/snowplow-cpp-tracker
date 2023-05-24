@@ -17,11 +17,12 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../thirdparty/json.hpp"
 #include <list>
 
+namespace snowplow {
+
 using std::list;
 using std::unique_ptr;
 using json = nlohmann::json;
 
-namespace snowplow {
 /**
  * @brief Storage interface used by the ClientSession to store and access sessions.
  *

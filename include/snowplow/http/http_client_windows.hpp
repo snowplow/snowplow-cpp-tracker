@@ -24,10 +24,11 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #pragma comment (lib, "wininet.lib")
 
+namespace snowplow {
+
 using std::string;
 using std::list;
 
-namespace snowplow {
 /**
  * @brief HTTP client for making requests to Snowplow Collector using Windows APIs.
  * 
