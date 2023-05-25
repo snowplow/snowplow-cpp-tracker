@@ -11,7 +11,7 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#if !defined(WIN32) && !defined(_WIN32) && !defined(__WIN32) || defined(__CYGWIN__)
+#if !defined(__APPLE__) && !defined(WIN32) && !defined(_WIN32) && !defined(__WIN32) || defined(__CYGWIN__)
 #include "http_client_curl.hpp"
 #include "../constants.hpp"
 #include <curl/curl.h>
