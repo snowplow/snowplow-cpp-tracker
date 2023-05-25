@@ -167,16 +167,8 @@ To compare with historical performance measurements (logged in the `performance/
 
 ### Building on Windows
 
- ```git clone https://github.com/snowplow/snowplow-cpp-tracker```
-
-In the cloned directory two [Visual Studio 2015](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx) project files are available:
-
-* `snowplow-cpp-tracker.sln`
-    This is required to compile the tracker and run the tests (you'll need this one to edit the tracker itself)
-* `snowplow-cpp-tracker-example.sln`
-    This is a demo project showing use of this tracker
-
-To run the tests under windows, you need to open the `snowplow-cpp-tracker.sln` solution, build it for your target platform *and run the resulting executable*.
+Use the [CMake build tool](https://cmake.org/runningcmake/) to configure and generate the Visual Studio project files.
+Build and run the project using the Visual Studio IDE.
 
 ## Copyright and license
 
