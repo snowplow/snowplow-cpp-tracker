@@ -18,6 +18,10 @@ option(SNOWPLOW_BUILD_PERFORMANCE "Build performance testing program" OFF)
 option(SNOWPLOW_USE_EXTERNAL_JSON "Use an external JSON library" OFF)
 option(SNOWPLOW_USE_EXTERNAL_SQLITE "Use an external SQLite library" OFF)
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED YES)
+set(CMAKE_CXX_EXTENSIONS NO)
+
 SET(SNOWPLOW_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/snowplow/detail/base64/base64.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/snowplow/client_session.cpp
@@ -52,15 +56,13 @@ IF (APPLE)
 ENDIF()
 
 add_library(snowplow ${SNOWPLOW_SOURCES})
+add_library(snowplow::snowplow ALIAS snowplow)
 
 target_include_directories(snowplow
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
            $<INSTALL_INTERFACE:include>)
 
 set_target_properties(snowplow PROPERTIES
-    CXX_STANDARD 11
-    CXX_STANDARD_REQUIRED YES
-    CXX_EXTENSIONS NO
     VERSION ${SNOWPLOW_TRACKER_VERSION})
 
 # add nlohmann/json library
@@ -188,21 +190,10 @@ if(SNOWPLOW_BUILD_TESTS)
     endif ()
 
     target_link_libraries(snowplow-tests snowplow)
-    set_target_properties(snowplow-tests PROPERTIES
-        CXX_STANDARD 11
-        CXX_STANDARD_REQUIRED YES
-        CXX_EXTENSIONS NO)
 endif()
 
 if(SNOWPLOW_BUILD_EXAMPLE)
-    add_executable(snowplow-example
-        ${CMAKE_CURRENT_SOURCE_DIR}/examples/main.cpp)
-
-    target_link_libraries(snowplow-example snowplow)
-    set_target_properties(snowplow-example PROPERTIES
-        CXX_STANDARD 11
-        CXX_STANDARD_REQUIRED YES
-        CXX_EXTENSIONS NO)
+    add_subdirectory(examples)
 endif()
 
 if(SNOWPLOW_BUILD_PERFORMANCE)
@@ -211,8 +202,4 @@ if(SNOWPLOW_BUILD_PERFORMANCE)
         ${CMAKE_CURRENT_SOURCE_DIR}/performance/run.cpp)
 
     target_link_libraries(snowplow-performance snowplow)
-    set_target_properties(snowplow-performance PROPERTIES
-        CXX_STANDARD 11
-        CXX_STANDARD_REQUIRED YES
-        CXX_EXTENSIONS NO)
 endif()
