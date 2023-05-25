@@ -130,7 +130,7 @@ This will create two executables - the first is the test suite. To run the test 
 The other is an example program which will send one of every type of event to an endpoint of your choosing like so:
 
 ```bash
- host> ./snowplow-example {{ your collector uri }}
+ host> ./examples/snowplow-example {{ your collector uri }}
 ```
 
 If you make changes only to a header file there is a chance it won't be picked up by make in which case you will need to:
