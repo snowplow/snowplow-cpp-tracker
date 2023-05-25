@@ -182,6 +182,8 @@ if(SNOWPLOW_BUILD_TESTS)
         ${CMAKE_CURRENT_SOURCE_DIR}/test/snowplow_test.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/integration/integration_test.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/integration/micro.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/configuration/network_configuration_test.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/configuration/emitter_configuration_test.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/utils_test.cpp)
 
     if (NOT WIN32)
