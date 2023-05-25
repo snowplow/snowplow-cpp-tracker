@@ -2,7 +2,7 @@
 
 Snowplow has been built to enable you to track a wide range of events that occur when users interact with your apps.
 
-We provide several built-in event classes to help you track different kinds of events. When instantiated, their objects can be passed to the `tracker.track()` methods to send events to the Snowplow collector. The event classes range from single purpose ones, such as `ScreenViewEvent`, to the more complex but flexible `SelfDescribingEvent`, which can be used to track any kind of user behaviour. We strongly recommend using `SelfDescribingEvent` for your tracking, as it allows you to design custom event types to match your business requirements. [This post](https://snowplowanalytics.com/blog/2020/01/24/re-thinking-the-structure-of-event-data/) on our blog, "Re-thinking the structure of event data" might be informative here.
+We provide several built-in event classes to help you track different kinds of events. When instantiated, their objects can be passed to the `tracker.track()` methods to send events to the Snowplow collector. The event classes range from single purpose ones, such as `ScreenViewEvent`, to the more complex but flexible `SelfDescribingEvent`, which can be used to track any kind of user behaviour. We strongly recommend using `SelfDescribingEvent` for your tracking, as it allows you to design custom event types to match your business requirements. [This post](https://snowplow.io/blog/2020/01/24/re-thinking-the-structure-of-event-data/) on our blog, "Re-thinking the structure of event data" might be informative here.
 
 The tracker provides the following event classes for tracking events out of the box:
 
@@ -13,7 +13,7 @@ The tracker provides the following event classes for tracking events out of the 
 | `ScreenViewEvent` | Tracks the user viewing a screen within the application |
 | `TimingEvent` | Tracks a timing event |
 
-Snowplow events are all processed into the same format, regardless of the event type (and regardless of the tracker language used). Read about the different properties and fields of events in the [Snowplow Tracker Protocol](https://docs.snowplowanalytics.com/docs/collecting-data/collecting-from-own-applications/snowplow-tracker-protocol/).
+Snowplow events are all processed into the same format, regardless of the event type (and regardless of the tracker language used). Read about the different properties and fields of events in the [Snowplow Tracker Protocol](https://docs.snowplow.io/docs/collecting-data/collecting-from-own-applications/snowplow-tracker-protocol/).
 
 ## Custom event context
 
@@ -80,11 +80,11 @@ Use the `SelfDescribingEvent` type to track a custom event which consists of a
 * You want to track event types which are proprietary/specific to your business (i.e. not already part of Snowplow), or
 * You want to track events which have unpredictable or frequently changing properties
 
-A self-describing JSON has two keys, `schema` and `data`. The `schema` value should point to a valid self-describing JSON schema. They are called self-describing because the schema will specify the fields allowed in the data value. Read more about how schemas are used with Snowplow [here](https://docs.snowplowanalytics.com/docs/understanding-tracking-design/understanding-schemas-and-validation/).
+A self-describing JSON has two keys, `schema` and `data`. The `schema` value should point to a valid self-describing JSON schema. They are called self-describing because the schema will specify the fields allowed in the data value. Read more about how schemas are used with Snowplow [here](https://docs.snowplow.io/docs/understanding-tracking-design/understanding-schemas-and-validation/).
 
 After events have been collected by the event collector, they are validated to ensure that the properties match the self-describing JSONs. Mistakes (e.g. extra fields, or incorrect types) will result in events being processed as Bad Events. This means that only high-quality, valid events arrive in your data storage or real-time stream.
 
-Your schemas must be accessible to your pipeline to allow this validation. We provide [Iglu](https://docs.snowplowanalytics.com/docs/pipeline-components-and-applications/iglu/) for schema management. If you are a paid Snowplow customer, you can manage your schemas through your console. Check out our [Ruby tracker Rails](https://github.com/snowplow-incubator/snowplow-ruby-tracker-examples) example to see how we included schemas in the Snowplow Micro testing pipeline in that app.
+Your schemas must be accessible to your pipeline to allow this validation. We provide [Iglu](https://docs.snowplow.io/docs/pipeline-components-and-applications/iglu/) for schema management. If you are a paid Snowplow customer, you can manage your schemas through your console. Check out our [Ruby tracker Rails](https://github.com/snowplow-incubator/snowplow-ruby-tracker-examples) example to see how we included schemas in the Snowplow Micro testing pipeline in that app.
 
 `SelfDescribingEvent` provides the following properties:
 
@@ -105,7 +105,7 @@ SelfDescribingEvent sde(sdj);
 Snowplow::get_default_tracker()->track(sde);
 ```
 
-For more on JSON schema, refer to [this page](https://docs.snowplowanalytics.com/docs/understanding-tracking-design/understanding-schemas-and-validation/).
+For more on JSON schema, refer to [this page](https://docs.snowplow.io/docs/understanding-tracking-design/understanding-schemas-and-validation/).
 
 ## Track screen views with "ScreenViewEvent"
 

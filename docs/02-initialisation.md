@@ -1,6 +1,6 @@
 # Initialisation
 
-Designing how and what to track in your app is an important decision. Check out our docs about tracking design [here](https://docs.snowplowanalytics.com/docs/understanding-tracking-design/introduction-to-tracking-design/).
+Designing how and what to track in your app is an important decision. Check out our docs about tracking design [here](https://docs.snowplow.io/docs/understanding-tracking-design/introduction-to-tracking-design/).
 
 ## Import the library
 
