@@ -1,8 +1,8 @@
-from conans import ConanFile
+from conan import ConanFile
 
 class LDDProDepsConan(ConanFile):
-  settings = "os", "compiler", "build_type", "arch", "arch_build"
-
+  settings = "os", "compiler", "build_type", "arch"
+  
   options = {"system_curl_uuid": [True, False]}
   default_options = {"system_curl_uuid": False}
 
