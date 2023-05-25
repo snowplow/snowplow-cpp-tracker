@@ -11,12 +11,21 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "../../src/configuration/network_configuration.hpp"
+#include "../../include/snowplow/configuration/network_configuration.hpp"
 #include "../catch.hpp"
 
 using namespace snowplow;
 
 TEST_CASE("network configuration") {
+  SECTION("throws an error for empty collector URL") {
+    bool error = false;
+
+    try { NetworkConfiguration(""); }
+    catch (std::invalid_argument) { error = true; }
+
+    REQUIRE(error);
+  }
+
   SECTION("parses URL with http://") {
     NetworkConfiguration config("http://com.acme.collector", POST);
 

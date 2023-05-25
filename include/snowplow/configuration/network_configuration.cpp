@@ -19,6 +19,10 @@ using namespace snowplow;
 using std::transform;
 
 NetworkConfiguration::NetworkConfiguration(const string &collector_url, Method method, const string &curl_cookie_file) {
+  if (collector_url.empty()) {
+    throw std::invalid_argument("Empty collector URL");
+  }
+
   m_method = method;
   m_curl_cookie_file = curl_cookie_file;
 
