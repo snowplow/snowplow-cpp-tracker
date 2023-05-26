@@ -15,19 +15,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: install Doxygen 1.9.3
+      - name: install Doxygen
         run: |
           sudo apt-get update
-          sudo apt-get install -y graphviz libclang-cpp1-9 libclang1-9
-          wget https://www.doxygen.nl/files/doxygen-1.9.3.linux.bin.tar.gz
-          tar -xvzf doxygen-1.9.3.linux.bin.tar.gz
-          ln -s doxygen-1.9.3/bin/doxygen doxygen
+          sudo apt-get upgrade
+          sudo apt-get install -y doxygen
 
       - name: Set version
         run: echo "PROJECT_NUMBER = `git describe --tags`" >> Doxyfile
 
       - name: Generate Documentation
-        run: ./doxygen Doxyfile
+        run: doxygen Doxyfile
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
