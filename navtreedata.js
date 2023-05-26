@@ -29,61 +29,63 @@ var NAVTREE =
     [ "Setup", "md_docs_01_setup.html", [
       [ "Tracker compatibility", "md_docs_01_setup.html#autotoc_md2", null ],
       [ "Installing in your project", "md_docs_01_setup.html#autotoc_md3", [
-        [ "Using cmake", "md_docs_01_setup.html#autotoc_md4", null ],
-        [ "Copying files to your project", "md_docs_01_setup.html#autotoc_md5", null ],
-        [ "Additional requirements under Linux", "md_docs_01_setup.html#autotoc_md6", null ]
+        [ "As an imported target in your CMake project", "md_docs_01_setup.html#autotoc_md4", null ],
+        [ "As a subdirectory in your CMake project", "md_docs_01_setup.html#autotoc_md5", null ],
+        [ "Copying files to your project", "md_docs_01_setup.html#autotoc_md6", null ],
+        [ "Additional requirements under Linux", "md_docs_01_setup.html#autotoc_md7", null ]
       ] ]
     ] ],
     [ "Initialisation", "md_docs_02_initialisation.html", [
-      [ "Import the library", "md_docs_02_initialisation.html#autotoc_md8", null ],
-      [ "Option 1: Creating a tracker with default configuration using the \"Snowplow\" interface", "md_docs_02_initialisation.html#autotoc_md9", null ],
-      [ "Option 2: Creating a tracker with custom configuration using the \"Snowplow\" interface", "md_docs_02_initialisation.html#autotoc_md10", [
-        [ "Tracker configuration using \"TrackerConfiguration\"", "md_docs_02_initialisation.html#autotoc_md11", null ],
-        [ "Network configuration using \"NetworkConfiguration\"", "md_docs_02_initialisation.html#autotoc_md12", null ],
-        [ "Emitter configuration using \"EmitterConfiguration\"", "md_docs_02_initialisation.html#autotoc_md13", null ],
-        [ "Session configuration using \"SessionConfiguration\"", "md_docs_02_initialisation.html#autotoc_md14", null ]
+      [ "Import the library", "md_docs_02_initialisation.html#autotoc_md9", null ],
+      [ "Option 1: Creating a tracker with default configuration using the \"Snowplow\" interface", "md_docs_02_initialisation.html#autotoc_md10", null ],
+      [ "Option 2: Creating a tracker with custom configuration using the \"Snowplow\" interface", "md_docs_02_initialisation.html#autotoc_md11", [
+        [ "Tracker configuration using \"TrackerConfiguration\"", "md_docs_02_initialisation.html#autotoc_md12", null ],
+        [ "Network configuration using \"NetworkConfiguration\"", "md_docs_02_initialisation.html#autotoc_md13", null ],
+        [ "Emitter configuration using \"EmitterConfiguration\"", "md_docs_02_initialisation.html#autotoc_md14", null ],
+        [ "Session configuration using \"SessionConfiguration\"", "md_docs_02_initialisation.html#autotoc_md15", null ]
       ] ],
-      [ "Option 3: Managing \"Tracker\", \"Emitter\", and \"ClientSession\" directly", "md_docs_02_initialisation.html#autotoc_md15", [
-        [ "Storage", "md_docs_02_initialisation.html#autotoc_md16", null ],
-        [ "Emitter", "md_docs_02_initialisation.html#autotoc_md17", null ],
-        [ "Subject", "md_docs_02_initialisation.html#autotoc_md18", null ],
-        [ "Client session", "md_docs_02_initialisation.html#autotoc_md19", null ],
-        [ "Tracker", "md_docs_02_initialisation.html#autotoc_md20", null ]
+      [ "Option 3: Managing \"Tracker\", \"Emitter\", and \"ClientSession\" directly", "md_docs_02_initialisation.html#autotoc_md16", [
+        [ "Storage", "md_docs_02_initialisation.html#autotoc_md17", null ],
+        [ "Emitter", "md_docs_02_initialisation.html#autotoc_md18", null ],
+        [ "Subject", "md_docs_02_initialisation.html#autotoc_md19", null ],
+        [ "Client session", "md_docs_02_initialisation.html#autotoc_md20", null ],
+        [ "Tracker", "md_docs_02_initialisation.html#autotoc_md21", null ]
       ] ]
     ] ],
     [ "Adding extra data: the Subject class", "md_docs_03_adding_data.html", [
-      [ "Set user ID with \"set_user_id\"", "md_docs_03_adding_data.html#autotoc_md22", null ],
-      [ "Set screen resolution with \"set_screen_resolution\"", "md_docs_03_adding_data.html#autotoc_md23", null ],
-      [ "Set viewport dimensions with <tt>set_viewport</tt>[](#set-viewport-dimensions-with-set_viewport)", "md_docs_03_adding_data.html#autotoc_md24", null ],
-      [ "Set color depth with <tt>set_color_depth</tt>[](#set-color-depth-with-set_color_depth)", "md_docs_03_adding_data.html#autotoc_md25", null ],
-      [ "Set timezone with \"set_timezone\"", "md_docs_03_adding_data.html#autotoc_md26", null ],
-      [ "Set the language with <tt>set_language</tt>[](#set-the-language-with-set_language)", "md_docs_03_adding_data.html#autotoc_md27", null ],
-      [ "Set custom user-agent with \"set_useragent\"", "md_docs_03_adding_data.html#autotoc_md28", null ],
-      [ "Set user's IP address with \"set_ip_address\"", "md_docs_03_adding_data.html#autotoc_md29", null ]
+      [ "Set user ID with \"set_user_id\"", "md_docs_03_adding_data.html#autotoc_md23", null ],
+      [ "Set screen resolution with \"set_screen_resolution\"", "md_docs_03_adding_data.html#autotoc_md24", null ],
+      [ "Set viewport dimensions with <tt>set_viewport</tt>[](#set-viewport-dimensions-with-set_viewport)", "md_docs_03_adding_data.html#autotoc_md25", null ],
+      [ "Set color depth with <tt>set_color_depth</tt>[](#set-color-depth-with-set_color_depth)", "md_docs_03_adding_data.html#autotoc_md26", null ],
+      [ "Set timezone with \"set_timezone\"", "md_docs_03_adding_data.html#autotoc_md27", null ],
+      [ "Set the language with <tt>set_language</tt>[](#set-the-language-with-set_language)", "md_docs_03_adding_data.html#autotoc_md28", null ],
+      [ "Set custom user-agent with \"set_useragent\"", "md_docs_03_adding_data.html#autotoc_md29", null ],
+      [ "Set user's IP address with \"set_ip_address\"", "md_docs_03_adding_data.html#autotoc_md30", null ]
     ] ],
     [ "Tracking specific events", "md_docs_04_tracking_events.html", [
-      [ "Custom event context", "md_docs_04_tracking_events.html#autotoc_md31", null ],
-      [ "Optional true-timestamp argument", "md_docs_04_tracking_events.html#autotoc_md32", null ],
-      [ "Track SelfDescribing/Unstructured events with \"SelfDescribingEvent\"", "md_docs_04_tracking_events.html#autotoc_md33", null ],
-      [ "Track screen views with \"ScreenViewEvent\"", "md_docs_04_tracking_events.html#autotoc_md34", null ],
-      [ "Track structured events with <tt>StructuredEvent</tt>[](#track-structured-events-with-trackstructevent)", "md_docs_04_tracking_events.html#autotoc_md35", null ],
-      [ "Track timing events with \"TimingEvent\"", "md_docs_04_tracking_events.html#autotoc_md36", null ]
+      [ "Custom event context", "md_docs_04_tracking_events.html#autotoc_md32", null ],
+      [ "Optional true-timestamp argument", "md_docs_04_tracking_events.html#autotoc_md33", null ],
+      [ "Track SelfDescribing/Unstructured events with \"SelfDescribingEvent\"", "md_docs_04_tracking_events.html#autotoc_md34", null ],
+      [ "Track screen views with \"ScreenViewEvent\"", "md_docs_04_tracking_events.html#autotoc_md35", null ],
+      [ "Track structured events with <tt>StructuredEvent</tt>[](#track-structured-events-with-trackstructevent)", "md_docs_04_tracking_events.html#autotoc_md36", null ],
+      [ "Track timing events with \"TimingEvent\"", "md_docs_04_tracking_events.html#autotoc_md37", null ]
     ] ],
     [ "Emitters", "md_docs_05_emitters.html", [
-      [ "Event store", "md_docs_05_emitters.html#autotoc_md38", null ],
-      [ "Emitter request callback", "md_docs_05_emitters.html#autotoc_md39", null ],
-      [ "HTTP request retry behavior", "md_docs_05_emitters.html#autotoc_md40", null ],
-      [ "Request retry delay (back-off)", "md_docs_05_emitters.html#autotoc_md41", null ],
-      [ "Manual flushing", "md_docs_05_emitters.html#autotoc_md42", null ],
-      [ "Using a custom HTTP Client", "md_docs_05_emitters.html#autotoc_md43", null ]
+      [ "Event store", "md_docs_05_emitters.html#autotoc_md39", null ],
+      [ "Emitter request callback", "md_docs_05_emitters.html#autotoc_md40", null ],
+      [ "HTTP request retry behavior", "md_docs_05_emitters.html#autotoc_md41", null ],
+      [ "Request retry delay (back-off)", "md_docs_05_emitters.html#autotoc_md42", null ],
+      [ "Manual flushing", "md_docs_05_emitters.html#autotoc_md43", null ],
+      [ "Using a custom HTTP Client", "md_docs_05_emitters.html#autotoc_md44", null ]
     ] ],
     [ "Client Sessions", "md_docs_06_client_sessions.html", [
-      [ "Session store", "md_docs_06_client_sessions.html#autotoc_md45", null ]
+      [ "Session store", "md_docs_06_client_sessions.html#autotoc_md46", null ]
     ] ],
     [ "Upgrading to Newer Versions", "md_docs_07_upgrading.html", [
-      [ "Upgrading to v1.0.0", "md_docs_07_upgrading.html#autotoc_md47", null ],
-      [ "Upgrading to v0.3.0", "md_docs_07_upgrading.html#autotoc_md48", null ],
-      [ "Upgrading to v0.2.0", "md_docs_07_upgrading.html#autotoc_md49", null ]
+      [ "Upgrading to v2.0.0", "md_docs_07_upgrading.html#autotoc_md48", null ],
+      [ "Upgrading to v1.0.0", "md_docs_07_upgrading.html#autotoc_md49", null ],
+      [ "Upgrading to v0.3.0", "md_docs_07_upgrading.html#autotoc_md50", null ],
+      [ "Upgrading to v0.2.0", "md_docs_07_upgrading.html#autotoc_md51", null ]
     ] ]
   ] ]
 ];
