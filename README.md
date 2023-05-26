@@ -60,6 +60,8 @@ target_link_libraries(your-target snowplow::snowplow)
 
 Make sure your project finds the same dependencies what was visible for Snowplow when you were building and installing it. For example, if you have both system and local SQlite3 installations and `CMAKE_FIND_PACKAGE_PREFER_CONFIG` was `ON` for Snowplow but `OFF` for your project, Snowplow will be built with the local SQLite3 while during `find_package(snowplow)` in your project it will find the system one.
 
+See the [example app](examples/README.md) for instructions how to build and install the tracker using this option.
+
 #### Copying files to your project
 
 Download the most recent release from the [releases section](https://github.com/snowplow/snowplow-cpp-tracker/releases). Everything in the `include` folder will need to be included in your application.
