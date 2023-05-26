@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2023 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -51,7 +51,7 @@ int snowplow::make_request(bool is_post, const string &url, const string &post_d
 
     dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
 
-    return [httpResponse statusCode];
+    return int([httpResponse statusCode]);
 }
 
 #endif

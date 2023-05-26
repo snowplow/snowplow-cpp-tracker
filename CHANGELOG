@@ -1,3 +1,14 @@
+Version 2.0.0 (2023-05-26)
+--------------------------
+Add option to install the tracker as an imported target in a CMake project (close #85) (thanks to @tamaskenezlego)
+Qualify usages of std::move (#87) (thanks to @tamaskenezlego)
+Silence warnings during build (#84) (thanks to @tamaskenezlego)
+Check whether the collector URI is empty in network configuration (close #83)
+Update build instructions in README for Windows (close #88)
+Change documentation links for snowplowanalytics.com to snowplow.io
+Update year in copyright headers to 2023
+Update documentation for changes in v2
+
 Version 1.0.0 (2022-05-02)
 --------------------------
 Add a Snowplow interface with the ability to initialize and manage multiple trackers (#57)

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2023 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -41,7 +41,7 @@ void Payload::add_payload(const Payload &p) {
 void Payload::add_json(const json &j, bool base64Encode, const string &encoded, const string &not_encoded) {
   if (base64Encode) {
     string json_str = j.dump();
-    this->add(encoded, base64_encode((const unsigned char *)json_str.c_str(), json_str.length()));
+    this->add(encoded, base64_encode((const unsigned char *)json_str.c_str(), unsigned(json_str.length())));
   } else {
     this->add(not_encoded, j.dump());
   }

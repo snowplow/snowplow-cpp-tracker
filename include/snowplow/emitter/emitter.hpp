@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2023 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -34,6 +34,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "retry_delay.hpp"
 #include "../http/http_enums.hpp"
 
+namespace snowplow {
+
 using std::string;
 using std::thread;
 using std::condition_variable;
@@ -41,8 +43,6 @@ using std::mutex;
 using std::unique_ptr;
 using std::list;
 using std::shared_ptr;
-
-namespace snowplow {
 
 /**
  * @brief Emitter is responsible for sending events to a Snowplow Collector.

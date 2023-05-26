@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2023 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -32,6 +32,7 @@ using std::vector;
 using std::chrono::duration;
 using std::chrono::high_resolution_clock;
 using std::make_shared;
+using std::thread;
 
 void clear_storage(shared_ptr<SqliteStorage> &db_name);
 

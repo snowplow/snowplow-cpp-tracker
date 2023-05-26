@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2023 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -50,9 +50,9 @@ string Micro::request(const string &path) {
       NULL,
       0);
 
-  HINTERNET h_connect = InternetConnect(
+  HINTERNET h_connect = InternetConnectA(
       h_internet,
-      TEXT(SNOWPLOW_MICRO_HOSTNAME.c_str()),
+      SNOWPLOW_MICRO_HOSTNAME.c_str(),
       9090,
       NULL,
       NULL,
@@ -60,17 +60,17 @@ string Micro::request(const string &path) {
       0,
       NULL);
 
-  HINTERNET h_request = HttpOpenRequest(
+  HINTERNET h_request = HttpOpenRequestA(
       h_connect,
-      TEXT("GET"),
-      TEXT(path.c_str()),
+      "GET",
+      path.c_str(),
       NULL,
       NULL,
       NULL,
       0 | INTERNET_FLAG_RELOAD,
       0);
 
-  LPCSTR hdrs = TEXT("Content-Type: application/json; charset=utf-8");
+  LPCTSTR hdrs = TEXT("Content-Type: application/json; charset=utf-8");
   BOOL is_sent = HttpSendRequest(h_request, hdrs, strlen(hdrs), NULL, 0);
 
   string response;

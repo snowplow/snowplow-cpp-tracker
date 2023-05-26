@@ -2,7 +2,7 @@
 #include <string>
 #include <time.h>
 
-#include "../include/snowplow/snowplow.hpp"
+#include <snowplow/snowplow.hpp>
 
 using snowplow::NetworkConfiguration;
 using snowplow::EmitterConfiguration;
@@ -20,6 +20,7 @@ using std::cout;
 using std::endl;
 using std::string;
 using std::make_shared;
+using std::list;
 
 void usage(char *program_name) {
   cout << "Usage: " << program_name << " [COLLECTOR_URI]" << endl;

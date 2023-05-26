@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2023 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -16,9 +16,8 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../constants.hpp"
 
 using namespace snowplow;
-using std::move;
 
-EmitterConfiguration::EmitterConfiguration(shared_ptr<EventStore> event_store) : m_event_store(move(event_store)), m_db_name("") {
+EmitterConfiguration::EmitterConfiguration(shared_ptr<EventStore> event_store) : m_event_store(std::move(event_store)), m_db_name("") {
   if (!m_event_store) {
     throw std::invalid_argument("Invalid emitter event store");
   }

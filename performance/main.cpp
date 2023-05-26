@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2023 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -20,6 +20,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 using snowplow::SelfDescribingJson;
 using snowplow::SNOWPLOW_TRACKER_VERSION_LABEL;
 using snowplow::Utils;
+using nlohmann::json;
 using std::cout;
 using std::endl;
 using std::ofstream;

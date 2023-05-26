@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2023 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -20,11 +20,11 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../emitter/emit_status.hpp"
 #include "../constants.hpp"
 
+namespace snowplow {
+
 using std::shared_ptr;
 using std::string;
-using std::move;
 
-namespace snowplow {
 /**
  * @brief Configuration object containing settings used to initialize client session tracking.
  * 
@@ -84,7 +84,7 @@ public:
    * 
    * @param session_store Defines the database to use for session storage
    */
-  void set_session_store(shared_ptr<SessionStore> session_store) { m_session_store = move(session_store); }
+  void set_session_store(shared_ptr<SessionStore> session_store) { m_session_store = std::move(session_store); }
 
 private:
   unsigned long long m_foreground_timeout;

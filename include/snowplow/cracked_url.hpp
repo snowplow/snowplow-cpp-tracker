@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2023 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -18,9 +18,10 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <sstream>
 #include <regex>
 
+namespace snowplow {
+
 using std::string;
 
-namespace snowplow {
 /**
  * @brief Parser for collector URLs. To be used internally within tracker only.
  */

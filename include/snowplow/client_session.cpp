@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2023 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -21,18 +21,17 @@ using std::lock_guard;
 using std::unique_lock;
 using std::shared_ptr;
 using std::unique_ptr;
-using std::move;
 
 ClientSession::ClientSession(const SessionConfiguration &session_config) :
   ClientSession(
-    move(session_config.get_session_store()),
+    session_config.get_session_store(),
     session_config.get_foreground_timeout(),
     session_config.get_background_timeout()
   ) {
 }
 
 ClientSession::ClientSession(shared_ptr<SessionStore> session_store, unsigned long long foreground_timeout, unsigned long long background_timeout) {
-  this->m_session_store = move(session_store);
+  this->m_session_store = std::move(session_store);
   this->m_foreground_timeout = foreground_timeout;
   this->m_background_timeout = background_timeout;
 
@@ -85,7 +84,7 @@ SelfDescribingJson ClientSession::update_and_get_session_context(const string &e
     session_context_data = this->m_session_context_data;
 
     m_event_index++;
-    event_index = m_event_index;
+    event_index = int(m_event_index);
   }
 
   if (save_to_storage) {

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2023 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -17,11 +17,12 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include <string>
 #include <set>
 
+namespace snowplow {
+
 using std::string;
 using std::set;
 
-namespace snowplow {
-const string SNOWPLOW_TRACKER_VERSION_LABEL = "cpp-1.0.0";
+const string SNOWPLOW_TRACKER_VERSION_LABEL = "cpp-2.0.0";
 
 // post requests
 const string SNOWPLOW_POST_PROTOCOL_VENDOR = "com.snowplowanalytics.snowplow";

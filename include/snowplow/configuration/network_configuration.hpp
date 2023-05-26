@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2023 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -19,11 +19,12 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../http/http_enums.hpp"
 #include "../http/http_client.hpp"
 
+namespace snowplow {
+
 using std::shared_ptr;
 using std::unique_ptr;
 using std::string;
 
-namespace snowplow {
 /**
  * @brief Configuration object containing Snowplow collector settings used to initialize an emitter.
  */
@@ -69,7 +70,7 @@ public:
    * 
    * @param http_client Unique pointer to a custom HTTP client to send GET and POST requests with.
    */
-  void set_http_client(unique_ptr<HttpClient> http_client) { m_http_client = move(http_client); }
+  void set_http_client(unique_ptr<HttpClient> http_client) { m_http_client = std::move(http_client); }
 
 private:
   /**
@@ -77,7 +78,7 @@ private:
    * 
    * @return unique_ptr<HttpClient> Unique pointer to the HTTP client.
    */
-  unique_ptr<HttpClient> move_http_client() { return m_http_client ? move(m_http_client) : nullptr; }
+  unique_ptr<HttpClient> move_http_client() { return m_http_client ? std::move(m_http_client) : nullptr; }
 
   string m_collector_hostname;
   string m_curl_cookie_file;

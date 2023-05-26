@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2023 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -19,6 +19,10 @@ using namespace snowplow;
 using std::transform;
 
 NetworkConfiguration::NetworkConfiguration(const string &collector_url, Method method, const string &curl_cookie_file) {
+  if (collector_url.empty()) {
+    throw std::invalid_argument("Empty collector URL");
+  }
+
   m_method = method;
   m_curl_cookie_file = curl_cookie_file;
 

@@ -16,25 +16,51 @@ The tracker supports macOS, Windows, and Linux.
 
 ### Installation
 
-There are two ways to install the tracker in your app:
+There are three ways to install the tracker in your app:
 
-1. By including the project using cmake.
-2. By copying source files inside the `include` folder into your codebase.
+1. By adding the project into your `CMakeLists.txt` as a subdirectory.
+2. By installing the project and importing it into your app using CMake's `find_package` command.
+3. By copying source files inside the `include` folder into your codebase.
 
-#### Using cmake
+#### As a subdirectory in your CMake project
 
-Cmake version 3.14 or greater is required. You may add the library to your project target (`your-target`) using `FetchContent` like so:
+CMake version 3.15 or greater is required. You may add the library to your project target (`your-target`) using `FetchContent` like so:
 
 ```cmake
 include(FetchContent)
 FetchContent_Declare(
     snowplow
     GIT_REPOSITORY https://github.com/snowplow/snowplow-cpp-tracker
-    GIT_TAG        1.0.0
+    GIT_TAG        2.0.0
 )
 FetchContent_MakeAvailable(snowplow)
 target_link_libraries(your-target snowplow)
 ```
+
+#### As an imported target in your CMake project
+
+First, build and install the project. Make sure the project uses the external JSON libraries (`SNOWPLOW_USE_EXTERNAL_JSON=ON`). If you're building a static library (`SNOWPLOW_USE_EXTERNAL_SQLITE=ON`) you also need to use SQLite3 as an external library (`SNOWPLOW_USE_EXTERNAL_SQLITE=ON`).
+
+If you have `SQLite3`, `CURL` or `LibUUID` available as system libraries but you need to use them from a different package (e.g. from Conan) you need to set `CMAKE_FIND_PACKAGE_PREFER_CONFIG=ON` to prevent linking to the system libraries.
+
+```cmake
+cmake [...] -DCMAKE_INSTALL_PREFIX=[...]
+    -DSNOWPLOW_USE_EXTERNAL_JSON=ON -DSNOWPLOW_USE_EXTERNAL_SQLITE=ON \
+    -DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON \
+    -DSNOWPLOW_BUILD_TESTS=0 -DSNOWPLOW_BUILD_EXAMPLE=0 -DSNOWPLOW_BUILD_PERFORMANCE=0
+```
+
+After building and installing the project you can use `find_package` to import it into your `CMakeLists.txt`:
+
+```cmake
+find_package(snowplow REQUIRED CONFIG)
+...
+target_link_libraries(your-target snowplow::snowplow)
+```
+
+Make sure your project finds the same dependencies what was visible for Snowplow when you were building and installing it. For example, if you have both system and local SQlite3 installations and `CMAKE_FIND_PACKAGE_PREFER_CONFIG` was `ON` for Snowplow but `OFF` for your project, Snowplow will be built with the local SQLite3 while during `find_package(snowplow)` in your project it will find the system one.
+
+See the [example app](examples/README.md) for instructions how to build and install the tracker using this option.
 
 #### Copying files to your project
 
@@ -76,7 +102,7 @@ sve.name = &name;
 tracker->track(sve);
 ```
 
-Check the tracked events in a [Snowplow Micro](https://docs.snowplowanalytics.com/docs/understanding-your-pipeline/what-is-snowplow-micro/) or [Snowplow Mini](https://docs.snowplowanalytics.com/docs/understanding-your-pipeline/what-is-snowplow-mini/) instance.
+Check the tracked events in a [Snowplow Micro](https://docs.snowplow.io/docs/understanding-your-pipeline/what-is-snowplow-micro/) or [Snowplow Mini](https://docs.snowplow.io/docs/understanding-your-pipeline/what-is-snowplow-mini/) instance.
 
 ## Find out more
 
@@ -106,7 +132,7 @@ This will create two executables - the first is the test suite. To run the test 
 The other is an example program which will send one of every type of event to an endpoint of your choosing like so:
 
 ```bash
- host> ./snowplow-example {{ your collector uri }}
+ host> ./examples/snowplow-example {{ your collector uri }}
 ```
 
 If you make changes only to a header file there is a chance it won't be picked up by make in which case you will need to:
@@ -143,20 +169,12 @@ To compare with historical performance measurements (logged in the `performance/
 
 ### Building on Windows
 
- ```git clone https://github.com/snowplow/snowplow-cpp-tracker```
-
-In the cloned directory two [Visual Studio 2015](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx) project files are available:
-
-* `snowplow-cpp-tracker.sln`
-    This is required to compile the tracker and run the tests (you'll need this one to edit the tracker itself)
-* `snowplow-cpp-tracker-example.sln`
-    This is a demo project showing use of this tracker
-
-To run the tests under windows, you need to open the `snowplow-cpp-tracker.sln` solution, build it for your target platform *and run the resulting executable*.
+Use the [CMake build tool](https://cmake.org/runningcmake/) to configure and generate the Visual Studio project files.
+Build and run the project using the Visual Studio IDE.
 
 ## Copyright and license
 
-The Snowplow C++ Tracker is copyright 2022 Snowplow Analytics Ltd.
+The Snowplow C++ Tracker is copyright 2023 Snowplow Analytics Ltd.
 
 Licensed under the **[Apache License, Version 2.0][license]** (the "License");
 you may not use this software except in compliance with the License.
@@ -167,14 +185,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-[website]: https://snowplowanalytics.com
+[website]: https://snowplow.io
 [snowplow]: https://github.com/snowplow/snowplow
-[docs]: https://docs.snowplowanalytics.com/
+[docs]: https://docs.snowplow.io/
 
 [travis-image]: https://travis-ci.org/snowplow/snowplow-cpp-tracker.png?branch=master
 [travis]: https://travis-ci.org/snowplow/snowplow-cpp-tracker
 
-[release-image]: https://img.shields.io/badge/release-1.0.0-6ad7e5.svg?style=flat
+[release-image]: https://img.shields.io/badge/release-2.0.0-6ad7e5.svg?style=flat
 [releases]: https://github.com/snowplow/snowplow-cpp-tracker/releases
 
 [license-image]: https://img.shields.io/badge/license-Apache--2-blue.svg?style=flat
@@ -184,10 +202,10 @@ limitations under the License.
 [roadmap-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/roadmap.png
 [contributing-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/contributing.png
 
-[techdocs]: https://docs.snowplowanalytics.com/docs/collecting-data/collecting-from-own-applications/c-tracker/
+[techdocs]: https://docs.snowplow.io/docs/collecting-data/collecting-from-own-applications/c-tracker/
 [roadmap]: https://github.com/snowplow/snowplow/projects/7
 [contributing]: https://github.com/snowplow/snowplow-cpp-tracker/blob/master/CONTRIBUTING.md
 [apidocs]: https://snowplow.github.io/snowplow-cpp-tracker
 
-[tracker-classificiation]: https://docs.snowplowanalytics.com/docs/collecting-data/collecting-from-own-applications/tracker-maintenance-classification/
+[tracker-classificiation]: https://docs.snowplow.io/docs/collecting-data/collecting-from-own-applications/tracker-maintenance-classification/
 [maintained]: https://img.shields.io/static/v1?style=flat&label=Snowplow&message=Maintained&color=9e62dd&labelColor=9ba0aa&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAeFBMVEVMaXGXANeYANeXANZbAJmXANeUANSQAM+XANeMAMpaAJhZAJeZANiXANaXANaOAM2WANVnAKWXANZ9ALtmAKVaAJmXANZaAJlXAJZdAJxaAJlZAJdbAJlbAJmQAM+UANKZANhhAJ+EAL+BAL9oAKZnAKVjAKF1ALNBd8J1AAAAKHRSTlMAa1hWXyteBTQJIEwRgUh2JjJon21wcBgNfmc+JlOBQjwezWF2l5dXzkW3/wAAAHpJREFUeNokhQOCA1EAxTL85hi7dXv/E5YPCYBq5DeN4pcqV1XbtW/xTVMIMAZE0cBHEaZhBmIQwCFofeprPUHqjmD/+7peztd62dWQRkvrQayXkn01f/gWp2CrxfjY7rcZ5V7DEMDQgmEozFpZqLUYDsNwOqbnMLwPAJEwCopZxKttAAAAAElFTkSuQmCC

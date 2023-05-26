@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2023 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -15,11 +15,10 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "../storage/sqlite_storage.hpp"
 
 using namespace snowplow;
-using std::move;
 using std::make_shared;
 
 SessionConfiguration::SessionConfiguration(shared_ptr<SessionStore> session_store, unsigned long long foreground_timeout, unsigned long long background_timeout) {
-  m_session_store = move(session_store);
+  m_session_store = std::move(session_store);
   m_db_name = "";
   m_foreground_timeout = foreground_timeout;
   m_background_timeout = background_timeout;

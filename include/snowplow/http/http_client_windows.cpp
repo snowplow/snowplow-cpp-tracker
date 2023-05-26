@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2023 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -22,8 +22,8 @@ const string HttpClientWindows::TRACKER_AGENT = string("Snowplow C++ Tracker (Wi
 
 HttpRequestResult HttpClientWindows::http_request(const RequestMethod method, CrackedUrl url, const string &query_string, const string &post_data, list<int> row_ids, bool oversize) {
 
-  HINTERNET h_internet = InternetOpen(
-      TEXT(HttpClientWindows::TRACKER_AGENT.c_str()),
+  HINTERNET h_internet = InternetOpenA(
+      HttpClientWindows::TRACKER_AGENT.c_str(),
       INTERNET_OPEN_TYPE_DIRECT,
       NULL,
       NULL,
@@ -42,9 +42,9 @@ HttpRequestResult HttpClientWindows::http_request(const RequestMethod method, Cr
     }
   }
 
-  HINTERNET h_connect = InternetConnect(
+  HINTERNET h_connect = InternetConnectA(
       h_internet,
-      TEXT(url.get_hostname().c_str()),
+      url.get_hostname().c_str(),
       use_port,
       NULL,
       NULL,
@@ -73,14 +73,14 @@ HttpRequestResult HttpClientWindows::http_request(const RequestMethod method, Cr
     final_path += "?" + query_string;
   } else {
     request_method_string = "POST";
-    post_buf = (LPVOID)TEXT(post_data.c_str());
-    post_buf_len = strlen(TEXT(post_data.c_str()));
+    post_buf = (LPVOID)(post_data.c_str());
+    post_buf_len = int(strlen(post_data.c_str()));
   }
 
-  HINTERNET h_request = HttpOpenRequest(
+  HINTERNET h_request = HttpOpenRequestA(
       h_connect,
-      TEXT(request_method_string.c_str()),
-      TEXT(final_path.c_str()),
+      request_method_string.c_str(),
+      final_path.c_str(),
       NULL,
       NULL,
       NULL,
@@ -93,8 +93,8 @@ HttpRequestResult HttpClientWindows::http_request(const RequestMethod method, Cr
     return HttpRequestResult(GetLastError(), 0, row_ids, oversize);
   }
 
-  LPCSTR hdrs = TEXT("Content-Type: application/json; charset=utf-8");
-  BOOL is_sent = HttpSendRequest(h_request, hdrs, strlen(hdrs), post_buf, post_buf_len);
+  LPCSTR hdrs = "Content-Type: application/json; charset=utf-8";
+  BOOL is_sent = HttpSendRequestA(h_request, hdrs, DWORD(strlen(hdrs)), post_buf, DWORD(post_buf_len));
 
   if (!is_sent) {
     InternetCloseHandle(h_internet);

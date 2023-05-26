@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2023 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -11,8 +11,8 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#include "../../src/configuration/emitter_configuration.hpp"
-#include "../../src/storage/sqlite_storage.hpp"
+#include "../../include/snowplow/configuration/emitter_configuration.hpp"
+#include "../../include/snowplow/storage/sqlite_storage.hpp"
 #include "../catch.hpp"
 
 using namespace snowplow;

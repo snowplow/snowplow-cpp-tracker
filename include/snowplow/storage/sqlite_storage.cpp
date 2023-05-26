@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2023 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -15,6 +15,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include <iostream>
 #include "../detail/utils/utils.hpp"
+#include "../thirdparty/sqlite3.hpp"
 
 using namespace snowplow;
 using std::cerr;
@@ -115,7 +116,7 @@ void SqliteStorage::add_event(const Payload &payload) {
 
   string payload_str = Utils::serialize_payload(payload);
 
-  rc = sqlite3_bind_text(this->m_add_stmt, 1, payload_str.c_str(), payload_str.length(), SQLITE_STATIC);
+  rc = sqlite3_bind_text(this->m_add_stmt, 1, payload_str.c_str(), int(payload_str.length()), SQLITE_STATIC);
   if (rc != SQLITE_OK) {
     cerr << "ERROR: Failed to bind payload to statement: " << rc << endl;
     return;
@@ -158,7 +159,7 @@ void SqliteStorage::set_session(const json &session_data) {
   }
 
   string session_data_str = session_data.dump();
-  rc = sqlite3_bind_text(insert_stmt, 2, session_data_str.c_str(), session_data_str.length(), SQLITE_STATIC);
+  rc = sqlite3_bind_text(insert_stmt, 2, session_data_str.c_str(), int(session_data_str.length()), SQLITE_STATIC);
   if (rc != SQLITE_OK) {
     cerr << "ERROR: Failed to bind data to statement: " << rc << endl;
     return;

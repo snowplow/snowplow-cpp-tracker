@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2023 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -13,7 +13,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #ifndef HTTP_CLIENT_CURL_H
 #define HTTP_CLIENT_CURL_H
-#if !defined(WIN32) && !defined(_WIN32) && !defined(__WIN32) || defined(__CYGWIN__)
+#if !defined(__APPLE__) && !defined(WIN32) && !defined(_WIN32) && !defined(__WIN32) || defined(__CYGWIN__)
 
 #include "http_client.hpp"
 
@@ -21,10 +21,11 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
+namespace snowplow {
+
 using std::string;
 using std::list;
 
-namespace snowplow {
 /**
  * @brief HTTP client that uses the Curl library for making requests to Snowplow Collector.
  * 

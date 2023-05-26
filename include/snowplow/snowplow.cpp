@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2023 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -24,38 +24,37 @@ shared_ptr<Tracker> Snowplow::m_default_tracker = nullptr;
 
 shared_ptr<Tracker> Snowplow::create_tracker(const string &name_space, const string &collector_url, Method method, const string &db_name, shared_ptr<Subject> subject, bool session_tracking) {
   auto storage = make_shared<SqliteStorage>(db_name);
-  return move(
-      session_tracking ?
+  return session_tracking ?
       create_tracker(name_space, collector_url, method, storage, storage, subject) :
-      create_tracker(name_space, collector_url, method, storage, subject));
+      create_tracker(name_space, collector_url, method, storage, subject);
 }
 
 shared_ptr<Tracker> Snowplow::create_tracker(const string &name_space, const string &collector_url, Method method, shared_ptr<EventStore> event_store, shared_ptr<Subject> subject) {
   NetworkConfiguration network_config(collector_url, method);
-  return move(create_tracker(
+  return create_tracker(
       TrackerConfiguration(name_space),
       network_config,
-      EmitterConfiguration(move(event_store)),
-      move(subject)));
+      EmitterConfiguration(std::move(event_store)),
+      std::move(subject));
 }
 
 shared_ptr<Tracker> Snowplow::create_tracker(const string &name_space, const string &collector_url, Method method, shared_ptr<EventStore> event_store, shared_ptr<SessionStore> session_store, shared_ptr<Subject> subject) {
   NetworkConfiguration network_config(collector_url, method);
-  SessionConfiguration session_config(move(session_store));
-  EmitterConfiguration emitter_config(move(event_store));
-  return move(create_tracker(
+  SessionConfiguration session_config(std::move(session_store));
+  EmitterConfiguration emitter_config(std::move(event_store));
+  return create_tracker(
       TrackerConfiguration(name_space),
       network_config,
       emitter_config,
       session_config,
-      move(subject)));
+      std::move(subject));
 }
 
 shared_ptr<Tracker> Snowplow::create_tracker(const TrackerConfiguration &tracker_config, NetworkConfiguration &network_config, const EmitterConfiguration &emitter_config, shared_ptr<Subject> subject) {
   auto emitter = make_shared<Emitter>(network_config, emitter_config);
-  auto tracker = make_shared<Tracker>(tracker_config, move(emitter), move(subject));
+  auto tracker = make_shared<Tracker>(tracker_config, std::move(emitter), std::move(subject));
   register_tracker(tracker);
-  return move(tracker);
+  return tracker;
 }
 
 shared_ptr<Tracker> Snowplow::create_tracker(const TrackerConfiguration &tracker_config, NetworkConfiguration &network_config, EmitterConfiguration &emitter_config, SessionConfiguration &session_config, shared_ptr<Subject> subject) {
@@ -66,9 +65,9 @@ shared_ptr<Tracker> Snowplow::create_tracker(const TrackerConfiguration &tracker
   }
   auto emitter = make_shared<Emitter>(network_config, emitter_config);
   auto client_session = make_shared<ClientSession>(session_config);
-  auto tracker = make_shared<Tracker>(tracker_config, move(emitter), move(subject), move(client_session));
+  auto tracker = make_shared<Tracker>(tracker_config, std::move(emitter), std::move(subject), std::move(client_session));
   register_tracker(tracker);
-  return move(tracker);
+  return tracker;
 }
 
 void Snowplow::register_tracker(shared_ptr<Tracker> tracker) {
@@ -119,7 +118,7 @@ bool Snowplow::remove_tracker(shared_ptr<Tracker> tracker) {
 
 bool Snowplow::remove_tracker(const string &name_space) {
   lock_guard<mutex> guard(m_tracker_get);
-  int num_removed = m_trackers.erase(name_space);
+  int num_removed = int(m_trackers.erase(name_space));
 
   if (m_default_tracker && m_default_tracker->get_namespace() == name_space) {
     m_default_tracker = nullptr;

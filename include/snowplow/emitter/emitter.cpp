@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2023 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -24,7 +24,6 @@ using std::async;
 using std::to_string;
 using std::transform;
 using std::equal;
-using std::move;
 using std::future;
 using std::this_thread::sleep_for;
 
@@ -50,14 +49,14 @@ unique_ptr<HttpClient> createDefaultHttpClient(const string &curl_cookie_file) {
 
 Emitter::Emitter(NetworkConfiguration &network_config, const EmitterConfiguration &emitter_config) :
   Emitter(
-    move(emitter_config.get_event_store()),
+    emitter_config.get_event_store(),
     network_config.get_collector_hostname(),
     network_config.get_method(),
     network_config.get_protocol(),
     emitter_config.get_batch_size(),
     emitter_config.get_byte_limit_post(),
     emitter_config.get_byte_limit_get(),
-    move(network_config.move_http_client()),
+    network_config.move_http_client(),
     network_config.get_curl_cookie_file()
   ) {
   m_callback = emitter_config.get_request_callback();
@@ -91,9 +90,9 @@ Emitter::Emitter(shared_ptr<EventStore> event_store, const string &uri, Method m
   this->m_batch_size = batch_size;
   this->m_byte_limit_post = byte_limit_post;
   this->m_byte_limit_get = byte_limit_get;
-  this->m_event_store = move(event_store);
+  this->m_event_store = std::move(event_store);
   if (http_client) {
-    this->m_http_client = move(http_client);
+    this->m_http_client = std::move(http_client);
   } else {
     this->m_http_client = createDefaultHttpClient(curl_cookie_file);
   }
@@ -223,7 +222,7 @@ void Emitter::do_send(const list<EventRow> &event_rows, list<HttpRequestResult> 
     int total_byte_size = 0;
 
     for (auto const &row : event_rows) {
-      unsigned int byte_size = Utils::serialize_payload(row.event).size() + post_stm_bytes;
+      unsigned int byte_size = unsigned(Utils::serialize_payload(row.event).size() + post_stm_bytes);
 
       if ((byte_size + post_wrapper_bytes) > this->m_byte_limit_post) {
         // A single payload has exceeded the Byte Limit

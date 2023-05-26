@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2023 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -22,11 +22,12 @@ See the Apache License Version 2.0 for the specific language governing permissio
 #include "events/event.hpp"
 #include "configuration/tracker_configuration.hpp"
 
+namespace snowplow {
+
 using std::string;
 using std::map;
 using std::shared_ptr;
 
-namespace snowplow {
 /**
  * @brief Instance of the Snowplow tracker that provides an interface to track Snowplow events.
  * 

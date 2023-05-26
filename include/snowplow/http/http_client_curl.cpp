@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2023 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -11,7 +11,7 @@ software distributed under the Apache License Version 2.0 is distributed on an
 See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 */
 
-#if !defined(WIN32) && !defined(_WIN32) && !defined(__WIN32) || defined(__CYGWIN__)
+#if !defined(__APPLE__) && !defined(WIN32) && !defined(_WIN32) && !defined(__WIN32) || defined(__CYGWIN__)
 #include "http_client_curl.hpp"
 #include "../constants.hpp"
 #include <curl/curl.h>
@@ -81,7 +81,7 @@ HttpRequestResult HttpClientCurl::http_request(const RequestMethod method, Crack
   curl_easy_cleanup(curl);
   curl_slist_free_all(headers);
 
-  return HttpRequestResult(0, status_code, row_ids, oversize);
+  return HttpRequestResult(0, int(status_code), row_ids, oversize);
 }
 
 #endif

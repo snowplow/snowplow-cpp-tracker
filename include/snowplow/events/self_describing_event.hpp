@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2023 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -20,14 +20,14 @@ namespace snowplow {
 /**
  * @brief Event to track custom information that does not fit into the out-of-the box events.
  *
- * Self-describing events are a [data structure based on JSON Schemas](https://docs.snowplowanalytics.com/docs/understanding-tracking-design/understanding-schemas-and-validation/)
+ * Self-describing events are a [data structure based on JSON Schemas](https://docs.snowplow.io/docs/understanding-tracking-design/understanding-schemas-and-validation/)
  * and can have arbitrarily many fields.
  * To define your own custom self-describing event, you must create a JSON schema for that
  * event and upload it to an [Iglu Schema Repository](https://github.com/snowplow/iglu) using
- * [igluctl](https://docs.snowplowanalytics.com/docs/open-source-components-and-applications/iglu/)
+ * [igluctl](https://docs.snowplow.io/docs/open-source-components-and-applications/iglu/)
  * (or if a Snowplow BDP customer, you can use the
- * [Snowplow BDP Console UI](https://docs.snowplowanalytics.com/docs/understanding-tracking-design/managing-data-structures/)
- * or [Data Structures API](https://docs.snowplowanalytics.com/docs/understanding-tracking-design/managing-data-structures-via-the-api-2/)).
+ * [Snowplow BDP Console UI](https://docs.snowplow.io/docs/understanding-tracking-design/managing-data-structures/)
+ * or [Data Structures API](https://docs.snowplow.io/docs/understanding-tracking-design/managing-data-structures-via-the-api-2/)).
  * Snowplow uses the schema to validate that the JSON containing the event properties is well-formed.
  */
 class SelfDescribingEvent : public Event {

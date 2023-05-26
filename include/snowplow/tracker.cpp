@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 Snowplow Analytics Ltd. All rights reserved.
+Copyright (c) 2023 Snowplow Analytics Ltd. All rights reserved.
 
 This program is licensed to you under the Apache License Version 2.0,
 and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -20,9 +20,9 @@ using std::to_string;
 
 Tracker::Tracker(const TrackerConfiguration &tracker_config, shared_ptr<Emitter> emitter, shared_ptr<Subject> subject, shared_ptr<ClientSession> client_session) :
   Tracker(
-    move(emitter),
-    move(subject),
-    move(client_session),
+    std::move(emitter),
+    std::move(subject),
+    std::move(client_session),
     tracker_config.get_platform(),
     tracker_config.get_app_id(),
     tracker_config.get_namespace(),
@@ -33,9 +33,9 @@ Tracker::Tracker(const TrackerConfiguration &tracker_config, shared_ptr<Emitter>
 
 Tracker::Tracker(shared_ptr<Emitter> emitter, shared_ptr<Subject> subject, shared_ptr<ClientSession> client_session, const string &platform, const string &app_id,
                  const string &name_space, bool use_base64, bool desktop_context) {
-  this->m_emitter = move(emitter);
-  this->m_client_session = move(client_session);
-  this->m_subject = move(subject);
+  this->m_emitter = std::move(emitter);
+  this->m_client_session = std::move(client_session);
+  this->m_subject = std::move(subject);
   this->m_platform = platform;
   this->m_app_id = app_id;
   this->m_namespace = name_space;
@@ -67,7 +67,7 @@ void Tracker::flush() {
 // --- Setters
 
 void Tracker::set_subject(shared_ptr<Subject> subject) {
-  this->m_subject = move(subject);
+  this->m_subject = std::move(subject);
 }
 
 // --- Event Tracking
