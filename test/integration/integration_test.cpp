@@ -35,6 +35,7 @@ TEST_CASE("integration") {
     StructuredEvent sv("hello", "world");
     string event_id = tracker->track(sv);
     tracker->flush();
+    sleep_for(milliseconds(1000));
 
     auto counts = Micro::get_good_and_bad_count();
     REQUIRE(std::get<0>(counts) == 1);
@@ -71,6 +72,7 @@ TEST_CASE("integration") {
     string event_id = tracker->track(StructuredEvent("hello", "world1"));
     tracker->track(StructuredEvent("hello", "world2"));
     tracker->flush();
+    sleep_for(milliseconds(1000));
 
     auto counts = Micro::get_good_and_bad_count();
     REQUIRE(std::get<0>(counts) == 2);
@@ -120,6 +122,7 @@ TEST_CASE("integration") {
         "{\"currentTime\": 0, \"duration\": 10, \"ended\": false, \"loop\": false, \"muted\": false, \"paused\": false, \"playbackRate\": 1, \"volume\": 100}"_json)});
     string event_id = tracker->track(sde);
     tracker->flush();
+    sleep_for(milliseconds(1000));
 
     auto counts = Micro::get_good_and_bad_count();
     REQUIRE(std::get<0>(counts) == 1);
@@ -149,7 +152,7 @@ TEST_CASE("integration") {
     string name = "screen";
     event.name = &name;
     tracker->track(event);
-    sleep_for(milliseconds(500));
+    sleep_for(milliseconds(1000));
 
     auto counts = Micro::get_good_and_bad_count();
     REQUIRE(std::get<0>(counts) == 1);
@@ -158,6 +161,8 @@ TEST_CASE("integration") {
     Snowplow::remove_tracker(tracker);
   }
 
+  // Cookie file storage not supported on macOS (uses NSHTTPCookieStorage instead)
+#if !defined(__APPLE__)
   SECTION("Stores cookies and maintains network_userid") {
     Micro::clear();
 
@@ -170,6 +175,7 @@ TEST_CASE("integration") {
     sleep_for(milliseconds(500));
     tracker->track(StructuredEvent("hello", "2"));
     tracker->flush();
+    sleep_for(milliseconds(1000));
 
     auto counts = Micro::get_good_and_bad_count();
     REQUIRE(std::get<0>(counts) == 2);
@@ -194,5 +200,6 @@ TEST_CASE("integration") {
 
     Snowplow::remove_tracker(tracker);
   }
+#endif
 
 }
