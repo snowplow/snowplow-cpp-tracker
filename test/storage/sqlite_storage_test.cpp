@@ -26,7 +26,7 @@ TEST_CASE("SQLite storage") {
   SECTION("database should throw exceptions for unmanageable errors") {
     bool runtime_error_bad_db_name = false;
     try {
-      SqliteStorage("~/");
+      SqliteStorage(".");
     } catch (runtime_error) {
       runtime_error_bad_db_name = true;
     }
