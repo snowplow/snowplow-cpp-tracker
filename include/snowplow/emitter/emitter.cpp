@@ -120,6 +120,7 @@ void Emitter::stop() {
     locker.unlock();
 
     this->m_check_db.notify_all();
+    this->m_check_retry.notify_all();
     this->m_daemon_thread.join();
   }
 }
@@ -188,10 +189,11 @@ void Emitter::run() {
         m_retry_delay.wont_retry_emit();
       }
 
-      // sleep for the retry delay if there is one
+      // sleep for (up to) the retry delay if there is one
       auto retry_delay = m_retry_delay.get();
       if (retry_delay.count() > 0) {
-        sleep_for(retry_delay);
+        unique_lock<mutex> locker(m_retry_select);
+        m_check_retry.wait_for(locker, retry_delay);
       }
     } else {
       m_check_fin.notify_all();

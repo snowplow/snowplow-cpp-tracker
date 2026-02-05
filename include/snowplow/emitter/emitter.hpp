@@ -188,9 +188,11 @@ private:
 
   thread m_daemon_thread;
   condition_variable m_check_db;
+  condition_variable m_check_retry;
   condition_variable m_check_fin;
   mutex m_flush_fin;
   mutex m_db_select;
+  mutex m_retry_select;
   mutex m_run_check;
   bool m_running;
   EmitterCallback m_callback;
