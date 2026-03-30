@@ -104,7 +104,7 @@ const string SNOWPLOW_SESSION_EVENT_INDEX = "eventIndex";
 const string SNOWPLOW_SESSION_STORAGE = "storageMechanism";
 const string SNOWPLOW_SESSION_FIRST_ID = "firstEventId";
 const string SNOWPLOW_SESSION_FIRST_TIMESTAMP = "firstEventTimestamp";
-const unsigned long long SNOWPLOW_SESSION_DEFAULT_TIMEOUT = 30 * 1000 * 1000; // 30 minutes
+const unsigned long long SNOWPLOW_SESSION_DEFAULT_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
 // emitter defaults
 const int SNOWPLOW_EMITTER_DEFAULT_BATCH_SIZE = 250;
