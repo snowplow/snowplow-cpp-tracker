@@ -45,4 +45,14 @@ TEST_CASE("emitter configuration") {
     REQUIRE(raised_error);
     REQUIRE(emitter_config.get_custom_retry_for_status_codes().size() == 0);
   }
+
+  SECTION("flush timeout defaults to 30000 ms and can be overridden") {
+    auto storage = std::make_shared<SqliteStorage>("test-emitter.db");
+    EmitterConfiguration emitter_config(storage);
+
+    REQUIRE(emitter_config.get_flush_timeout_ms() == 30000);
+
+    emitter_config.set_flush_timeout_ms(5000);
+    REQUIRE(emitter_config.get_flush_timeout_ms() == 5000);
+  }
 }

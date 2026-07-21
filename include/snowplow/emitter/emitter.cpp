@@ -62,6 +62,7 @@ Emitter::Emitter(NetworkConfiguration &network_config, const EmitterConfiguratio
   m_callback = emitter_config.get_request_callback();
   m_callback_emit_status = emitter_config.get_request_callback_emit_status();
   m_custom_retry_for_status_codes = emitter_config.get_custom_retry_for_status_codes();
+  m_flush_timeout_ms = emitter_config.get_flush_timeout_ms();
 }
 
 Emitter::Emitter(shared_ptr<EventStore> event_store, const string &uri, Method method, Protocol protocol, int batch_size,
@@ -86,6 +87,8 @@ Emitter::Emitter(shared_ptr<EventStore> event_store, const string &uri, Method m
   }
 
   this->m_running = false;
+  this->m_stop_requested.store(false);
+  this->m_flush_timeout_ms = SNOWPLOW_EMITTER_DEFAULT_FLUSH_TIMEOUT_MS;
   this->m_method = method;
   this->m_batch_size = batch_size;
   this->m_byte_limit_post = byte_limit_post;
@@ -109,6 +112,7 @@ void Emitter::start() {
   if (this->m_running) {
     return; // refuse to start more than once
   }
+  this->m_stop_requested.store(false);
   this->m_running = true;
   this->m_daemon_thread = thread(&Emitter::run, this);
 }
@@ -119,6 +123,13 @@ void Emitter::stop() {
     this->m_running = false;
     locker.unlock();
 
+    // Set m_stop_requested under m_db_select to close the idle-sleep lost-wakeup race:
+    // run() holds m_db_select while checking m_stop_requested and entering wait_for, so
+    // we must hold m_db_select while setting it to guarantee run() sees the signal.
+    {
+      unique_lock<mutex> db_locker(this->m_db_select);
+      this->m_stop_requested.store(true);
+    }
     this->m_check_db.notify_all();
     this->m_daemon_thread.join();
   }
@@ -139,7 +150,7 @@ void Emitter::flush() {
   this->m_check_db.notify_all();
 
   unique_lock<mutex> locker_2(this->m_flush_fin);
-  this->m_check_fin.wait(locker_2);
+  this->m_check_fin.wait_for(locker_2, std::chrono::milliseconds(m_flush_timeout_ms));
   locker_2.unlock();
 
   this->stop();
@@ -188,17 +199,20 @@ void Emitter::run() {
         m_retry_delay.wont_retry_emit();
       }
 
-      // sleep for the retry delay if there is one
+      // sleep for the retry delay if there is one; use predicated wait so stop() interrupts it
       auto retry_delay = m_retry_delay.get();
       if (retry_delay.count() > 0) {
-        sleep_for(retry_delay);
+        unique_lock<mutex> retry_locker(m_db_select);
+        m_check_db.wait_for(retry_locker, retry_delay, [this]{ return m_stop_requested.load(); });
       }
     } else {
       m_check_fin.notify_all();
 
-      // if there are no events to send, sleep for a while
+      // idle sleep - check stop signal first (under lock) to avoid lost-wakeup with stop()
       unique_lock<mutex> locker(m_db_select);
-      m_check_db.wait_for(locker, std::chrono::seconds(5));
+      if (!m_stop_requested.load()) {
+        m_check_db.wait_for(locker, std::chrono::seconds(5));
+      }
     }
   } while (is_running());
 }

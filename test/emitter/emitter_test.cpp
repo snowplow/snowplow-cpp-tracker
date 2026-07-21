@@ -374,4 +374,91 @@ TEST_CASE("emitter") {
 
     emitter.stop();
   }
+
+  SECTION("stop() on idle emitter returns promptly") {
+    Emitter emitter(storage, "com.acme.collector", Method::POST, Protocol::HTTP, 500, 500, 500, unique_ptr<HttpClient>(new TestHttpClient()));
+    emitter.start();
+
+    auto t_start = std::chrono::high_resolution_clock::now();
+    emitter.stop();
+    auto t_end = std::chrono::high_resolution_clock::now();
+    double elapsed_ms = std::chrono::duration<double, std::milli>(t_end - t_start).count();
+
+    REQUIRE(elapsed_ms < 500.0);
+  }
+
+  SECTION("flush() exits within configured timeout when collector is unreachable") {
+    // Create emitter via EmitterConfiguration to set a short flush timeout
+    NetworkConfiguration network_config("com.acme.collector", POST);
+    network_config.set_http_client(unique_ptr<HttpClient>(new TestHttpClient()));
+    EmitterConfiguration emitter_config(storage);
+    emitter_config.set_flush_timeout_ms(500);
+
+    Emitter emitter(network_config, emitter_config);
+    emitter.start();
+
+    // Collector always returns a retryable error - simulates unreachable endpoint
+    TestHttpClient::set_http_response_code(501);
+    Payload payload;
+    payload.add("e", "pv");
+    emitter.add(payload);
+
+    auto t_start = std::chrono::high_resolution_clock::now();
+    emitter.flush();
+    auto t_end = std::chrono::high_resolution_clock::now();
+    double elapsed_ms = std::chrono::duration<double, std::milli>(t_end - t_start).count();
+
+    // Should exit within timeout + reasonable overhead, not hang indefinitely
+    REQUIRE(elapsed_ms < 2000.0);
+    TestHttpClient::reset();
+  }
+
+  SECTION("stop() returns promptly while background thread sleeps in retry delay") {
+    Emitter emitter(storage, "com.acme.collector", Method::POST, Protocol::HTTP, 500, 500, 500, unique_ptr<HttpClient>(new TestHttpClient()));
+    emitter.start();
+
+    // Make the emitter enter a long retry delay (~1600 ms for 4 failures)
+    TestHttpClient::set_temporary_response_code(501, 4);
+    Payload payload;
+    payload.add("e", "pv");
+    emitter.add(payload);
+
+    // Give the background thread time to start retrying and enter the retry sleep
+    sleep_for(milliseconds(300));
+
+    auto t_start = std::chrono::high_resolution_clock::now();
+    emitter.stop();
+    auto t_end = std::chrono::high_resolution_clock::now();
+    double elapsed_ms = std::chrono::duration<double, std::milli>(t_end - t_start).count();
+
+    // stop() must interrupt the retry sleep, not wait it out
+    REQUIRE(elapsed_ms < 500.0);
+    TestHttpClient::reset();
+  }
+
+  SECTION("concurrent flush() and stop() do not deadlock") {
+    // Create emitter with short flush timeout so the test completes quickly
+    NetworkConfiguration network_config("com.acme.collector", POST);
+    network_config.set_http_client(unique_ptr<HttpClient>(new TestHttpClient()));
+    EmitterConfiguration emitter_config(storage);
+    emitter_config.set_flush_timeout_ms(500);
+
+    Emitter emitter(network_config, emitter_config);
+    emitter.start();
+
+    TestHttpClient::set_http_response_code(501); // retryable, queue never drains
+    Payload payload;
+    payload.add("e", "pv");
+    emitter.add(payload);
+
+    // Call flush() in a background thread and stop() from this thread
+    auto flush_future = std::async(std::launch::async, [&emitter]{ emitter.flush(); });
+    sleep_for(milliseconds(100));
+    emitter.stop();
+
+    // Both flush() and stop() must complete without deadlock
+    auto status = flush_future.wait_for(std::chrono::seconds(3));
+    REQUIRE(status == std::future_status::ready);
+    TestHttpClient::reset();
+  }
 }
