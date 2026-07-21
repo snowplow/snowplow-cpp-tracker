@@ -62,10 +62,25 @@ public:
 
   /**
    * @brief Set the byte limit for POST requests.
-   * 
+   *
    * @param byte_limit_post The byte limit when sending a POST request.
    */
   void set_byte_limit_post(int byte_limit_post) { m_byte_limit_post = byte_limit_post; }
+
+  /**
+   * @brief Set the flush timeout. flush() returns after this deadline regardless of queue state;
+   * undelivered events remain in SQLite for the next session.
+   *
+   * @param timeout_ms Timeout in milliseconds (default: 30000).
+   */
+  void set_flush_timeout_ms(int timeout_ms) { m_flush_timeout_ms = timeout_ms; }
+
+  /**
+   * @brief Get the flush timeout in milliseconds.
+   *
+   * @return int Flush timeout in milliseconds.
+   */
+  int get_flush_timeout_ms() const { return m_flush_timeout_ms; }
 
   /**
    * @brief Set the event store
@@ -160,6 +175,7 @@ private:
   int m_batch_size;
   int m_byte_limit_post;
   int m_byte_limit_get;
+  int m_flush_timeout_ms;
   shared_ptr<EventStore> m_event_store;
   EmitterCallback m_callback;
   EmitStatus m_callback_emit_status;

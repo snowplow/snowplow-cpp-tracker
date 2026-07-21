@@ -35,6 +35,7 @@ void EmitterConfiguration::shared_init() {
   m_batch_size = SNOWPLOW_EMITTER_DEFAULT_BATCH_SIZE;
   m_byte_limit_get = SNOWPLOW_EMITTER_DEFAULT_BYTE_LIMIT_GET;
   m_byte_limit_post = SNOWPLOW_EMITTER_DEFAULT_BYTE_LIMIT_POST;
+  m_flush_timeout_ms = SNOWPLOW_EMITTER_DEFAULT_FLUSH_TIMEOUT_MS;
 }
 
 void EmitterConfiguration::set_event_store(shared_ptr<EventStore> event_store) {
