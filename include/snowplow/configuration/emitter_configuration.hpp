@@ -88,13 +88,24 @@ public:
 
   /**
    * @brief Set a custom retry rule for when the HTTP status code is received in emit response from Collector.
-   * 
+   *
    * This overrides default behavior for HTTP status codes greater than 300.
-   * 
+   *
    * @param http_status_code HTTP status code
    * @param retry Whether events should be retried or not
    */
   void set_custom_retry_for_status_code(int http_status_code, bool retry);
+
+  /**
+   * @brief Set the maximum time flush() will wait for the event queue to drain before returning.
+   *
+   * When the collector is unreachable, flush() returns after this deadline rather than blocking
+   * indefinitely. Undelivered events remain in SQLite for the next session.
+   * Default: 30000 ms (30 seconds).
+   *
+   * @param timeout_ms Maximum flush wait time in milliseconds.
+   */
+  void set_flush_timeout_ms(int timeout_ms) { m_flush_timeout_ms = timeout_ms; }
 
   /**
    * @brief Get the event store.
@@ -149,10 +160,17 @@ public:
 
   /**
    * @brief Get the custom retry rule settings for HTTP status codes.
-   * 
+   *
    * @return map<int, bool> Map of status code –> retry or not boolean.
    */
   map<int, bool> get_custom_retry_for_status_codes() const { return m_custom_retry_for_status_codes; }
+
+  /**
+   * @brief Get the flush timeout in milliseconds.
+   *
+   * @return int Maximum time flush() will wait for the queue to drain.
+   */
+  int get_flush_timeout_ms() const { return m_flush_timeout_ms; }
 
 private:
   void shared_init();
@@ -164,6 +182,7 @@ private:
   EmitterCallback m_callback;
   EmitStatus m_callback_emit_status;
   map<int, bool> m_custom_retry_for_status_codes;
+  int m_flush_timeout_ms;
   string m_db_name;
 };
 } // namespace snowplow

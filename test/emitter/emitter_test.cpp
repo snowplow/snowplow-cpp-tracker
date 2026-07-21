@@ -374,4 +374,95 @@ TEST_CASE("emitter") {
 
     emitter.stop();
   }
+
+  SECTION("stop() on idle emitter returns within 500 ms") {
+    Emitter emitter(storage, "com.acme.collector", Method::POST, Protocol::HTTP, 500, 500, 500, unique_ptr<HttpClient>(new TestHttpClient()));
+    emitter.start();
+    auto t_start = std::chrono::high_resolution_clock::now();
+    emitter.stop();
+    auto t_end = std::chrono::high_resolution_clock::now();
+    double elapsed_ms = std::chrono::duration<double, std::milli>(t_end - t_start).count();
+    REQUIRE(elapsed_ms < 500.0);
+  }
+
+  SECTION("flush() exits within configured timeout when collector is unreachable") {
+    auto timeout_storage = std::make_shared<SqliteStorage>("test-emitter-timeout.db");
+
+    NetworkConfiguration network_config("com.acme.collector");
+    network_config.set_http_client(unique_ptr<HttpClient>(new TestHttpClient()));
+    EmitterConfiguration emitter_config(timeout_storage);
+    emitter_config.set_flush_timeout_ms(500);
+
+    Emitter emitter(network_config, emitter_config);
+
+    TestHttpClient::set_http_response_code(500); // always retry
+    emitter.start();
+
+    Payload payload;
+    payload.add("e", "pv");
+    emitter.add(payload);
+
+    auto t_start = std::chrono::high_resolution_clock::now();
+    emitter.flush();
+    auto t_end = std::chrono::high_resolution_clock::now();
+    double elapsed_ms = std::chrono::duration<double, std::milli>(t_end - t_start).count();
+
+    REQUIRE(elapsed_ms < 2000.0);
+    REQUIRE(false == emitter.is_running());
+
+    TestHttpClient::reset();
+    remove("test-emitter-timeout.db");
+  }
+
+  SECTION("stop() during retry sleep returns within 500 ms") {
+    auto retry_storage = std::make_shared<SqliteStorage>("test-emitter-retry.db");
+    Emitter emitter(retry_storage, "com.acme.collector", Method::POST, Protocol::HTTP, 500, 500, 500, unique_ptr<HttpClient>(new TestHttpClient()));
+
+    TestHttpClient::set_http_response_code(500); // always retry
+    emitter.start();
+
+    Payload payload;
+    payload.add("e", "pv");
+    emitter.add(payload);
+
+    // Allow the first send attempt to fail and the retry sleep to begin
+    sleep_for(milliseconds(150));
+
+    auto t_start = std::chrono::high_resolution_clock::now();
+    emitter.stop();
+    auto t_end = std::chrono::high_resolution_clock::now();
+    double elapsed_ms = std::chrono::duration<double, std::milli>(t_end - t_start).count();
+
+    REQUIRE(elapsed_ms < 500.0);
+
+    TestHttpClient::reset();
+    remove("test-emitter-retry.db");
+  }
+
+  SECTION("concurrent flush() and stop() does not deadlock") {
+    auto deadlock_storage = std::make_shared<SqliteStorage>("test-emitter-deadlock.db");
+
+    NetworkConfiguration network_config("com.acme.collector");
+    network_config.set_http_client(unique_ptr<HttpClient>(new TestHttpClient()));
+    EmitterConfiguration emitter_config(deadlock_storage);
+    emitter_config.set_flush_timeout_ms(500);
+
+    Emitter emitter(network_config, emitter_config);
+
+    TestHttpClient::set_http_response_code(500); // always retry
+    emitter.start();
+
+    Payload payload;
+    payload.add("e", "pv");
+    emitter.add(payload);
+
+    auto flush_thread = std::thread([&emitter]() { emitter.flush(); });
+    emitter.stop();
+    flush_thread.join();
+
+    REQUIRE(false == emitter.is_running());
+
+    TestHttpClient::reset();
+    remove("test-emitter-deadlock.db");
+  }
 }
