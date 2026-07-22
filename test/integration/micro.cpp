@@ -13,6 +13,9 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include "micro.hpp"
 
+#include <chrono>
+#include <thread>
+
 using namespace snowplow;
 
 void Micro::clear() {
@@ -25,6 +28,23 @@ tuple<int, int> Micro::get_good_and_bad_count() {
   int good = response["good"].get<int>();
   int bad = response["bad"].get<int>();
   return std::make_tuple(good, bad);
+}
+
+tuple<int, int> Micro::wait_for_good_and_bad_count(
+    int expected_good, int expected_bad, int timeout_ms) {
+  using std::chrono::milliseconds;
+  using std::chrono::steady_clock;
+
+  const milliseconds poll_interval(100);
+  auto deadline = steady_clock::now() + milliseconds(timeout_ms);
+
+  tuple<int, int> counts = get_good_and_bad_count();
+  while (steady_clock::now() < deadline &&
+         (std::get<0>(counts) < expected_good || std::get<1>(counts) < expected_bad)) {
+    std::this_thread::sleep_for(poll_interval);
+    counts = get_good_and_bad_count();
+  }
+  return counts;
 }
 
 list<json> Micro::get_good() {

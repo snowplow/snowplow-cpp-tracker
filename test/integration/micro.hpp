@@ -34,6 +34,16 @@ public:
     static tuple<int, int> get_good_and_bad_count();
     static list<json> get_good();
 
+    /**
+     * Polls Micro until it reports at least the expected number of good and bad
+     * events, or until the timeout elapses. Micro processes events
+     * asynchronously, so this avoids racing it with a fixed sleep on slow or
+     * busy CI runners. Returns the last observed counts either way, so callers
+     * keep asserting exact counts as before.
+     */
+    static tuple<int, int> wait_for_good_and_bad_count(
+        int expected_good, int expected_bad, int timeout_ms = 10000);
+
 private:
     static string request(const string &path);
 };
