@@ -73,8 +73,8 @@ jobs:
     - name: cmake build
       run: cmake -D SNOWPLOW_BUILD_TESTS=1 -D SNOWPLOW_BUILD_EXAMPLE=1 -D SNOWPLOW_BUILD_PERFORMANCE=1 .
 
-    - name: Run MSBuild
-      run: msbuild .\snowplow.sln
+    - name: Build with CMake
+      run: cmake --build . --config Debug
 
     - name: Start Micro and run tests
       run: javaw -jar micro.jar --collector-config test/integration/micro.conf --iglu test/integration/iglu.json; sleep 15; .\Debug\snowplow-tests.exe

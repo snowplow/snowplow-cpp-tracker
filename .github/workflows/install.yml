@@ -38,8 +38,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Install Conan
-        id: conan
-        uses: turtlebrowser/get-conan@main
+        run: pipx install conan
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install Snowplow dependencies with apt-get
