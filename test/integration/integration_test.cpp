@@ -35,9 +35,8 @@ TEST_CASE("integration") {
     StructuredEvent sv("hello", "world");
     string event_id = tracker->track(sv);
     tracker->flush();
-    sleep_for(milliseconds(1000));
 
-    auto counts = Micro::get_good_and_bad_count();
+    auto counts = Micro::wait_for_good_and_bad_count(1, 0);
     REQUIRE(std::get<0>(counts) == 1);
     REQUIRE(std::get<1>(counts) == 0);
 
@@ -72,9 +71,8 @@ TEST_CASE("integration") {
     string event_id = tracker->track(StructuredEvent("hello", "world1"));
     tracker->track(StructuredEvent("hello", "world2"));
     tracker->flush();
-    sleep_for(milliseconds(1000));
 
-    auto counts = Micro::get_good_and_bad_count();
+    auto counts = Micro::wait_for_good_and_bad_count(2, 0);
     REQUIRE(std::get<0>(counts) == 2);
     REQUIRE(std::get<1>(counts) == 0);
 
@@ -122,9 +120,8 @@ TEST_CASE("integration") {
         "{\"currentTime\": 0, \"duration\": 10, \"ended\": false, \"loop\": false, \"muted\": false, \"paused\": false, \"playbackRate\": 1, \"volume\": 100}"_json)});
     string event_id = tracker->track(sde);
     tracker->flush();
-    sleep_for(milliseconds(1000));
 
-    auto counts = Micro::get_good_and_bad_count();
+    auto counts = Micro::wait_for_good_and_bad_count(1, 0);
     REQUIRE(std::get<0>(counts) == 1);
     REQUIRE(std::get<1>(counts) == 0);
 
@@ -152,9 +149,8 @@ TEST_CASE("integration") {
     string name = "screen";
     event.name = &name;
     tracker->track(event);
-    sleep_for(milliseconds(1000));
 
-    auto counts = Micro::get_good_and_bad_count();
+    auto counts = Micro::wait_for_good_and_bad_count(1, 0);
     REQUIRE(std::get<0>(counts) == 1);
     REQUIRE(std::get<1>(counts) == 0);
 
@@ -172,12 +168,12 @@ TEST_CASE("integration") {
     auto tracker = Snowplow::create_tracker(tracker_config, network_config, emitter_config);
 
     tracker->track(StructuredEvent("hello", "1"));
+    // Space the two events apart so they get distinct collector timestamps.
     sleep_for(milliseconds(500));
     tracker->track(StructuredEvent("hello", "2"));
     tracker->flush();
-    sleep_for(milliseconds(1000));
 
-    auto counts = Micro::get_good_and_bad_count();
+    auto counts = Micro::wait_for_good_and_bad_count(2, 0);
     REQUIRE(std::get<0>(counts) == 2);
     REQUIRE(std::get<1>(counts) == 0);
 
