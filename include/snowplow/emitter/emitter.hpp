@@ -16,6 +16,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 #include <string>
 #include <sstream>
+#include <atomic>
 #include <condition_variable>
 #include <future>
 #include <thread>
@@ -193,6 +194,9 @@ private:
   mutex m_db_select;
   mutex m_run_check;
   bool m_running;
+  std::atomic<bool> m_stop_requested{false};
+  std::atomic<bool> m_flush_done{false};
+  int m_flush_timeout_ms;
   EmitterCallback m_callback;
   EmitStatus m_callback_emit_status;
   map<int, bool> m_custom_retry_for_status_codes;
