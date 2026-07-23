@@ -25,7 +25,6 @@ using std::to_string;
 using std::transform;
 using std::equal;
 using std::future;
-using std::this_thread::sleep_for;
 
 const int post_wrapper_bytes = 88; // "schema":"iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-4","data":[]
 const int post_stm_bytes = 22;     // "stm":"1443452851000"
@@ -62,6 +61,7 @@ Emitter::Emitter(NetworkConfiguration &network_config, const EmitterConfiguratio
   m_callback = emitter_config.get_request_callback();
   m_callback_emit_status = emitter_config.get_request_callback_emit_status();
   m_custom_retry_for_status_codes = emitter_config.get_custom_retry_for_status_codes();
+  m_flush_timeout_ms = emitter_config.get_flush_timeout_ms();
 }
 
 Emitter::Emitter(shared_ptr<EventStore> event_store, const string &uri, Method method, Protocol protocol, int batch_size,
@@ -86,6 +86,7 @@ Emitter::Emitter(shared_ptr<EventStore> event_store, const string &uri, Method m
   }
 
   this->m_running = false;
+  this->m_flush_timeout_ms = 30000;
   this->m_method = method;
   this->m_batch_size = batch_size;
   this->m_byte_limit_post = byte_limit_post;
@@ -109,6 +110,8 @@ void Emitter::start() {
   if (this->m_running) {
     return; // refuse to start more than once
   }
+  this->m_stop_requested = false;
+  this->m_flush_done = false;
   this->m_running = true;
   this->m_daemon_thread = thread(&Emitter::run, this);
 }
@@ -117,10 +120,18 @@ void Emitter::stop() {
   unique_lock<mutex> locker(this->m_run_check);
   if (this->m_running == true) {
     this->m_running = false;
+    this->m_stop_requested = true;
     locker.unlock();
 
+    // Close the lost-wakeup race: by acquiring and releasing m_db_select before
+    // notify_all, we guarantee the daemon is either already in wait_for (will
+    // receive the notify) or will see m_stop_requested=true at its next pre-check.
+    { unique_lock<mutex> db_locker(this->m_db_select); }
     this->m_check_db.notify_all();
     this->m_daemon_thread.join();
+
+    // Unblock flush() if it is waiting on m_check_fin (e.g. stop() called externally)
+    this->m_check_fin.notify_all();
   }
 }
 
@@ -136,10 +147,19 @@ void Emitter::flush() {
   }
   locker_1.unlock();
 
+  // Reset flush_done before waking the daemon so that the predicate below
+  // reflects only queue state observed after this flush() call.
+  m_flush_done = false;
   this->m_check_db.notify_all();
 
   unique_lock<mutex> locker_2(this->m_flush_fin);
-  this->m_check_fin.wait(locker_2);
+  if (m_flush_timeout_ms > 0) {
+    this->m_check_fin.wait_for(locker_2, std::chrono::milliseconds(m_flush_timeout_ms),
+        [this]{ return m_flush_done.load() || m_stop_requested.load(); });
+  } else {
+    this->m_check_fin.wait(locker_2,
+        [this]{ return m_flush_done.load() || m_stop_requested.load(); });
+  }
   locker_2.unlock();
 
   this->stop();
@@ -188,17 +208,25 @@ void Emitter::run() {
         m_retry_delay.wont_retry_emit();
       }
 
-      // sleep for the retry delay if there is one
+      // sleep for the retry delay if there is one — interruptible by stop()
       auto retry_delay = m_retry_delay.get();
       if (retry_delay.count() > 0) {
-        sleep_for(retry_delay);
+        unique_lock<mutex> retry_locker(m_db_select);
+        if (!m_stop_requested.load()) {
+          m_check_db.wait_for(retry_locker, retry_delay);
+        }
       }
     } else {
+      // Queue is empty: signal flush() waiters
+      m_flush_done = true;
       m_check_fin.notify_all();
 
-      // if there are no events to send, sleep for a while
+      // Idle sleep — pre-check m_stop_requested so stop() calling notify_all between
+      // here and wait_for is guaranteed visible via the m_db_select lock-handshake in stop()
       unique_lock<mutex> locker(m_db_select);
-      m_check_db.wait_for(locker, std::chrono::seconds(5));
+      if (!m_stop_requested.load()) {
+        m_check_db.wait_for(locker, std::chrono::seconds(5));
+      }
     }
   } while (is_running());
 }
