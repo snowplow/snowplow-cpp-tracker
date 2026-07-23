@@ -1,3 +1,11 @@
+Version 2.1.0 (2026-07-23)
+--------------------------
+Resolve idle-sleep and flush-timeout shutdown hangs in the emitter, and add a configurable flush timeout (#100)
+Restore build & Install workflows and stabilize integration tests (#99)
+Ensure database filename used by test is invalid with SQLite >= 3.39.0 (#94)
+Add delays to integration tests before checking received events in Micro to allow for async processing and disable cookie test on mac
+Fix documentation build using Doxygen
+
 Version 2.0.0 (2023-05-26)
 --------------------------
 Add option to install the tracker as an imported target in a CMake project (close #85) (thanks to @tamaskenezlego)
