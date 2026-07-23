@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['emitters_27',['Emitters',['../md_docs_05_emitters.html',1,'']]]
+  ['data_3a_20the_20subject_20class_0',['Adding extra data: the Subject class',['../md_docs_203-adding-data.html',1,'']]]
 ];

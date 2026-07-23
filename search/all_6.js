@@ -1,4 +1,26 @@
 var searchData=
 [
-  ['setup_13',['Setup',['../md_docs_01_setup.html',1,'']]]
+  ['c_20tracker_0',['C++ Tracker',['../index.html',1,'']]],
+  ['callback_1',['Emitter request callback',['../md_docs_205-emitters.html#autotoc_md40',1,'']]],
+  ['class_2',['Adding extra data: the Subject class',['../md_docs_203-adding-data.html',1,'']]],
+  ['client_3',['Using a custom HTTP Client',['../md_docs_205-emitters.html#autotoc_md44',1,'']]],
+  ['client_20session_4',['Client session',['../md_docs_202-initialisation.html#autotoc_md20',1,'']]],
+  ['client_20sessions_5',['Client Sessions',['../md_docs_206-client-sessions.html',1,'']]],
+  ['clientsession_20directly_6',['Option 3: Managing &quot;Tracker&quot;, &quot;Emitter&quot;, and &quot;ClientSession&quot; directly',['../md_docs_202-initialisation.html#autotoc_md16',1,'']]],
+  ['cmake_20project_7',['cmake project',['../md_docs_201-setup.html#autotoc_md5',1,'As a subdirectory in your CMake project'],['../md_docs_201-setup.html#autotoc_md4',1,'As an imported target in your CMake project']]],
+  ['color_20depth_20with _20tt_20set_5fcolor_5fdepth_20tt_20set_20color_20depth_20with_20set_5fcolor_5fdepth_8',['Set color depth with &lt;tt&gt;set_color_depth&lt;/tt&gt;[](#set-color-depth-with-set_color_depth)',['../md_docs_203-adding-data.html#autotoc_md26',1,'']]],
+  ['compatibility_9',['Tracker compatibility',['../md_docs_201-setup.html#autotoc_md2',1,'']]],
+  ['configuration_20using_20emitterconfiguration_10',['Emitter configuration using &quot;EmitterConfiguration&quot;',['../md_docs_202-initialisation.html#autotoc_md14',1,'']]],
+  ['configuration_20using_20networkconfiguration_11',['Network configuration using &quot;NetworkConfiguration&quot;',['../md_docs_202-initialisation.html#autotoc_md13',1,'']]],
+  ['configuration_20using_20sessionconfiguration_12',['Session configuration using &quot;SessionConfiguration&quot;',['../md_docs_202-initialisation.html#autotoc_md15',1,'']]],
+  ['configuration_20using_20the_20snowplow_20interface_13',['configuration using the snowplow interface',['../md_docs_202-initialisation.html#autotoc_md10',1,'Option 1: Creating a tracker with default configuration using the &quot;Snowplow&quot; interface'],['../md_docs_202-initialisation.html#autotoc_md11',1,'Option 2: Creating a tracker with custom configuration using the &quot;Snowplow&quot; interface']]],
+  ['configuration_20using_20trackerconfiguration_14',['Tracker configuration using &quot;TrackerConfiguration&quot;',['../md_docs_202-initialisation.html#autotoc_md12',1,'']]],
+  ['context_15',['Custom event context',['../md_docs_204-tracking-events.html#autotoc_md32',1,'']]],
+  ['copying_20files_20to_20your_20project_16',['Copying files to your project',['../md_docs_201-setup.html#autotoc_md6',1,'']]],
+  ['creating_20a_20tracker_20with_20custom_20configuration_20using_20the_20snowplow_20interface_17',['Option 2: Creating a tracker with custom configuration using the &quot;Snowplow&quot; interface',['../md_docs_202-initialisation.html#autotoc_md11',1,'']]],
+  ['creating_20a_20tracker_20with_20default_20configuration_20using_20the_20snowplow_20interface_18',['Option 1: Creating a tracker with default configuration using the &quot;Snowplow&quot; interface',['../md_docs_202-initialisation.html#autotoc_md10',1,'']]],
+  ['custom_20configuration_20using_20the_20snowplow_20interface_19',['Option 2: Creating a tracker with custom configuration using the &quot;Snowplow&quot; interface',['../md_docs_202-initialisation.html#autotoc_md11',1,'']]],
+  ['custom_20event_20context_20',['Custom event context',['../md_docs_204-tracking-events.html#autotoc_md32',1,'']]],
+  ['custom_20http_20client_21',['Using a custom HTTP Client',['../md_docs_205-emitters.html#autotoc_md44',1,'']]],
+  ['custom_20user_20agent_20with _20set_5fuseragent_22',['Set custom user-agent with &quot;set_useragent&quot;',['../md_docs_203-adding-data.html#autotoc_md29',1,'']]]
 ];
